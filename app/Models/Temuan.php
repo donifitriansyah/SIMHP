@@ -34,7 +34,7 @@ class Temuan extends Model
 
 
 
-    public function rekomendasi()
+    public function rekomendasis()
     {
         return $this->hasMany(
             Rekomendasi::class

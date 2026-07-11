@@ -9,10 +9,10 @@ use Illuminate\Database\Eloquent\Model;
 class Lhp extends Model
 {
 
-    protected $table='lhp';
+    protected $table = 'lhp';
 
 
-    protected $fillable=[
+    protected $fillable = [
 
         'irban_id',
         'auditee_id',
@@ -25,7 +25,8 @@ class Lhp extends Model
         'tahun_pkpt',
         'jumlah_dana_diawasi',
         'jenis_pemeriksaan',
-        'status_lhp'
+        'status_lhp',
+        'status_proses'
 
     ];
 
@@ -74,4 +75,67 @@ class Lhp extends Model
         );
     }
 
+
+
+    public function updateStatusLhp()
+{
+
+    // Jika proses sudah difinalkan selesai
+    if ($this->status_proses == 'selesai') {
+
+        $this->update([
+            'status_lhp' => 'lengkap'
+        ]);
+
+        return;
+    }
+
+
+
+    // Jika LHP nihil
+    if ($this->status_proses == 'nihil') {
+
+        $this->update([
+            'status_lhp' => 'lengkap'
+        ]);
+
+        return;
+    }
+
+
+
+    // Tidak ada temuan
+    if ($this->temuans()->count() == 0) {
+
+        $this->update([
+            'status_lhp' => 'tidak_lengkap'
+        ]);
+
+        return;
+    }
+
+
+
+    // Cek semua temuan harus memiliki rekomendasi
+    foreach ($this->temuans as $temuan) {
+
+        if ($temuan->rekomendasis()->count() == 0) {
+
+            $this->update([
+                'status_lhp' => 'tidak_lengkap'
+            ]);
+
+            return;
+        }
+
+    }
+
+
+
+    // Semua data sudah lengkap
+    $this->update([
+        'status_lhp' => 'lengkap'
+    ]);
+
+}
 }

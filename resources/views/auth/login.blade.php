@@ -1,4 +1,4 @@
-@extends('layouts.auth')
+@extends('layouts.login')
 
 @section('title', 'Login')
 
@@ -30,20 +30,20 @@
             <div class="mb-4">
 
                 <label class="form-label">
-                    Email
+                    Username
                 </label>
 
                 <div class="input-group">
 
                     <i class="bi bi-envelope"></i>
 
-                    <input type="email" name="email" value="{{ old('email') }}"
-                        class="form-control @error('email') is-invalid @enderror" placeholder="Masukkan email" required
+                    <input type="text" name="username" value="{{ old('username') }}"
+                        class="form-control @error('username') is-invalid @enderror" placeholder="Masukkan username" required
                         autofocus>
 
                 </div>
 
-                @error('email')
+                @error('username')
                     <div class="invalid-feedback d-block">
                         {{ $message }}
                     </div>
@@ -73,7 +73,7 @@
 
             </div>
 
-            
+
 
             <button type="submit" class="btn btn-login w-100">
 

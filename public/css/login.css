@@ -17,6 +17,13 @@
 
 }
 
+.container-fluid{
+
+    position:relative;
+    z-index:10;
+
+}
+
 *{
     margin:0;
     padding:0;
@@ -81,12 +88,7 @@ body{
  Content
 =====================================*/
 
-.container-fluid{
 
-    position:relative;
-    z-index:10;
-
-}
 
 
 /*=====================================
