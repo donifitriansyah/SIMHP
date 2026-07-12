@@ -255,7 +255,7 @@
 
                 <!-- Tindak Lanjut -->
 
-                
+
 
                 <!-- Laporan -->
 
@@ -273,7 +273,7 @@
 
                         <li>
 
-                            <a class="dropdown-item" href="#">
+                            <a class="dropdown-item" href="{{ route('laporan.index') }}">
 
                                 Pemantauan Hasil Pemeriksaan
 

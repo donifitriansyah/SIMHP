@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuditeeController;
+use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\IrbanController;
 use App\Http\Controllers\LhpController;
 use App\Http\Controllers\PihakKetigaController;
@@ -13,7 +14,8 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    // return view('welcome');
+    return view('auth.login');
 });
 
 Route::get('/dashboard', function () {
@@ -152,9 +154,16 @@ Route::middleware('auth')->group(function () {
     )
         ->name('lhp.selesai');
 
-        Route::get('/lhp/filter/{status}',
-    [LhpController::class,'filter']
-)->name('lhp.filter');
+    Route::get(
+        '/lhp/filter/{status}',
+        [LhpController::class, 'filter']
+    )->name('lhp.filter');
+
+    Route::get(
+        '/laporan',
+        [LaporanController::class, 'index']
+    )
+        ->name('laporan.index');
 });
 
 require __DIR__ . '/auth.php';

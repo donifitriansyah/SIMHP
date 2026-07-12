@@ -133,6 +133,18 @@
 
                         </div>
 
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                Kewajiban Setor Pajak
+                            </label>
+
+
+                            <input type="text" name="nilai_pajak" class="form-control uang"
+                                value="{{ old('nilai_pajak') }}">
+
+                        </div>
+
 
 
                     </div>
@@ -199,4 +211,20 @@
 
             });
     </script>
+    <script>
+
+document.querySelectorAll('.uang').forEach(function(input){
+
+    input.addEventListener('keyup', function(e){
+
+        let value = this.value.replace(/\./g,'');
+
+        this.value = new Intl.NumberFormat('id-ID')
+            .format(value);
+
+    });
+
+});
+
+</script>
 @endsection

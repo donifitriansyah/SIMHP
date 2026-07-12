@@ -6,7 +6,6 @@ use App\Models\Temuan;
 use App\Models\Rekomendasi;
 use Illuminate\Http\Request;
 
-
 class RekomendasiController extends Controller
 {
     /**
@@ -14,11 +13,7 @@ class RekomendasiController extends Controller
      */
     public function create(Temuan $temuan)
     {
-
-        return view(
-            'pages.pemeriksaan.rekomendasi.create',
-            compact('temuan')
-        );
+        return view("pages.pemeriksaan.rekomendasi.create", compact("temuan"));
     }
 
     /**
@@ -26,48 +21,36 @@ class RekomendasiController extends Controller
      */
     public function store(Request $request, Temuan $temuan)
     {
-
         $request->validate([
-
-            'uraian_rekomendasi' => 'required',
-            'administrasi' => 'nullable',
-            'nilai_finansial' => 'nullable'
-
+            "uraian_rekomendasi" => "required",
+            "administrasi" => "nullable",
+            "nilai_finansial" => "nullable",
+            "nilai_pajak" => "nullable",
         ]);
-
 
         $rekomendasi = Rekomendasi::create([
+            "temuan_id" => $temuan->id,
 
-            'temuan_id' => $temuan->id,
+            "uraian_rekomendasi" => $request->uraian_rekomendasi,
 
-            'uraian_rekomendasi' => $request->uraian_rekomendasi,
+            "administrasi" => $request->administrasi,
 
-            'administrasi' => $request->administrasi,
+            "nilai_finansial" => $request->nilai_finansial
+                ? str_replace(".", "", $request->nilai_finansial)
+                : null,
 
-            'nilai_finansial' => $request->nilai_finansial
-                ? str_replace('.', '', $request->nilai_finansial)
-                : null
-
+            "nilai_pajak" => $request->nilai_pajak
+                ? str_replace(".", "", $request->nilai_pajak)
+                : null,
         ]);
-
-
 
         // Update status kelengkapan LHP
         $temuan->lhp->updateStatusLhp();
 
-
-
         return redirect()
+            ->route("lhp.show", $temuan->lhp_id)
 
-            ->route(
-                'lhp.show',
-                $temuan->lhp_id
-            )
-
-            ->with(
-                'success',
-                'Rekomendasi berhasil ditambahkan'
-            );
+            ->with("success", "Rekomendasi berhasil ditambahkan");
     }
 
     /**
@@ -75,11 +58,9 @@ class RekomendasiController extends Controller
      */
     public function edit(Rekomendasi $rekomendasi)
     {
-
-
         return view(
-            'pages.pemeriksaan.rekomendasi.edit',
-            compact('rekomendasi')
+            "pages.pemeriksaan.rekomendasi.edit",
+            compact("rekomendasi")
         );
     }
 
@@ -88,42 +69,37 @@ class RekomendasiController extends Controller
      */
     public function update(Request $request, Rekomendasi $rekomendasi)
     {
-
         $request->validate([
+            "uraian_rekomendasi" => "required",
 
-            'uraian_rekomendasi' => 'required',
-            'administrasi' => 'nullable',
-            'nilai_finansial' => 'nullable'
+            "administrasi" => "nullable",
 
+            "nilai_finansial" => "nullable",
+
+            "nilai_pajak" => "nullable",
         ]);
 
         $rekomendasi->update([
+            "uraian_rekomendasi" => $request->uraian_rekomendasi,
 
+            "administrasi" => $request->administrasi,
 
-            'uraian_rekomendasi' => $request->uraian_rekomendasi,
+            "nilai_finansial" => $request->nilai_finansial
+                ? str_replace(".", "", $request->nilai_finansial)
+                : null,
 
-
-            'administrasi' => $request->administrasi,
-
-
-            'nilai_finansial' => $request->nilai_finansial
-                ? str_replace('.', '', $request->nilai_finansial)
-                : null
-
-
+            "nilai_pajak" => $request->nilai_pajak
+                ? str_replace(".", "", $request->nilai_pajak)
+                : null,
         ]);
 
+        // update status LHP jika diperlukan
+        $rekomendasi->temuan->lhp->updateStatusLhp();
+
         return redirect()
+            ->route("lhp.show", $rekomendasi->temuan->lhp_id)
 
-            ->route(
-                'lhp.show',
-                $rekomendasi->temuan->lhp_id
-            )
-
-            ->with(
-                'success',
-                'Rekomendasi berhasil diperbarui'
-            );
+            ->with("success", "Rekomendasi berhasil diperbarui");
     }
 
     /**
@@ -131,35 +107,18 @@ class RekomendasiController extends Controller
      */
     public function destroy(Rekomendasi $rekomendasi)
     {
-
-        $lhp = $rekomendasi
-            ->temuan
-            ->lhp;
-
+        $lhp = $rekomendasi->temuan->lhp;
 
         $lhp_id = $lhp->id;
 
-
-
         $rekomendasi->delete();
-
-
 
         // cek ulang status LHP
         $lhp->updateStatusLhp();
 
-
-
         return redirect()
+            ->route("lhp.show", $lhp_id)
 
-            ->route(
-                'lhp.show',
-                $lhp_id
-            )
-
-            ->with(
-                'success',
-                'Rekomendasi berhasil dihapus'
-            );
+            ->with("success", "Rekomendasi berhasil dihapus");
     }
 }
