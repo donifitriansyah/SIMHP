@@ -24,7 +24,7 @@
                             <th>Auditee</th>
                             <th>Jumlah Temuan</th>
                             <th>Jumlah Rekomendasi</th>
-                            <th>Jenis / Proses Tindak Lanjut</th>
+                            <th>Jenis Tindak Lanjut</th>
                             <th>Status Tindak Lanjut</th>
                             <th>Pengembalian</th>
                             <th>Setor Pajak</th>
