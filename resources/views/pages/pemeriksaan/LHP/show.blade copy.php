@@ -491,7 +491,7 @@
                                         <div class="col-md-12 mb-2">
 
                                             <label class="text-muted">
-                                                Uraian Rekomendasi
+                                                Uraian Penyebab
                                             </label>
 
 
@@ -597,19 +597,13 @@
                                                 Tindak Lanjut
                                             </span>
 
-
-
-                                            @if ($rekomendasi->tindakLanjut->count() == 0)
                                                 <a href="{{ route('tindak-lanjut.create', $rekomendasi->id) }}"
                                                     class="btn btn-light btn-sm">
-
 
                                                     <i class="bi bi-plus"></i>
                                                     Tambah Tindak Lanjut
 
-
                                                 </a>
-                                            @endif
 
 
                                         </div>

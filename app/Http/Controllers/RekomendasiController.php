@@ -44,7 +44,6 @@ class RekomendasiController extends Controller
                 : null,
         ]);
 
-        // Update status kelengkapan LHP
         $temuan->lhp->updateStatusLhp();
 
         return redirect()
@@ -93,9 +92,6 @@ class RekomendasiController extends Controller
                 : null,
         ]);
 
-        // update status LHP jika diperlukan
-        $rekomendasi->temuan->lhp->updateStatusLhp();
-
         return redirect()
             ->route("lhp.show", $rekomendasi->temuan->lhp_id)
 
@@ -114,7 +110,7 @@ class RekomendasiController extends Controller
         $rekomendasi->delete();
 
         // cek ulang status LHP
-        $lhp->updateStatusLhp();
+        $rekomendasi->temuan->lhp->updateStatusLhp();
 
         return redirect()
             ->route("lhp.show", $lhp_id)

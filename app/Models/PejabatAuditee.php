@@ -9,10 +9,10 @@ use Illuminate\Database\Eloquent\Model;
 class PejabatAuditee extends Model
 {
 
-    protected $table='pejabat_auditee';
+    protected $table = 'pejabat_auditee';
 
 
-    protected $fillable=[
+    protected $fillable = [
 
         'auditee_id',
         'jenis_jabatan',
@@ -29,4 +29,11 @@ class PejabatAuditee extends Model
         );
     }
 
+    public function lhps()
+    {
+        return $this->hasMany(
+            Lhp::class,
+            'pejabat_auditee_id'
+        );
+    }
 }

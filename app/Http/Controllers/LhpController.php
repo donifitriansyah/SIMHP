@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Lhp;
-use App\Models\Irban;
 use App\Models\Auditee;
+use App\Models\Irban;
+use App\Models\Lhp;
+use App\Models\PejabatAuditee;
 use App\Models\PihakKetiga;
-use App\Models\ObjekPemeriksaan;
 use Illuminate\Http\Request;
 
 class LhpController extends Controller
@@ -29,6 +29,19 @@ class LhpController extends Controller
     //         compact('lhps')
     //     );
     // }
+
+    public function getPejabat($auditee)
+    {
+        $pejabat = PejabatAuditee::where(
+            'auditee_id',
+            $auditee
+        )
+            ->orderBy('jenis_jabatan')
+            ->orderBy('nama')
+            ->get();
+
+        return response()->json($pejabat);
+    }
 
     public function tetapkanNihil(Lhp $lhp)
     {
@@ -58,22 +71,103 @@ class LhpController extends Controller
         );
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $lhps = Lhp::with([
+        $query = Lhp::with([
+            'irban',
             'auditee',
-            'objekPemeriksaan',
-            'temuans.rekomendasis.tindakLanjut'
-        ])
+            'temuans.rekomendasis.tindakLanjut.status'
+        ]);
+
+        /*
+    |--------------------------------------------------------------------------
+    | Filter Pencarian
+    |--------------------------------------------------------------------------
+    */
+
+        if ($request->filled('keyword')) {
+
+            $keyword = $request->keyword;
+
+            $query->where(function ($q) use ($keyword) {
+
+                $q->where('nomor_lhp', 'like', "%{$keyword}%")
+                    ->orWhere('objek_pemeriksaan', 'like', "%{$keyword}%")
+                    ->orWhereHas('auditee', function ($a) use ($keyword) {
+
+                        $a->where('nama_dinas', 'like', "%{$keyword}%");
+                    });
+            });
+        }
+
+        /*
+    |--------------------------------------------------------------------------
+    | Filter Irban
+    |--------------------------------------------------------------------------
+    */
+
+        if ($request->filled('irban_id')) {
+
+            $query->where('irban_id', $request->irban_id);
+        }
+
+        /*
+    |--------------------------------------------------------------------------
+    | Filter Status
+    |--------------------------------------------------------------------------
+    */
+
+        if ($request->filled('status')) {
+
+            $query->where('status_proses', $request->status);
+        }
+
+        /*
+    |--------------------------------------------------------------------------
+    | Filter Periode
+    |--------------------------------------------------------------------------
+    */
+
+        if ($request->filled('tanggal_awal')) {
+
+            $query->whereDate(
+                'tanggal_lhp',
+                '>=',
+                $request->tanggal_awal
+            );
+        }
+
+        if ($request->filled('tanggal_akhir')) {
+
+            $query->whereDate(
+                'tanggal_lhp',
+                '<=',
+                $request->tanggal_akhir
+            );
+        }
+
+        /*
+    |--------------------------------------------------------------------------
+    | Data
+    |--------------------------------------------------------------------------
+    */
+
+        $lhps = $query
             ->withCount('temuans')
             ->latest()
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
+
+        /*
+|--------------------------------------------------------------------------
+| Progress Rekomendasi
+|--------------------------------------------------------------------------
+*/
 
         foreach ($lhps as $lhp) {
 
             $totalRekomendasi = 0;
             $totalSelesai = 0;
-
 
             foreach ($lhp->temuans as $temuan) {
 
@@ -81,65 +175,58 @@ class LhpController extends Controller
 
                     $totalRekomendasi++;
 
+                    // Ambil tindak lanjut terakhir
+                    $tindakLanjutTerakhir = $rekomendasi->tindakLanjut
+                        ->sortByDesc('created_at')
+                        ->first();
 
-                    foreach ($rekomendasi->tindakLanjut as $tl) {
-
-                        if (
-                            $tl->status &&
-                            $tl->status->kode == 'S'
-                        ) {
-                            $totalSelesai++;
-                        }
+                    if (
+                        $tindakLanjutTerakhir &&
+                        $tindakLanjutTerakhir->status &&
+                        $tindakLanjutTerakhir->status->kode == 'S'
+                    ) {
+                        $totalSelesai++;
                     }
                 }
             }
 
-
-
             $lhp->totalRekomendasi = $totalRekomendasi;
-
             $lhp->totalSelesai = $totalSelesai;
-
-
 
             $lhp->progress = $totalRekomendasi > 0
                 ? round(($totalSelesai / $totalRekomendasi) * 100)
                 : 0;
         }
 
+        /*
+    |--------------------------------------------------------------------------
+    | Statistik
+    |--------------------------------------------------------------------------
+    */
+
         $statistik = [
 
             'total' => Lhp::count(),
 
-            'nihil' => Lhp::where(
-                'status_proses',
-                'nihil'
-            )->count(),
+            'nihil' => Lhp::where('status_proses', 'nihil')->count(),
 
+            'belum_proses' => Lhp::where('status_proses', 'belum_diproses')->count(),
 
-            'belum_proses' => Lhp::where(
-                'status_proses',
-                'belum_diproses'
-            )->count(),
+            'dalam_proses' => Lhp::where('status_proses', 'dalam_proses')->count(),
 
-
-            'dalam_proses' => Lhp::where(
-                'status_proses',
-                'dalam_proses'
-            )->count(),
-
-
-            'selesai' => Lhp::where(
-                'status_proses',
-                'selesai'
-            )->count(),
+            'selesai' => Lhp::where('status_proses', 'selesai')->count(),
 
         ];
 
+        $irbans = Irban::orderBy('nama_irban')->get();
 
         return view(
             'pages.pemeriksaan.lhp.index',
-            compact('lhps','statistik')
+            compact(
+                'lhps',
+                'statistik',
+                'irbans'
+            )
         );
     }
 
@@ -148,7 +235,6 @@ class LhpController extends Controller
 
         $query = Lhp::with([
             'auditee',
-            'objekPemeriksaan',
             'temuans.rekomendasis.tindakLanjut'
         ]);
 
@@ -237,7 +323,6 @@ class LhpController extends Controller
 
         $pihakKetigas = PihakKetiga::all();
 
-        $objeks = ObjekPemeriksaan::all();
 
 
         return view(
@@ -246,69 +331,85 @@ class LhpController extends Controller
                 'irbans',
                 'auditees',
                 'pihakKetigas',
-                'objeks'
             )
         );
     }
 
     public function store(Request $request)
     {
-
         $request->validate([
 
-            'irban_id' => 'required',
-            'auditee_id' => 'required',
-            'objek_pemeriksaan_id' => 'required',
+            'irban_id'             => 'required|exists:irban,id',
+            'auditee_id'           => 'required|exists:auditee,id',
+            'pejabat_auditee_id'   => 'required|exists:pejabat_auditee,id',
 
-            'nomor_lhp' => 'required',
-            'tanggal_lhp' => 'required|date',
+            'objek_pemeriksaan'    => 'required',
 
-            'nomor_spt' => 'required',
-            'tanggal_spt' => 'required|date',
+            'nomor_lhp'            => 'required',
+            'tanggal_lhp'          => 'required|date',
 
-            'tahun_pkpt' => 'required',
+            'nomor_spt'            => 'required',
+            'tanggal_spt'          => 'required|date',
 
-            'jenis_pemeriksaan' => 'required'
+            'tahun_pkpt'           => 'required',
+
+            'jenis_pemeriksaan'    => 'required',
+            'dokumen.*' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png|max:5120',
+
+        ]);
+
+        $lhp = Lhp::create([
+
+            'irban_id'             => $request->irban_id,
+
+            'auditee_id'           => $request->auditee_id,
+
+            'pejabat_auditee_id'   => $request->pejabat_auditee_id,
+
+            'pihak_ketiga_id'      => $request->pihak_ketiga_id,
+
+            'objek_pemeriksaan'    => $request->objek_pemeriksaan,
+
+            'nomor_lhp'            => $request->nomor_lhp,
+
+            'tanggal_lhp'          => $request->tanggal_lhp,
+
+            'nomor_spt'            => $request->nomor_spt,
+
+            'tanggal_spt'          => $request->tanggal_spt,
+
+            'tahun_pkpt'           => $request->tahun_pkpt,
+
+            'jumlah_dana_diawasi'  => $request->jumlah_dana_diawasi
+                ? str_replace('.', '', $request->jumlah_dana_diawasi)
+                : null,
+
+            'jenis_pemeriksaan'    => $request->jenis_pemeriksaan,
+
+            'status_lhp'           => 'tidak_lengkap',
+
+            'status_proses'        => 'belum_diproses',
 
         ]);
 
-        Lhp::create([
+        if ($request->hasFile('dokumen')) {
 
-            'irban_id' => $request->irban_id,
+            foreach ($request->file('dokumen') as $file) {
 
-            'auditee_id' => $request->auditee_id,
+                $path = $file->store('dokumen-lhp', 'public');
 
-            'pihak_ketiga_id' => $request->pihak_ketiga_id,
+                $lhp->dokumen()->create([
 
-            'objek_pemeriksaan_id' => $request->objek_pemeriksaan_id,
+                    'nama_file' => $file->getClientOriginalName(),
 
+                    'path_file' => $path,
 
-            'nomor_lhp' => $request->nomor_lhp,
+                    'tipe_file' => $file->getClientOriginalExtension(),
 
-            'tanggal_lhp' => $request->tanggal_lhp,
+                ]);
+            }
+        }
 
-
-            'nomor_spt' => $request->nomor_spt,
-
-            'tanggal_spt' => $request->tanggal_spt,
-
-
-            'tahun_pkpt' => $request->tahun_pkpt,
-
-
-            'jumlah_dana_diawasi' => str_replace(
-                '.',
-                '',
-                $request->jumlah_dana_diawasi
-            ),
-
-
-            'jenis_pemeriksaan' => $request->jenis_pemeriksaan,
-
-
-            'status_lhp' => 'tidak_lengkap'
-
-        ]);
         return redirect()
             ->route('lhp.index')
             ->with(
@@ -324,9 +425,10 @@ class LhpController extends Controller
 
             'irban',
             'auditee',
+            'pejabatAuditee',
             'pihakKetiga',
-            'objekPemeriksaan',
-            'temuans.rekomendasis.tindakLanjut'
+            'temuans.rekomendasis.tindakLanjut',
+            'dokumen'
 
         ]);
 
@@ -346,7 +448,10 @@ class LhpController extends Controller
 
         $pihakKetigas = PihakKetiga::all();
 
-        $objeks = ObjekPemeriksaan::all();
+        $pejabats = PejabatAuditee::where(
+            'auditee_id',
+            $lhp->auditee_id
+        )->get();
 
 
         return view(
@@ -356,82 +461,88 @@ class LhpController extends Controller
                 'irbans',
                 'auditees',
                 'pihakKetigas',
-                'objeks'
+                'pejabats',
             )
         );
     }
 
     public function update(Request $request, Lhp $lhp)
     {
-
         $request->validate([
 
-            'irban_id' => 'required',
-            'auditee_id' => 'required',
-            'objek_pemeriksaan_id' => 'required',
+            'irban_id'             => 'required|exists:irban,id',
+            'auditee_id'           => 'required|exists:auditee,id',
+            'pejabat_auditee_id'   => 'required|exists:pejabat_auditee,id',
 
-            'nomor_lhp' => 'required',
-            'tanggal_lhp' => 'required|date',
+            'objek_pemeriksaan'    => 'required',
 
-            'nomor_spt' => 'required',
-            'tanggal_spt' => 'required|date',
+            'nomor_lhp'            => 'required',
+            'tanggal_lhp'          => 'required|date',
 
-            'tahun_pkpt' => 'required',
+            'nomor_spt'            => 'required',
+            'tanggal_spt'          => 'required|date',
 
-            'jenis_pemeriksaan' => 'required'
+            'tahun_pkpt'           => 'required',
+
+            'jenis_pemeriksaan'    => 'required',
+
+            'dokumen.*' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png|max:5120',
 
         ]);
-
-
 
         $lhp->update([
 
-            'irban_id' => $request->irban_id,
+            'irban_id'             => $request->irban_id,
 
-            'auditee_id' => $request->auditee_id,
+            'auditee_id'           => $request->auditee_id,
 
-            'pihak_ketiga_id' => $request->pihak_ketiga_id,
+            'pejabat_auditee_id'   => $request->pejabat_auditee_id,
 
-            'objek_pemeriksaan_id' => $request->objek_pemeriksaan_id,
+            'pihak_ketiga_id'      => $request->pihak_ketiga_id,
 
+            'objek_pemeriksaan'    => $request->objek_pemeriksaan,
 
-            'nomor_lhp' => $request->nomor_lhp,
+            'nomor_lhp'            => $request->nomor_lhp,
 
-            'tanggal_lhp' => $request->tanggal_lhp,
+            'tanggal_lhp'          => $request->tanggal_lhp,
 
+            'nomor_spt'            => $request->nomor_spt,
 
-            'nomor_spt' => $request->nomor_spt,
+            'tanggal_spt'          => $request->tanggal_spt,
 
-            'tanggal_spt' => $request->tanggal_spt,
+            'tahun_pkpt'           => $request->tahun_pkpt,
 
+            'jumlah_dana_diawasi'  => $request->jumlah_dana_diawasi
+                ? str_replace('.', '', $request->jumlah_dana_diawasi)
+                : null,
 
-            'tahun_pkpt' => $request->tahun_pkpt,
-
-
-            'jumlah_dana_diawasi' => str_replace(
-                '.',
-                '',
-                $request->jumlah_dana_diawasi
-            ),
-
-
-            'jenis_pemeriksaan' => $request->jenis_pemeriksaan
+            'jenis_pemeriksaan'    => $request->jenis_pemeriksaan,
 
         ]);
 
+        // Upload dokumen baru (tidak menghapus dokumen lama)
+        if ($request->hasFile('dokumen')) {
 
+            foreach ($request->file('dokumen') as $file) {
+
+                $path = $file->store('dokumen-lhp', 'public');
+
+                $lhp->dokumen()->create([
+
+                    'nama_file' => $file->getClientOriginalName(),
+
+                    'path_file' => $path,
+
+                    'tipe_file' => $file->getClientOriginalExtension(),
+
+                ]);
+            }
+        }
 
         return redirect()
             ->route('lhp.index')
-            ->with(
-                'success',
-                'Data LHP berhasil diperbarui'
-            );
+            ->with('success', 'Data LHP berhasil diperbarui');
     }
-
-
-
-
 
     public function destroy(Lhp $lhp)
     {

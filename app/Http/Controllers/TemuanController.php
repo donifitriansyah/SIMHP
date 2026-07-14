@@ -66,13 +66,13 @@ class TemuanController extends Controller
 
 
         // Update status LHP otomatis
-        $lhp->update([
+        // $lhp->update([
 
-            'status_proses' => 'dalam_proses'
+        //     'status_proses' => 'dalam_proses'
 
-        ]);
+        // ]);
 
-
+        
         $lhp->updateStatusLhp();
 
 
@@ -161,20 +161,17 @@ class TemuanController extends Controller
      */
     public function destroy(Temuan $temuan)
     {
+        $lhp = $temuan->lhp;
 
-
-        $lhp_id = $temuan->lhp_id;
-
+        $lhp_id = $lhp->id;
 
         $temuan->delete();
 
-
+        // Update status LHP setelah temuan dihapus
+        $lhp->updateStatusLhp();
 
         return redirect()
-            ->route(
-                'lhp.show',
-                $lhp_id
-            )
+            ->route('lhp.show', $lhp_id)
             ->with(
                 'success',
                 'Data temuan berhasil dihapus'

@@ -85,6 +85,13 @@ class TindakLanjutController extends Controller
             }
         }
 
+        // Ambil LHP dari rekomendasi
+        $lhp = $rekomendasi->temuan->lhp;
+
+        // Update status proses dan status kelengkapan
+        $lhp->updateStatusProses();
+        $lhp->updateStatusLhp();
+
         return redirect()
             ->route("lhp.show", $rekomendasi->temuan->lhp_id)
 
@@ -116,7 +123,6 @@ class TindakLanjutController extends Controller
 
         $tindakLanjut->update([
             "status_id" => $request->status_id,
-
             "narasi" => $request->narasi,
 
             "nilai_pengembalian" => $request->nilai_pengembalian
@@ -133,9 +139,10 @@ class TindakLanjutController extends Controller
         ]);
 
         // Upload dokumen tambahan
-
         if ($request->hasFile("dokumen")) {
+
             foreach ($request->file("dokumen") as $file) {
+
                 $namaFile = time() . "_" . $file->getClientOriginalName();
 
                 $path = $file->storeAs(
@@ -146,19 +153,21 @@ class TindakLanjutController extends Controller
 
                 DokumenTindakLanjut::create([
                     "tindak_lanjut_id" => $tindakLanjut->id,
-
                     "nama_file" => $file->getClientOriginalName(),
-
                     "path_file" => $path,
-
                     "tipe_file" => $file->getClientMimeType(),
                 ]);
             }
         }
 
-        return redirect()
-            ->route("lhp.show", $tindakLanjut->rekomendasi->temuan->lhp_id)
+        // Update status LHP
+        $lhp = $tindakLanjut->rekomendasi->temuan->lhp;
 
+        $lhp->updateStatusProses();
+        $lhp->updateStatusLhp();
+
+        return redirect()
+            ->route("lhp.show", $lhp->id)
             ->with("success", "Tindak lanjut berhasil diperbarui");
     }
 
@@ -176,7 +185,12 @@ class TindakLanjutController extends Controller
             $dokumen->delete();
         }
 
+        $lhp = $tindakLanjut->rekomendasi->temuan->lhp;
+
         $tindakLanjut->delete();
+
+        $lhp->updateStatusProses();
+        $lhp->updateStatusLhp();
 
         return redirect()
             ->route("lhp.show", $lhp_id)

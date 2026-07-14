@@ -29,7 +29,7 @@
 
 
 
-        <form action="{{ route('lhp.store') }}" method="POST">
+        <form enctype="multipart/form-data" action="{{ route('lhp.store') }}" method="POST">
 
             @csrf
 
@@ -219,13 +219,11 @@
                             </label>
 
 
-                            <select name="auditee_id" class="form-select" required>
-
+                            <select name="auditee_id" id="auditee" class="form-select">
 
                                 <option value="">
-                                    Pilih Auditee
+                                    -- Pilih Auditee --
                                 </option>
-
 
                                 @foreach ($auditees as $auditee)
                                     <option value="{{ $auditee->id }}">
@@ -235,14 +233,27 @@
                                     </option>
                                 @endforeach
 
-
                             </select>
 
                         </div>
 
+                        <div class="mb-3">
 
+                            <label class="form-label">
 
+                                Pejabat yang Diperiksa
 
+                            </label>
+
+                            <select name="pejabat_auditee_id" id="pejabat" class="form-select">
+
+                                <option value="">
+                                    Pilih Auditee terlebih dahulu
+                                </option>
+
+                            </select>
+
+                        </div>
 
                         <div class="col-md-6 mb-3">
 
@@ -272,10 +283,6 @@
 
                         </div>
 
-
-
-
-
                         <div class="col-md-6 mb-3">
 
                             <label class="form-label">
@@ -283,27 +290,26 @@
                             </label>
 
 
-                            <select name="objek_pemeriksaan_id" class="form-select" required>
-
-
-                                <option value="">
-                                    Pilih Objek
-                                </option>
-
-
-                                @foreach ($objeks as $objek)
-                                    <option value="{{ $objek->id }}">
-
-                                        {{ $objek->nama_objek }}
-
-                                    </option>
-                                @endforeach
-
-
-                            </select>
+                            <input type="text" name="objek_pemeriksaan" class="form-control"
+                                value="{{ old('objek_pemeriksaan', $lhp->objek_pemeriksaan ?? '') }}"
+                                placeholder="Masukkan objek pemeriksaan">
 
                         </div>
 
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label">
+                                Dokumen LHP
+                            </label>
+
+                            <input type="file" name="dokumen[]" multiple class="form-control"
+                                accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png">
+
+                            <small class="text-muted">
+                                PDF, Word, Excel, JPG, PNG
+                            </small>
+
+                        </div>
 
                     </div>
 
@@ -406,5 +412,51 @@
 
 
             });
+
+        document.getElementById('auditee').addEventListener('change', function() {
+
+            let auditee = this.value;
+
+            let pejabat = document.getElementById('pejabat');
+
+            pejabat.innerHTML =
+                '<option>Memuat data...</option>';
+
+            if (auditee == "") {
+                pejabat.innerHTML =
+                    '<option>Pilih Auditee terlebih dahulu</option>';
+
+                return;
+            }
+
+            fetch('/auditee/' + auditee + '/pejabat')
+
+                .then(response => response.json())
+
+                .then(data => {
+
+                    pejabat.innerHTML = '';
+
+                    pejabat.innerHTML +=
+                        '<option value="">-- Pilih Pejabat --</option>';
+
+                    data.forEach(function(item) {
+
+                        pejabat.innerHTML += `
+
+                <option value="${item.id}">
+
+                    ${item.nama}
+                    (${item.jenis_jabatan})
+
+                </option>
+
+            `;
+
+                    });
+
+                });
+
+        });
     </script>
 @endsection

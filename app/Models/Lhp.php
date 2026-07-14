@@ -16,8 +16,9 @@ class Lhp extends Model
 
         'irban_id',
         'auditee_id',
+        'pejabat_auditee_id',
         'pihak_ketiga_id',
-        'objek_pemeriksaan_id',
+        'objek_pemeriksaan',
         'nomor_lhp',
         'tanggal_lhp',
         'nomor_spt',
@@ -30,13 +31,24 @@ class Lhp extends Model
 
     ];
 
-
+    public function pejabatAuditee()
+    {
+        return $this->belongsTo(
+            PejabatAuditee::class,
+            'pejabat_auditee_id'
+        );
+    }
 
     public function irban()
     {
         return $this->belongsTo(
             Irban::class
         );
+    }
+
+    public function dokumen()
+    {
+        return $this->hasMany(DokumenLhp::class);
     }
 
 
@@ -59,14 +71,6 @@ class Lhp extends Model
 
 
 
-    public function objekPemeriksaan()
-    {
-        return $this->belongsTo(
-            ObjekPemeriksaan::class
-        );
-    }
-
-
 
     public function temuans()
     {
@@ -78,64 +82,83 @@ class Lhp extends Model
 
 
     public function updateStatusLhp()
-{
-
-    // Jika proses sudah difinalkan selesai
-    if ($this->status_proses == 'selesai') {
-
-        $this->update([
-            'status_lhp' => 'lengkap'
-        ]);
-
-        return;
-    }
-
-
-
-    // Jika LHP nihil
-    if ($this->status_proses == 'nihil') {
-
-        $this->update([
-            'status_lhp' => 'lengkap'
-        ]);
-
-        return;
-    }
-
-
-
-    // Tidak ada temuan
-    if ($this->temuans()->count() == 0) {
-
-        $this->update([
-            'status_lhp' => 'tidak_lengkap'
-        ]);
-
-        return;
-    }
-
-
-
-    // Cek semua temuan harus memiliki rekomendasi
-    foreach ($this->temuans as $temuan) {
-
-        if ($temuan->rekomendasis()->count() == 0) {
-
+    {
+        if ($this->status_proses == 'nihil') {
             $this->update([
-                'status_lhp' => 'tidak_lengkap'
+                'status_lhp' => 'lengkap'
             ]);
-
             return;
         }
 
+        // Belum ada temuan
+        if ($this->temuans()->count() == 0) {
+            $this->update([
+                'status_lhp' => 'tidak_lengkap'
+            ]);
+            return;
+        }
+
+        // Semua temuan wajib memiliki rekomendasi
+        foreach ($this->temuans as $temuan) {
+            if ($temuan->rekomendasis()->count() == 0) {
+                $this->update([
+                    'status_lhp' => 'tidak_lengkap'
+                ]);
+                return;
+            }
+        }
+
+        // Semua sudah punya rekomendasi
+        $this->update([
+            'status_lhp' => 'lengkap'
+        ]);
     }
 
+    public function updateStatusProses()
+    {
+        if ($this->status_proses == 'nihil') {
+            return;
+        }
 
+        $totalRekomendasi = 0;
+        $totalSelesai = 0;
 
-    // Semua data sudah lengkap
-    $this->update([
-        'status_lhp' => 'lengkap'
-    ]);
+        $this->loadMissing('temuans.rekomendasis.tindakLanjut.status');
 
-}
+        foreach ($this->temuans as $temuan) {
+
+            foreach ($temuan->rekomendasis as $rekomendasi) {
+
+                $totalRekomendasi++;
+
+                // Ambil tindak lanjut terakhir
+                $terakhir = $rekomendasi->tindakLanjut
+                    ->sortByDesc('created_at')
+                    ->first();
+
+                if (
+                    $terakhir &&
+                    $terakhir->status &&
+                    $terakhir->status->kode == 'S'
+                ) {
+                    $totalSelesai++;
+                }
+            }
+        }
+
+        if ($totalRekomendasi == 0) {
+
+            $status = 'belum_diproses';
+        } elseif ($totalSelesai == $totalRekomendasi) {
+
+            $status = 'selesai';
+        } else {
+
+            $status = 'dalam_proses';
+        }
+
+        $this->update([
+            'status_proses' => $status
+        ]);
+    }
 }

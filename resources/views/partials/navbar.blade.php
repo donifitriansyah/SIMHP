@@ -116,9 +116,9 @@
 
                 <!-- Pemeriksaan -->
 
-                <li class="nav-item dropdown">
+                <li class="nav-item">
 
-                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                    <a class="nav-link" href="{{ route('lhp.index') }}">
 
 
                         <i class="bi bi-folder2-open me-1"></i>
@@ -130,7 +130,7 @@
 
 
 
-                    <ul class="dropdown-menu shadow border-0">
+                    {{-- <ul class="dropdown-menu shadow border-0">
 
 
                         <li>
@@ -248,7 +248,7 @@
                         </li>
 
 
-                    </ul>
+                    </ul> --}}
 
 
                 </li>
@@ -280,8 +280,26 @@
                             </a>
 
                         </li>
-
                         <li>
+
+                            <a class="dropdown-item" href="{{ route('laporan.irban') }}">
+
+                                Laporan Per Irban
+
+                            </a>
+
+                        </li>
+                        <li>
+
+                            <a class="dropdown-item" href="{{ route('matriks.index') }}">
+
+                                Matriks Tindak Lanjut
+
+                            </a>
+
+                        </li>
+
+                        {{-- <li>
 
                             <a class="dropdown-item" href="#">
 
@@ -289,7 +307,7 @@
 
                             </a>
 
-                        </li>
+                        </li> --}}
 
                     </ul>
 

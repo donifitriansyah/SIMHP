@@ -37,7 +37,7 @@
 
 
 
-        <form action="{{ route('tindak-lanjut.store', $rekomendasi->id) }}" method="POST">
+        <form enctype="multipart/form-data" action="{{ route('tindak-lanjut.store', $rekomendasi->id) }}" method="POST">
 
             @csrf
 
@@ -225,6 +225,24 @@
 
                         </div>
 
+                        <div class="mb-3">
+
+
+                            <label class="form-label">
+                                Upload Dokumen Tindak Lanjut
+                            </label>
+
+
+                            <input type="file" name="dokumen[]" class="form-control" multiple>
+
+
+                            <small class="text-muted">
+                                Bisa upload lebih dari satu file (PDF, Word, Excel, JPG)
+                            </small>
+
+
+                        </div>
+
 
 
                     </div>
@@ -233,23 +251,7 @@
 
                 </div>
 
-                <div class="mb-3">
 
-
-                    <label class="form-label">
-                        Upload Dokumen Tindak Lanjut
-                    </label>
-
-
-                    <input type="file" name="dokumen[]" class="form-control" multiple>
-
-
-                    <small class="text-muted">
-                        Bisa upload lebih dari satu file (PDF, Word, Excel, JPG)
-                    </small>
-
-
-                </div>
 
 
 

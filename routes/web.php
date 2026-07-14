@@ -1,9 +1,11 @@
 <?php
 
 use App\Http\Controllers\AuditeeController;
-use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\IrbanController;
+use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\LhpController;
+use App\Http\Controllers\MatriksTindakLanjutController;
 use App\Http\Controllers\PihakKetigaController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProfilInspektoratController;
@@ -18,9 +20,15 @@ Route::get('/', function () {
     return view('auth.login');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// Route::get('/dashboard', function () {
+//     return view('dashboard');
+// })->middleware(['auth', 'verified'])->name('dashboard');
+Route::get(
+    '/dashboard',
+    [DashboardController::class, 'index']
+)
+    ->middleware(['auth'])
+    ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -164,6 +172,35 @@ Route::middleware('auth')->group(function () {
         [LaporanController::class, 'index']
     )
         ->name('laporan.index');
+    Route::get(
+        '/laporan',
+        [LaporanController::class, 'index']
+    )
+        ->name('laporan.index');
+    Route::get(
+        '/laporan-cetak',
+        [LaporanController::class, 'cetak']
+    )
+        ->name('laporan.cetak');
+
+    Route::get(
+        '/auditee/{auditee}/pejabat',
+        [LhpController::class, 'getPejabat']
+    )->name('auditee.pejabat');
+
+    Route::get('/matriks-tindak-lanjut',
+    [MatriksTindakLanjutController::class, 'index']
+
+)->name('matriks.index');
+
+Route::get('/laporan/irban',
+    [LaporanController::class, 'irban']
+)->name('laporan.irban');
+
+
+Route::get('/laporan/irban/cetak',
+    [LaporanController::class, 'cetakIrban']
+)->name('laporan.irban.cetak');
 });
 
 require __DIR__ . '/auth.php';
