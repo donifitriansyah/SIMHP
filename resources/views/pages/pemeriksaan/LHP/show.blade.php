@@ -536,12 +536,22 @@
                                                             <div class="mb-2">
 
                                                                 <strong> Status: </strong>
-
+                                                                <br>
                                                                 <span class="badge bg-success">
 
                                                                     {{ $tl->status->nama_status ?? '-' }}
 
                                                                 </span>
+
+                                                            </div>
+                                                            <div class="mb-2">
+
+                                                                <strong> Jenis Tindak Lanjut: </strong>
+
+                                                                <p>
+                                                                    {{ $tl->jenis_tindak_lanjut ?? '-' }}
+                                                                </p>
+
 
                                                             </div>
 

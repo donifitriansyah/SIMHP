@@ -48,6 +48,61 @@
         tfoot {
             font-weight: bold;
         }
+
+        .judul {
+            text-align: center;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+
+        .judul h4 {
+            margin: 3px;
+        }
+
+        .info-laporan h4 {
+            text-align: left;
+        }
+
+        .info-laporan p {
+            margin: 0;
+            font-size: 12px;
+        }
+
+
+        .keterangan {
+            margin-top: 20px;
+            font-size: 10px;
+        }
+
+
+        .ttd {
+            margin-top: 40px;
+            width: 100%;
+        }
+
+
+        .ttd table {
+            border: none;
+        }
+
+
+        .ttd td {
+            border: none;
+            text-align: center;
+            width: 33%;
+        }
+
+
+        .nama {
+            margin-top: 60px;
+            font-weight: bold;
+            text-decoration: underline;
+        }
+
+
+        .no-border td {
+            border: none;
+        }
     </style>
 
 
@@ -59,11 +114,36 @@
 
 
 
-    <h4 style="text-align:center">
+    <div class="judul">
 
-        REKAP PERKEMBANGAN TINDAK LANJUT LHP
+        <h4>
+            LAPORAN BULANAN HASIL PEMERIKSAAN APIP
+        </h4>
 
-    </h4>
+        <h4>
+            INSPEKTORAT KABUPATEN KETAPANG
+        </h4>
+
+
+        <h4>
+            TAHUN PEMERIKSAAN {{ $periode['tahun'] ?? '-' }}
+        </h4>
+
+
+        <div class="info-laporan mt-2">
+
+            <h4>
+                KEADAAN BULAN
+                {{ $periode['bulan'] ?? '-' }}
+                TAHUN
+                {{ $periode['tahun'] ?? '-' }}
+            </h4>
+
+
+        </div>
+
+
+    </div>
 
 
 
@@ -588,6 +668,101 @@
 
 
     </table>
+
+    <div class="keterangan">
+
+        <b>Keterangan :</b>
+        <br>
+        R = Rekomendasi
+
+        <br>
+        T = Temuan
+
+        <br>
+
+        S = Selesai
+
+        <br>
+
+        D = Dalam Proses
+
+        <br>
+
+        B = Belum Ditindaklanjuti
+
+
+    </div>
+
+    <div class="ttd">
+
+        <table class="no-border">
+
+            <tr>
+
+                {{-- KIRI --}}
+
+
+
+
+                {{-- TENGAH --}}
+                <td class="text-center">
+
+                    Menyetujui,
+
+                    <br><br>
+
+                    INSPEKTUR KABUPATEN KETAPANG
+
+
+                    <br><br><br><br>
+
+
+                    <div class="nama">
+                        {{ $inspektur ?? '........................' }}
+                    </div>
+
+
+                    NIP. ..............................
+
+                </td>
+
+
+
+
+                {{-- KANAN --}}
+                <td class="text-center">
+
+
+                    Ketapang,
+                    {{ \Carbon\Carbon::parse($tanggal_cetak ?? now())->translatedFormat('d F Y') }}
+
+
+                    <br><br>
+
+
+                    SEKRETARIS
+
+
+                    <br><br><br><br>
+
+
+                    <div class="nama">
+                        {{ $sekretaris ?? '........................' }}
+                    </div>
+
+
+                    NIP. ..............................
+
+                </td>
+
+
+            </tr>
+
+
+        </table>
+
+
+    </div>
 
 
 

@@ -9,94 +9,156 @@ class MatriksTindakLanjutController extends Controller
 {
     public function index()
     {
-
         $lhps = Lhp::with([
             'auditee',
             'temuans.rekomendasis.tindakLanjut.status',
             'temuans.rekomendasis.tindakLanjut.dokumen'
         ])
-        ->latest()
-        ->get();
-
+            ->latest()
+            ->get();
 
         $matriks = [];
 
+        foreach ($lhps as $lhp) {
 
-        foreach($lhps as $lhp)
-        {
+            /*
+        |--------------------------------------------------------------------------
+        | Jangan tampilkan LHP Nihil
+        |--------------------------------------------------------------------------
+        */
 
-            foreach($lhp->temuans as $temuan)
-            {
+            if (strtolower($lhp->status_lhp) == 'nihil') {
+                continue;
+            }
 
-                foreach($temuan->rekomendasis as $rekomendasi)
-                {
+            $jumlahTemuan = $lhp->temuans->count();
 
+            $jumlahRekomendasi = 0;
 
-                    $tindakLanjutTerakhir = $rekomendasi
-                        ->tindakLanjut
+            $selesai = 0;
+            $proses = 0;
+            $belum = 0;
+
+            $pengembalian = 0;
+            $setorPajak = 0;
+
+            $jenisTL = '-';
+
+            $adaDokumen = false;
+
+            /*
+        |--------------------------------------------------------------------------
+        | Penanda apakah ada tindak lanjut
+        |--------------------------------------------------------------------------
+        */
+
+            $adaTindakLanjut = false;
+
+            foreach ($lhp->temuans as $temuan) {
+
+                foreach ($temuan->rekomendasis as $rekomendasi) {
+
+                    $jumlahRekomendasi++;
+
+                    $tl = $rekomendasi->tindakLanjut
                         ->sortByDesc('created_at')
                         ->first();
 
+                    if (!$tl) {
+                        continue;
+                    }
 
+                    $adaTindakLanjut = true;
 
-                    $matriks[] = [
+                    $jenisTL = $tl->jenis_tindak_lanjut ?? '-';
 
-                        'nomor_lhp' =>
-                            $lhp->nomor_lhp,
+                    switch ($tl->status_id) {
 
+                        case 3:
+                            $selesai++;
+                            break;
 
-                        'tanggal' =>
-                            $lhp->tanggal_lhp,
+                        case 2:
+                            $proses++;
+                            break;
 
+                        default:
+                            $belum++;
+                            break;
+                    }
 
-                        'auditee' =>
-                            $lhp->auditee->nama_dinas ?? '-',
+                    $pengembalian += $tl->nilai_pengembalian ?? 0;
 
+                    $setorPajak += $tl->nilai_setor_pajak ?? 0;
 
-                        'temuan' =>
-                            $temuan->uraian_temuan,
-
-
-                        'rekomendasi' =>
-                            $rekomendasi->uraian_rekomendasi,
-
-
-                        'nilai_finansial' =>
-                            $rekomendasi->nilai_finansial,
-
-
-                        'status' =>
-                            $tindakLanjutTerakhir?->status?->nama_status ?? 'Belum Ada',
-
-
-                        'narasi' =>
-                            $tindakLanjutTerakhir?->narasi,
-
-
-                        'pengembalian' =>
-                            $tindakLanjutTerakhir?->nilai_pengembalian ?? 0,
-
-
-                        'pajak' =>
-                            $tindakLanjutTerakhir?->nilai_setor_pajak ?? 0,
-
-
-                        'dokumen' =>
-                            $tindakLanjutTerakhir?->dokumen
-
-                    ];
-
+                    if ($tl->dokumen->count() > 0) {
+                        $adaDokumen = true;
+                    }
                 }
-
             }
 
-        }
+            /*
+        |--------------------------------------------------------------------------
+        | Jika tidak ada tindak lanjut sama sekali jangan tampilkan
+        |--------------------------------------------------------------------------
+        */
 
+            if (!$adaTindakLanjut) {
+                continue;
+            }
+
+            /*
+        |--------------------------------------------------------------------------
+        | Status LHP
+        |--------------------------------------------------------------------------
+        */
+
+            if ($selesai == $jumlahRekomendasi) {
+
+                $status = 'Selesai';
+            } elseif ($proses > 0 || $selesai > 0) {
+
+                $status = 'Dalam Proses';
+            } else {
+
+                $status = 'Belum Ditindaklanjuti';
+            }
+
+            $matriks[] = [
+
+                'nomor_lhp' => $lhp->nomor_lhp,
+
+                'tanggal' => $lhp->tanggal_lhp,
+
+                'auditee' => $lhp->auditee->nama_dinas ?? '-',
+
+                'temuan' => $jumlahTemuan,
+
+                'rekomendasi' => $jumlahRekomendasi,
+
+                'jenis_tindak_lanjut' => $jenisTL,
+
+                'status' => $status,
+
+                'selesai' => $selesai,
+
+                'proses' => $proses,
+
+                'belum' => $belum,
+
+                'pengembalian' => $pengembalian,
+
+                'pajak' => $setorPajak,
+
+                'dokumen' => $adaDokumen,
+            ];
+        }
 
         return view(
             'pages.laporan.matriks',
             compact('matriks')
         );
-
     }
+
+    
 }

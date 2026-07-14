@@ -15,12 +15,14 @@ class TindakLanjut extends Model
     protected $fillable=[
 
         'rekomendasi_id',
+        'jenis_tindak_lanjut',
         'status_id',
         'narasi',
         'nilai_pengembalian',
         'nilai_setor_pajak',
         'tanggal_validasi',
         'validator'
+
 
     ];
 

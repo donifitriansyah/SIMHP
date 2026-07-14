@@ -106,6 +106,26 @@
 
                         </div>
 
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                Pilih Jenis Tindak Lanjut
+                            </label>
+
+                            <select name="jenis_tindak_lanjut" class="form-select" required>
+
+                                <option value="Reguler"
+                                    {{ old('jenis_tindak_lanjut', $tindakLanjut->jenis_tindak_lanjut ?? '') == 'Reguler' ? 'selected' : '' }}>
+                                    Reguler
+                                </option>
+
+                                <option value="TPKD"
+                                    {{ old('jenis_tindak_lanjut', $tindakLanjut->jenis_tindak_lanjut ?? '') == 'TPKD' ? 'selected' : '' }}>
+                                    TPKD
+                                </option>
+
+                            </select>
+                        </div>
+
 
 
 

@@ -3,150 +3,138 @@
 @section('content')
     <div class="card shadow-sm border-0">
 
-
         <div class="card-header bg-white">
-
             <h5 class="mb-0">
                 Matriks Tindak Lanjut
             </h5>
-
         </div>
-
-
 
         <div class="card-body">
 
-
             <div class="table-responsive">
 
+                <table class="table table-bordered table-hover table-sm align-middle " id="dataTable">
 
-                <table class="table table-bordered table-sm">
-
-
-                    <thead class="table-light">
+                    <thead class="table-light text-center">
 
                         <tr>
-
-                            <th>No</th>
-                            <th>LHP</th>
+                            <th width="50">No</th>
+                            <th>No. LHP</th>
+                            <th>Tanggal</th>
                             <th>Auditee</th>
-                            <th>Temuan</th>
-                            <th>Rekomendasi</th>
-                            <th>Status</th>
+                            <th>Jumlah Temuan</th>
+                            <th>Jumlah Rekomendasi</th>
+                            <th>Jenis / Proses Tindak Lanjut</th>
+                            <th>Status Tindak Lanjut</th>
                             <th>Pengembalian</th>
                             <th>Setor Pajak</th>
                             <th>Dokumen</th>
-
                         </tr>
 
                     </thead>
 
-
-
                     <tbody>
 
-
-                        @foreach ($matriks as $item)
+                        @forelse($matriks as $item)
                             <tr>
 
-
-                                <td>
+                                <td class="text-center">
                                     {{ $loop->iteration }}
                                 </td>
 
-
                                 <td>
-
                                     {{ $item['nomor_lhp'] }}
-
-                                    <br>
-
-                                    <small>
-                                        {{ $item['tanggal'] }}
-                                    </small>
-
                                 </td>
 
-
+                                <td class="text-center">
+                                    {{ \Carbon\Carbon::parse($item['tanggal'])->format('d-m-Y') }}
+                                </td>
 
                                 <td>
                                     {{ $item['auditee'] }}
                                 </td>
 
-
-
-                                <td>
+                                <td class="text-center">
                                     {{ $item['temuan'] }}
                                 </td>
 
-
-
-                                <td>
+                                <td class="text-center">
                                     {{ $item['rekomendasi'] }}
                                 </td>
 
+                                <td class="text-center">
+                                    {{ $item['jenis_tindak_lanjut'] }}
+                                </td>
 
+                                <td class="text-center">
 
-                                <td>
+                                    @switch($item['status'])
+                                        @case('Selesai')
+                                            <span class="badge bg-success">
+                                                Selesai
+                                            </span>
+                                        @break
 
-                                    @if ($item['status'] == 'Selesai')
-                                        <span class="badge bg-success">
-                                            Selesai
-                                        </span>
-                                    @elseif($item['status'] == 'Dalam Proses')
-                                        <span class="badge bg-warning">
-                                            Dalam Proses
+                                        @case('Dalam Proses')
+                                            <span class="badge bg-warning text-dark">
+                                                Dalam Proses
+                                            </span>
+                                        @break
+
+                                        @case('Belum Ditindaklanjuti')
+                                            <span class="badge bg-danger">
+                                                Belum Ditindaklanjuti
+                                            </span>
+                                        @break
+
+                                        @default
+                                            <span class="badge bg-secondary">
+                                                -
+                                            </span>
+                                    @endswitch
+
+                                </td>
+
+                                <td class="text-end">
+                                    Rp {{ number_format($item['pengembalian'], 0, ',', '.') }}
+                                </td>
+
+                                <td class="text-end">
+                                    Rp {{ number_format($item['pajak'], 0, ',', '.') }}
+                                </td>
+
+                                <td class="text-center">
+
+                                    @if ($item['dokumen'])
+                                        <span class="badge bg-primary">
+                                            Ada
                                         </span>
                                     @else
                                         <span class="badge bg-secondary">
-                                            Belum Ada
+                                            Tidak Ada
                                         </span>
                                     @endif
 
-
                                 </td>
-
-
-
-                                <td>
-                                    Rp {{ number_format($item['pengembalian']) }}
-                                </td>
-
-
-
-                                <td>
-                                    Rp {{ number_format($item['pajak']) }}
-                                </td>
-
-
-
-                                <td>
-
-                                    @if ($item['dokumen'])
-                                        Ada Dokumen
-                                    @else
-                                        -
-                                    @endif
-
-                                </td>
-
-
 
                             </tr>
-                        @endforeach
 
+                            @empty
 
-                    </tbody>
+                                <tr>
+                                    <td colspan="11" class="text-center">
+                                        Tidak ada data.
+                                    </td>
+                                </tr>
+                            @endforelse
 
+                        </tbody>
 
-                </table>
+                    </table>
 
+                </div>
 
             </div>
 
-
         </div>
-
-
-    </div>
-@endsection
+    @endsection

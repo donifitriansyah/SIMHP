@@ -5,24 +5,7 @@
     <div class="container-fluid py-4">
         <form method="GET" action="{{ route('laporan.index') }}" class="row g-3 mb-4">
 
-            <div class="col-md-2">
-                <label class="form-label">Wilayah Kerja (Irban)</label>
 
-                <select name="irban_id" class="form-select">
-
-                    <option value="">
-                        Semua Wilayah
-                    </option>
-
-                    @foreach ($listIrban as $irban)
-                        <option value="{{ $irban->id }}" {{ request('irban_id') == $irban->id ? 'selected' : '' }}>
-                            {{ $irban->nama_irban }}
-                        </option>
-                    @endforeach
-
-                </select>
-
-            </div>
 
             <div class="col-md-2">
 
@@ -46,6 +29,7 @@
 
             <div class="col-md-2 d-flex align-items-end">
 
+
                 <button class="btn btn-primary w-100">
 
                     <i class="bi bi-search"></i>
@@ -67,9 +51,11 @@
             </div>
             <div class="col-md-2 d-flex align-items-end">
 
-                <a href="{{ route('laporan.cetak', request()->query()) }}" target="_blank" class="btn btn-danger mb-3">
+                <a href="{{ route('laporan.cetak', request()->query()) }}" target="_blank" id="btnCetak"
+                    class="btn btn-danger w-100">
 
                     <i class="bi bi-file-earmark-pdf"></i>
+
                     Cetak PDF
 
                 </a>
@@ -334,7 +320,7 @@
 
                                     </td>
 
-                                    
+
 
 
 
@@ -665,4 +651,34 @@
             font-weight: bold;
         }
     </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            const btnCetak = document.getElementById('btnCetak');
+
+            const tanggalAwal = document.querySelector('input[name="tanggal_awal"]');
+
+            const tanggalAkhir = document.querySelector('input[name="tanggal_akhir"]');
+
+
+            btnCetak.addEventListener('click', function(e) {
+
+
+                if (tanggalAwal.value === '' || tanggalAkhir.value === '') {
+
+                    e.preventDefault();
+
+
+                    alert('Silakan pilih Tanggal Awal dan Tanggal Akhir terlebih dahulu');
+
+
+                    return false;
+                }
+
+
+            });
+
+
+        });
+    </script>
 @endsection
