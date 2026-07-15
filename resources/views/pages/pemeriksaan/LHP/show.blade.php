@@ -21,12 +21,16 @@
                     <i class="bi bi-arrow-left"></i> Kembali
 
                 </a>
+                @auth
+                    @if (auth()->user()->role == 'super_user')
+                        <a href="{{ route('lhp.edit', $lhp->id) }}" class="btn btn-warning">
 
-                <a href="{{ route('lhp.edit', $lhp->id) }}" class="btn btn-warning">
+                            <i class="bi bi-pencil"></i> Edit
 
-                    <i class="bi bi-pencil"></i> Edit
+                        </a>
+                    @endif
+                @endauth
 
-                </a>
 
             </div>
 
@@ -364,26 +368,30 @@
                                                 </div>
 
                                             </div>
+                                            @auth
+                                                @if (auth()->user()->role == 'super_user')
+                                                    <a href="{{ route('temuan.edit', $temuan->id) }}"
+                                                        class="btn btn-warning btn-sm">
 
-                                            <a href="{{ route('temuan.edit', $temuan->id) }}"
-                                                class="btn btn-warning btn-sm">
+                                                        <i class="bi bi-pencil"></i> Edit Temuan
 
-                                                <i class="bi bi-pencil"></i> Edit Temuan
+                                                    </a>
 
-                                            </a>
+                                                    <form action="{{ route('temuan.destroy', $temuan->id) }}" method="POST"
+                                                        class="d-inline" onsubmit="return confirm('Hapus temuan ini?')">
 
-                                            <form action="{{ route('temuan.destroy', $temuan->id) }}" method="POST"
-                                                class="d-inline" onsubmit="return confirm('Hapus temuan ini?')">
+                                                        @csrf @method('DELETE')
 
-                                                @csrf @method('DELETE')
+                                                        <button type="submit" class="btn btn-sm btn-danger">
 
-                                                <button type="submit" class="btn btn-sm btn-danger">
+                                                            <i class="bi bi-trash"></i> Hapus
 
-                                                    <i class="bi bi-trash"></i> Hapus
+                                                        </button>
 
-                                                </button>
+                                                    </form>
+                                                @endif
+                                            @endauth
 
-                                            </form>
 
                                         </div>
 
@@ -401,12 +409,18 @@
 
                                         </h6>
 
-                                        <a href="{{ route('rekomendasi.create', $temuan->id) }}"
-                                            class="btn btn-primary btn-sm">
+                                        @auth
+                                            @if (auth()->user()->role == 'super_user')
+                                                <a href="{{ route('rekomendasi.create', $temuan->id) }}"
+                                                    class="btn btn-primary btn-sm">
 
-                                            <i class="bi bi-plus"></i> Tambah
+                                                    <i class="bi bi-plus"></i> Tambah
 
-                                        </a>
+                                                </a>
+                                            @endif
+                                        @endauth
+
+
 
                                     </div>
 
@@ -493,15 +507,19 @@
                                                     </div>
 
                                                 </div>
+                                                @auth
+                                                    @if (auth()->user()->role == 'super_user')
+                                                        <a href="{{ route('rekomendasi.edit', $rekomendasi->id) }}"
+                                                            class="btn btn-warning btn-sm">
 
-                                                <a href="{{ route('rekomendasi.edit', $rekomendasi->id) }}"
-                                                    class="btn btn-warning btn-sm">
+                                                            <i class="bi bi-pencil"></i>
 
-                                                    <i class="bi bi-pencil"></i>
+                                                            Edit
 
-                                                    Edit
+                                                        </a>
+                                                    @endif
+                                                @endauth
 
-                                                </a>
 
                                                 {{-- TINDAK LANJUT --}}
 
@@ -516,15 +534,19 @@
                                                         Tindak Lanjut
 
                                                     </h6>
+                                                    @auth
+                                                        @if (auth()->user()->role == 'super_user')
+                                                            <a href="{{ route('tindak-lanjut.create', $rekomendasi->id) }}"
+                                                                class="btn btn-success btn-sm">
 
-                                                    <a href="{{ route('tindak-lanjut.create', $rekomendasi->id) }}"
-                                                        class="btn btn-success btn-sm">
+                                                                <i class="bi bi-plus"></i>
 
-                                                        <i class="bi bi-plus"></i>
+                                                                Tambah
 
-                                                        Tambah
+                                                            </a>
+                                                        @endif
+                                                    @endauth
 
-                                                    </a>
 
                                                 </div>
 
@@ -621,31 +643,36 @@
                                                                 @endforelse
 
                                                             </ul>
+                                                            @auth
+                                                                @if (auth()->user()->role == 'super_user')
+                                                                    <a href="{{ route('tindak-lanjut.edit', $tl->id) }}"
+                                                                        class="btn btn-warning btn-sm">
 
-                                                            <a href="{{ route('tindak-lanjut.edit', $tl->id) }}"
-                                                                class="btn btn-warning btn-sm">
+                                                                        <i class="bi bi-pencil"></i>
 
-                                                                <i class="bi bi-pencil"></i>
+                                                                        Edit
 
-                                                                Edit
+                                                                    </a>
 
-                                                            </a>
+                                                                    <form
+                                                                        action="{{ route('tindak-lanjut.destroy', $tl->id) }}"
+                                                                        method="POST" class="d-inline">
 
-                                                            <form action="{{ route('tindak-lanjut.destroy', $tl->id) }}"
-                                                                method="POST" class="d-inline">
+                                                                        @csrf @method('DELETE')
 
-                                                                @csrf @method('DELETE')
+                                                                        <button class="btn btn-danger btn-sm"
+                                                                            onclick="return confirm('Hapus tindak lanjut?')">
 
-                                                                <button class="btn btn-danger btn-sm"
-                                                                    onclick="return confirm('Hapus tindak lanjut?')">
+                                                                            <i class="bi bi-trash"></i>
 
-                                                                    <i class="bi bi-trash"></i>
+                                                                            Hapus
 
-                                                                    Hapus
+                                                                        </button>
 
-                                                                </button>
+                                                                    </form>
+                                                                @endif
+                                                            @endauth
 
-                                                            </form>
 
                                                         </div>
 

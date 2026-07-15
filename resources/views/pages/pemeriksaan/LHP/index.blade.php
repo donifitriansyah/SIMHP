@@ -275,13 +275,17 @@
                 </small>
 
             </div>
+            @auth
+                @if (auth()->user()->role == 'super_user')
+                    <a href="{{ route('lhp.create') }}" class="btn btn-primary">
 
-            <a href="{{ route('lhp.create') }}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i>
+                        Tambah LHP
 
-                <i class="bi bi-plus-circle"></i>
-                Tambah LHP
+                    </a>
+                @endif
+            @endauth
 
-            </a>
 
         </div>
 
@@ -518,26 +522,7 @@
 
                                     <div class="d-flex gap-1">
 
-                                        @if ($l->status_proses == 'belum_diproses')
-                                            <form action="{{ route('lhp.tetapkan-nihil', $l->id) }}" method="POST"
-                                                class="d-inline"
-                                                onsubmit="return confirm('Tetapkan LHP ini sebagai Nihil?')">
 
-
-                                                @csrf
-
-
-                                                <button class="btn btn-sm btn-info">
-
-                                                    <i class="bi bi-check-circle"></i>
-
-                                                    Nihil
-
-                                                </button>
-
-
-                                            </form>
-                                        @endif
 
                                         {{-- @if ($l->status_proses != 'selesai' && $l->totalSelesai == $l->totalRekomendasi && $l->totalRekomendasi > 0)
                                             <form action="{{ route('lhp.selesai', $l->id) }}" method="POST"
@@ -564,34 +549,60 @@
 
                                         </a>
 
+                                        @auth
+                                            @if (auth()->user()->role == 'super_user')
+                                                @if ($l->status_proses == 'belum_diproses')
+                                                    <form action="{{ route('lhp.tetapkan-nihil', $l->id) }}" method="POST"
+                                                        class="d-inline"
+                                                        onsubmit="return confirm('Tetapkan LHP ini sebagai Nihil?')">
 
 
-                                        <a href="{{ route('lhp.edit', $l->id) }}" class="btn btn-warning btn-sm">
-
-                                            <i class="bi bi-pencil"></i>
-
-                                        </a>
+                                                        @csrf
 
 
+                                                        <button class="btn btn-sm btn-info">
+
+                                                            <i class="bi bi-check-circle"></i>
+
+                                                            Nihil
+
+                                                        </button>
 
 
-                                        <form action="{{ route('lhp.destroy', $l->id) }}" method="POST">
+                                                    </form>
+                                                @endif
+
+                                               
+                                                <a href="{{ route('lhp.edit', $l->id) }}" class="btn btn-warning btn-sm">
+
+                                                    <i class="bi bi-pencil"></i>
+
+                                                </a>
 
 
-                                            @csrf
-                                            @method('DELETE')
 
 
-                                            <button class="btn btn-danger btn-sm" onclick="return confirm('Hapus LHP?')">
+                                                <form action="{{ route('lhp.destroy', $l->id) }}" method="POST">
 
 
-                                                <i class="bi bi-trash"></i>
+                                                    @csrf
+                                                    @method('DELETE')
 
 
-                                            </button>
+                                                    <button class="btn btn-danger btn-sm"
+                                                        onclick="return confirm('Hapus LHP?')">
 
 
-                                        </form>
+                                                        <i class="bi bi-trash"></i>
+
+
+                                                    </button>
+
+
+                                                </form>
+                                            @endif
+                                        @endauth
+
 
 
                                     </div>

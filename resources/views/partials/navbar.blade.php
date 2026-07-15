@@ -47,72 +47,58 @@
                 </li>
 
                 <!-- Master -->
+                @auth
+                    @if (auth()->user()->role == 'super_user')
+                        <li class="nav-item dropdown">
 
-                <li class="nav-item dropdown">
-
-                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-
-                        <i class="bi bi-database me-1"></i>
-
-                        Master Data
-
-                    </a>
-
-                    <ul class="dropdown-menu shadow border-0">
-
-                        <li>
-
-                            <a class="dropdown-item" href="{{ route('profil-inspektorat.index') }}">
-
-                                Profil Inspektorat
-
+                            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                                <i class="bi bi-database me-1"></i>
+                                Master Data
                             </a>
 
+                            <ul class="dropdown-menu shadow border-0">
+
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('profil-inspektorat.index') }}">
+                                        Profil Inspektorat
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('users.index') }}">
+                                        Manajemen User
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('irban.index') }}">
+                                        Data Irban
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('auditee.index') }}">
+                                        Data Auditee
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('pihak-ketiga.index') }}">
+                                        Pihak Ketiga
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('pegawai.index') }}">
+                                        Data Pegawai
+                                    </a>
+                                </li>
+
+                            </ul>
+
                         </li>
-
-                        <li>
-
-                            <a class="dropdown-item" href="{{ route('users.index') }}">
-
-                                Manajemen User
-
-                            </a>
-
-                        </li>
-
-                        <li>
-
-                            <a class="dropdown-item" href="{{ route('irban.index') }}">
-
-                                Data Irban
-
-                            </a>
-
-                        </li>
-
-                        <li>
-
-                            <a class="dropdown-item" href="{{ route('auditee.index') }}">
-
-                                Data Auditee
-
-                            </a>
-
-                        </li>
-
-                        <li>
-
-                            <a class="dropdown-item" href="{{ route('pihak-ketiga.index') }}">
-
-                                Pihak Ketiga
-
-                            </a>
-
-                        </li>
-
-                    </ul>
-
-                </li>
+                    @endif
+                @endauth
 
                 <!-- Pemeriksaan -->
 
@@ -336,17 +322,6 @@
 
                     <ul class="dropdown-menu dropdown-menu-end shadow border-0">
 
-                        <li>
-
-                            <a class="dropdown-item" href="#">
-
-                                <i class="bi bi-person me-2"></i>
-
-                                Profil
-
-                            </a>
-
-                        </li>
 
                         <li>
 

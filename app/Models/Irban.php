@@ -29,6 +29,8 @@ class Irban extends Model
         );
     }
 
-    
-
+    public function pegawais()
+    {
+        return $this->hasMany(Pegawai::class);
+    }
 }

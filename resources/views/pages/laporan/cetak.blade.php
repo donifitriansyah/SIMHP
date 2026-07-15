@@ -16,7 +16,7 @@
 
         body {
             font-family: Arial, Helvetica, sans-serif;
-            font-size: 9px;
+            font-size: 11px;
         }
 
         h4 {
@@ -717,12 +717,17 @@
                     <br><br><br><br>
 
 
-                    <div class="nama">
-                        {{ $inspektur ?? '........................' }}
+                    <div class="nama" style="margin-bottom: 5px">
+                        {{ strtoupper($inspektur?->nama ?? '........................') }}
+                    </div>
+                    <div class="">
+                        {{ $inspektur?->golongan ?? '-' }}
+                    </div>
+                    <div>
+                        NIP. {{ $inspektur?->nip ?? '........................' }}
                     </div>
 
 
-                    NIP. ..............................
 
                 </td>
 
@@ -746,12 +751,15 @@
                     <br><br><br><br>
 
 
-                    <div class="nama">
-                        {{ $sekretaris ?? '........................' }}
+                    <div class="nama" style="margin-bottom: 5px">
+                        {{ $sekretaris?->nama ?? '........................' }}
                     </div>
-
-
-                    NIP. ..............................
+                    <div class="">
+                        {{ $inspektur?->golongan ?? '-' }}
+                    </div>
+                    <div>
+                        NIP. {{ $sekretaris?->nip ?? '........................' }}
+                    </div>
 
                 </td>
 

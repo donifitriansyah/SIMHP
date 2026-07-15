@@ -73,7 +73,7 @@
 
                                 <option value="user_entry" @selected($user->role == 'user_entry')>
 
-                                    User Entry
+                                    User
 
                                 </option>
 

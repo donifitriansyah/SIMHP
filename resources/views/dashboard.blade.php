@@ -326,129 +326,114 @@
 
         <div class="row mt-4">
 
+            @if (auth()->user()->role == 'super_user')
 
-            {{-- Status LHP --}}
+                {{-- Status LHP --}}
+                <div class="col-lg-4 mb-4">
 
-            <div class="col-lg-4 mb-4">
+                    <div class="card border-0 shadow-sm h-100">
 
+                        <div class="card-header bg-white">
+                            <strong>Status LHP</strong>
+                        </div>
 
-                <div class="card border-0 shadow-sm h-100">
-
-
-                    <div class="card-header bg-white">
-
-                        <strong>
-                            Status LHP
-                        </strong>
-
-                    </div>
-
-
-                    <div class="card-body">
-
-
-                        <canvas id="statusLhpChart"></canvas>
-
+                        <div class="card-body">
+                            <canvas id="statusLhpChart" height="180" class="status-chart"></canvas>
+                        </div>
 
                     </div>
-
 
                 </div>
 
 
-            </div>
+                {{-- Aktivitas --}}
+                <div class="col-lg-8 mb-4">
 
+                    <div class="card border-0 shadow-sm h-100">
 
+                        <div class="card-header bg-white">
+                            <strong>Aktivitas Terbaru</strong>
+                        </div>
 
+                        <div class="card-body">
 
-            {{-- Aktivitas --}}
+                            <ul class="list-group list-group-flush">
 
-            <div class="col-lg-8 mb-4">
+                                @forelse($aktivitas as $item)
+                                    <li class="list-group-item">
 
+                                        <div class="d-flex">
 
-                <div class="card border-0 shadow-sm h-100">
-
-
-                    <div class="card-header bg-white">
-
-                        <strong>
-                            Aktivitas Terbaru
-                        </strong>
-
-                    </div>
-
-
-
-                    <div class="card-body">
-
-
-                        <ul class="list-group list-group-flush">
-
-                            @forelse($aktivitas as $item)
-                                <li class="list-group-item">
-
-
-                                    <div class="d-flex">
-
-
-                                        <div class="me-3">
-
-                                            <i class="bi {{ $item['icon'] }} fs-4 text-primary"></i>
-
-                                        </div>
-
-
-                                        <div>
-
-
-                                            <strong>
-                                                {{ $item['judul'] }}
-                                            </strong>
-
+                                            <div class="me-3">
+                                                <i class="bi {{ $item['icon'] }} fs-4 text-primary"></i>
+                                            </div>
 
                                             <div>
 
-                                                {{ $item['deskripsi'] }}
+                                                <strong>{{ $item['judul'] }}</strong>
+
+                                                <div>{{ $item['deskripsi'] }}</div>
+
+                                                <small class="text-muted">
+                                                    {{ $item['tanggal']->diffForHumans() }}
+                                                </small>
 
                                             </div>
 
-
-                                            <small class="text-muted">
-
-                                                {{ $item['tanggal']->diffForHumans() }}
-
-                                            </small>
-
-
                                         </div>
 
+                                    </li>
 
-                                    </div>
+                                @empty
 
+                                    <li class="list-group-item text-muted">
+                                        Belum ada aktivitas
+                                    </li>
+                                @endforelse
 
-                                </li>
+                            </ul>
 
-
-                            @empty
-
-                                <li class="list-group-item text-muted">
-
-                                    Belum ada aktivitas
-
-                                </li>
-                            @endforelse
-
-                        </ul>
-
+                        </div>
 
                     </div>
 
+                </div>
+            @else
+                {{-- Status --}}
+                <div class="col-lg-6 mb-4">
+
+                    <div class="card border-0 shadow-sm h-100">
+
+                        <div class="card-header bg-white">
+                            <strong>Status LHP</strong>
+                        </div>
+
+                        <div class="card-body">
+                            <canvas id="statusLhpChart" height="180" class="status-chart"></canvas>
+                        </div>
+
+                    </div>
 
                 </div>
 
+                {{-- Temuan Irban --}}
+                <div class="col-lg-6 mb-4">
 
-            </div>
+                    <div class="card border-0 shadow-sm h-100">
 
+                        <div class="card-header bg-white">
+                            <strong>Jumlah Temuan Berdasarkan Irban</strong>
+                        </div>
+
+                        <div class="card-body">
+                            <canvas id="temuanIrbanChart"></canvas>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            @endif
 
         </div>
 
@@ -458,45 +443,27 @@
 
         {{-- Grafik Temuan Irban --}}
 
-        <div class="row">
+        @if (auth()->user()->role == 'super_user')
+            <div class="row">
 
+                <div class="col-lg-12 mb-4">
 
-            <div class="col-lg-12 mb-4">
+                    <div class="card border-0 shadow-sm">
 
+                        <div class="card-header bg-white">
+                            <strong>Jumlah Temuan Berdasarkan Irban</strong>
+                        </div>
 
-                <div class="card border-0 shadow-sm">
-
-
-                    <div class="card-header bg-white">
-
-
-                        <strong>
-
-                            Jumlah Temuan Berdasarkan Irban
-
-                        </strong>
-
+                        <div class="card-body">
+                            <canvas id="temuanIrbanChart" height="100"></canvas>
+                        </div>
 
                     </div>
-
-
-
-                    <div class="card-body">
-
-
-                        <canvas id="temuanIrbanChart" height="100"></canvas>
-
-
-                    </div>
-
 
                 </div>
 
-
             </div>
-
-
-        </div>
+        @endif
 
         <div class="row">
 
@@ -530,7 +497,13 @@
 
 
         </div>
-
+        <style>
+            .status-chart {
+                max-width: 500px;
+                max-height: 500px;
+                margin: 0 auto;
+            }
+        </style>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

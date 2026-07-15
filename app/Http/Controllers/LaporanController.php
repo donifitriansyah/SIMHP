@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Irban;
+use App\Models\Pegawai;
+use Illuminate\Http\Request;
 
 class LaporanController extends Controller
 {
@@ -34,6 +35,13 @@ class LaporanController extends Controller
                 ->translatedFormat('F');
         }
 
+        $irbanPegawai = Pegawai::where('irban_id', $request->irban_id)
+            ->first();
+
+        $inspektur = Pegawai::where('jabatan', 'Inspektur Kabupaten Ketapang')->first();
+
+        $sekretaris = Pegawai::where('jabatan', 'Sekretaris')->first();
+
 
         return view(
             'pages.laporan.cetak-irban',
@@ -41,12 +49,24 @@ class LaporanController extends Controller
                 'laporan',
                 'listIrban',
                 'tahun',
-                'bulan'
+                'bulan',
+                'irbanPegawai',
+                'inspektur',
+                'sekretaris'
             )
         );
     }
     public function cetak(Request $request)
     {
+        $inspektur = Pegawai::where(
+            'jabatan',
+            'Inspektur Kabupaten Ketapang'
+        )->first();
+
+        $sekretaris = Pegawai::where(
+            'jabatan',
+            'Sekretaris'
+        )->first();
         $laporan = $this->getLaporan($request);
 
         $periode = null;
@@ -66,7 +86,9 @@ class LaporanController extends Controller
             "pages.laporan.cetak",
             compact(
                 "laporan",
-                "periode"
+                "periode",
+                'inspektur',
+                'sekretaris'
             )
         );
     }
@@ -97,7 +119,7 @@ class LaporanController extends Controller
 
         // Filter Irban
 
-        
+
 
         $irbans = $query->orderBy("nama_irban")->get();
 

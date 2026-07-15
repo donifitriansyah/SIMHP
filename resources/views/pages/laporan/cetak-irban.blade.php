@@ -488,18 +488,23 @@
 
                     <br><br>
 
-                    {{ strtoupper($laporan['wilayah'] ?? '') }}
-
+                    {{ strtoupper($laporan['wilayah']) }}
 
                     <br><br><br><br>
 
-
-                    <div class="nama">
-                        {{ $irban ?? '........................' }}
+                    <div class="nama" style="margin-bottom: 5px;">
+                        {{ strtoupper($irbanPegawai->nama ?? '........................') }}
                     </div>
 
+                    <div>
+                        {{ $irbanPegawai->golongan ?? '' }}
+                    </div>
+                    <div>
+                        NIP. {{ $irbanPegawai->nip ?? '........................' }}
+                    </div>
 
-                    NIP. ..............................
+                    <br>
+
 
                 </td>
 
@@ -514,45 +519,51 @@
 
                     INSPEKTUR KABUPATEN KETAPANG
 
-
                     <br><br><br><br>
 
-
-                    <div class="nama">
-                        {{ $inspektur ?? '........................' }}
+                    <div class="nama" style="margin-bottom: 5px;">
+                        {{ strtoupper($inspektur->nama ?? '........................') }}
+                    </div>
+                    <div>
+                        {{ $inspektur->golongan ?? '' }}
+                    </div>
+                    <div>
+                        NIP. {{ $inspektur->nip ?? '........................' }}
                     </div>
 
+                    <br>
 
-                    NIP. ..............................
+
 
                 </td>
-
 
 
 
                 {{-- KANAN --}}
                 <td class="text-center">
 
-
                     Ketapang,
-                    {{ \Carbon\Carbon::parse($tanggal_cetak ?? now())->translatedFormat('d F Y') }}
-
+                    {{ \Carbon\Carbon::parse(now())->translatedFormat('d F Y') }}
 
                     <br><br>
 
-
                     SEKRETARIS
-
 
                     <br><br><br><br>
 
-
-                    <div class="nama">
-                        {{ $sekretaris ?? '........................' }}
+                    <div class="nama" style="margin-bottom: 5px;">
+                        {{ strtoupper($sekretaris->nama ?? '........................') }}
+                    </div>
+                    <div>
+                        {{ $sekretaris->golongan ?? '' }}
+                    </div>
+                    <div>
+                        NIP. {{ $sekretaris->nip ?? '........................' }}
                     </div>
 
+                    <br>
 
-                    NIP. ..............................
+
 
                 </td>
 

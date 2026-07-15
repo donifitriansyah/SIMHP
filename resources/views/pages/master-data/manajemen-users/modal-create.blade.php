@@ -64,7 +64,7 @@
                                 </option>
 
                                 <option value="user_entry">
-                                    User Entry
+                                    User
                                 </option>
 
                             </select>

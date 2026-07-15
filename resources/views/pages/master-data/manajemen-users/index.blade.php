@@ -83,7 +83,7 @@
                                         </span>
                                     @else
                                         <span class="badge bg-primary">
-                                            User Entry
+                                            User
                                         </span>
                                     @endif
 
@@ -133,7 +133,7 @@
 
                         @empty
 
-                            
+
                         @endforelse
 
                     </tbody>
