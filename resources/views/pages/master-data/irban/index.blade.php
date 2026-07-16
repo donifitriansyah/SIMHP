@@ -71,10 +71,6 @@
                                 Nama Irban
                             </th>
 
-                            <th>
-                                Nama Inspektur Pembantu
-                            </th>
-
 
                             <th width="120">
                                 Aksi
@@ -116,16 +112,6 @@
                                     {{ $irban->nama_irban }}
 
                                 </td>
-
-
-                                <td>
-
-                                    {{ $irban->nama_inspektur_pembantu }}
-
-                                </td>
-
-
-
 
                                 <td>
 
@@ -171,7 +157,7 @@
                         @empty
 
 
-                            
+
                         @endforelse
 
 

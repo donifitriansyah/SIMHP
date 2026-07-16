@@ -76,7 +76,7 @@
 
                     <i class="bi bi-file-earmark-bar-graph me-2"></i>
 
-                    Rekap Perkembangan Tindak Lanjut LHP
+                    Pemantauan Hasil Pemeriksaan
 
                 </h5>
 

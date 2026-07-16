@@ -129,7 +129,7 @@
 
                             <input type="text" name="nilai_finansial" id="nilai_finansial" class="form-control"
                                 value="{{ old('nilai_finansial') }}" placeholder="Contoh: 50.000.000">
-
+                            
 
                         </div>
 
@@ -190,41 +190,21 @@
 
 
     <script>
-        document
-            .getElementById('nilai_finansial')
-            .addEventListener('keyup', function() {
+        const input = document.getElementById('nilai_finansial');
+        const input = document.getElementById('nilai_pajak');
 
+        input.addEventListener('input', function() {
 
-                let value = this.value.replace(/\./g, '');
+            let value = this.value;
 
+            value = value.replace(/[^\d,]/g, '');
 
+            const parts = value.split(',');
 
-                if (value) {
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 
+            this.value = parts.join(',');
 
-                    this.value = new Intl.NumberFormat('id-ID')
-                        .format(value);
-
-
-                }
-
-
-            });
+        });
     </script>
-    <script>
-
-document.querySelectorAll('.uang').forEach(function(input){
-
-    input.addEventListener('keyup', function(e){
-
-        let value = this.value.replace(/\./g,'');
-
-        this.value = new Intl.NumberFormat('id-ID')
-            .format(value);
-
-    });
-
-});
-
-</script>
 @endsection

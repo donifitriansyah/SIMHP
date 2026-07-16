@@ -157,7 +157,8 @@
 
 
                             <input type="text" name="nilai_kerugian" id="nilai_kerugian" class="form-control"
-                                value="{{ old('nilai_kerugian') }}" placeholder="Contoh: 50.000.000 / Kosongkan jika tidak ada kerugian">
+                                value="{{ old('nilai_kerugian') }}"
+                                placeholder="Contoh: 50.000.000 / Kosongkan jika tidak ada kerugian">
 
 
                         </div>
@@ -201,25 +202,21 @@
 
 
 
-
     <script>
-        document
-            .getElementById('nilai_kerugian')
-            .addEventListener('keyup', function() {
+        const input = document.getElementById('nilai_kerugian');
 
+        input.addEventListener('input', function() {
 
-                let value = this.value.replace(/\./g, '');
+            let value = this.value;
 
+            value = value.replace(/[^\d,]/g, '');
 
+            const parts = value.split(',');
 
-                if (value) {
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 
-                    this.value = new Intl.NumberFormat('id-ID')
-                        .format(value);
+            this.value = parts.join(',');
 
-                }
-
-
-            });
+        });
     </script>
 @endsection

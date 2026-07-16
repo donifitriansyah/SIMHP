@@ -183,7 +183,8 @@
 
 
                             <input type="text" name="nilai_pengembalian" id="nilai_pengembalian" class="form-control"
-                                value="{{ number_format($tindakLanjut->nilai_pengembalian ?? 0, 0, ',', '.') }}">
+                                placeholder="Contoh: 50.000.000,00 / Kosongkan jika tidak ada "
+                                value="{{ number_format($tindakLanjut->nilai_pengembalian, 2, ',', '.') }}">
 
 
                         </div>
@@ -203,8 +204,10 @@
                             </label>
 
 
-                            <input type="text" name="nilai_setor_pajak" id="nilai_setor_pajak" class="form-control"
-                                value="{{ number_format($tindakLanjut->nilai_setor_pajak ?? 0, 0, ',', '.') }}">
+
+                                <input type="text" name="nilai_setor_pajak" id="nilai_setor_pajak" class="form-control"
+                                placeholder="Contoh: 50.000.000,00 / Kosongkan jika tidak ada "
+                                value="{{ number_format($tindakLanjut->nilai_setor_pajak, 2, ',', '.') }}">
 
 
                         </div>
@@ -349,38 +352,22 @@
 
     </div>
 
-
-
-
-
     <script>
-        function formatRupiah(id) {
+        const input = document.getElementById('nilai_pengembalian');
+        const input = document.getElementById('nilai_setor_pajak');
 
-            let input = document.getElementById(id);
+        input.addEventListener('input', function() {
 
+            let value = this.value;
 
-            input.addEventListener('keyup', function() {
+            value = value.replace(/[^\d,]/g, '');
 
+            const parts = value.split(',');
 
-                let value = this.value.replace(/\./g, '');
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 
+            this.value = parts.join(',');
 
-                if (value) {
-
-                    this.value = new Intl.NumberFormat('id-ID')
-                        .format(value);
-
-                }
-
-
-            });
-
-        }
-
-
-
-        formatRupiah('nilai_pengembalian');
-
-        formatRupiah('nilai_setor_pajak');
+        });
     </script>
 @endsection

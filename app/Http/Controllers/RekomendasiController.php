@@ -22,34 +22,56 @@ class RekomendasiController extends Controller
     public function store(Request $request, Temuan $temuan)
     {
         $request->validate([
-            "uraian_rekomendasi" => "required",
-            "administrasi" => "nullable",
-            "nilai_finansial" => "nullable",
-            "nilai_pajak" => "nullable",
+            'uraian_rekomendasi' => 'required|string',
+            'administrasi'       => 'nullable|string',
+            'nilai_finansial'    => 'nullable|string',
+            'nilai_pajak'        => 'nullable|string',
         ]);
 
-        $rekomendasi = Rekomendasi::create([
-            "temuan_id" => $temuan->id,
+        try {
 
-            "uraian_rekomendasi" => $request->uraian_rekomendasi,
+            $nilaiFinansial = null;
+            $nilaiPajak = null;
 
-            "administrasi" => $request->administrasi,
+            if ($request->filled('nilai_finansial')) {
+                $nilaiFinansial = str_replace(
+                    ['.', ','],
+                    ['', '.'],
+                    $request->nilai_finansial
+                );
+            }
 
-            "nilai_finansial" => $request->nilai_finansial
-                ? str_replace(".", "", $request->nilai_finansial)
-                : null,
+            if ($request->filled('nilai_pajak')) {
+                $nilaiPajak = str_replace(
+                    ['.', ','],
+                    ['', '.'],
+                    $request->nilai_pajak
+                );
+            }
 
-            "nilai_pajak" => $request->nilai_pajak
-                ? str_replace(".", "", $request->nilai_pajak)
-                : null,
-        ]);
+            Rekomendasi::create([
+                'temuan_id'          => $temuan->id,
+                'uraian_rekomendasi' => $request->uraian_rekomendasi,
+                'administrasi'       => $request->administrasi,
+                'nilai_finansial'    => $nilaiFinansial,
+                'nilai_pajak'        => $nilaiPajak,
+            ]);
 
-        $temuan->lhp->updateStatusLhp();
+            $temuan->lhp->updateStatusProses();
+            $temuan->lhp->updateStatusLhp();
 
-        return redirect()
-            ->route("lhp.show", $temuan->lhp_id)
+            return redirect()
+                ->route('lhp.show', $temuan->lhp_id)
+                ->with('success', 'Rekomendasi berhasil ditambahkan.');
+        } catch (\Exception $e) {
 
-            ->with("success", "Rekomendasi berhasil ditambahkan");
+            return back()
+                ->withInput()
+                ->with(
+                    'error',
+                    'Rekomendasi gagal ditambahkan. ' . $e->getMessage()
+                );
+        }
     }
 
     /**
@@ -69,33 +91,55 @@ class RekomendasiController extends Controller
     public function update(Request $request, Rekomendasi $rekomendasi)
     {
         $request->validate([
-            "uraian_rekomendasi" => "required",
-
-            "administrasi" => "nullable",
-
-            "nilai_finansial" => "nullable",
-
-            "nilai_pajak" => "nullable",
+            'uraian_rekomendasi' => 'required|string',
+            'administrasi'       => 'nullable|string',
+            'nilai_finansial'    => 'nullable|string',
+            'nilai_pajak'        => 'nullable|string',
         ]);
 
-        $rekomendasi->update([
-            "uraian_rekomendasi" => $request->uraian_rekomendasi,
+        try {
 
-            "administrasi" => $request->administrasi,
+            $nilaiFinansial = null;
+            $nilaiPajak = null;
 
-            "nilai_finansial" => $request->nilai_finansial
-                ? str_replace(".", "", $request->nilai_finansial)
-                : null,
+            if ($request->filled('nilai_finansial')) {
+                $nilaiFinansial = str_replace(
+                    ['.', ','],
+                    ['', '.'],
+                    $request->nilai_finansial
+                );
+            }
 
-            "nilai_pajak" => $request->nilai_pajak
-                ? str_replace(".", "", $request->nilai_pajak)
-                : null,
-        ]);
+            if ($request->filled('nilai_pajak')) {
+                $nilaiPajak = str_replace(
+                    ['.', ','],
+                    ['', '.'],
+                    $request->nilai_pajak
+                );
+            }
 
-        return redirect()
-            ->route("lhp.show", $rekomendasi->temuan->lhp_id)
+            $rekomendasi->update([
+                'uraian_rekomendasi' => $request->uraian_rekomendasi,
+                'administrasi'       => $request->administrasi,
+                'nilai_finansial'    => $nilaiFinansial,
+                'nilai_pajak'        => $nilaiPajak,
+            ]);
 
-            ->with("success", "Rekomendasi berhasil diperbarui");
+            $rekomendasi->temuan->lhp->updateStatusProses();
+            $rekomendasi->temuan->lhp->updateStatusLhp();
+
+            return redirect()
+                ->route('lhp.show', $rekomendasi->temuan->lhp_id)
+                ->with('success', 'Rekomendasi berhasil diperbarui.');
+        } catch (\Exception $e) {
+
+            return back()
+                ->withInput()
+                ->with(
+                    'error',
+                    'Rekomendasi gagal diperbarui. ' . $e->getMessage()
+                );
+        }
     }
 
     /**

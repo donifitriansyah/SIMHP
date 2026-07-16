@@ -90,32 +90,6 @@
 
                     </div>
 
-
-
-
-                    {{-- Nama Inspektur Pembantu --}}
-
-                    <div class="mb-3">
-
-
-                        <label class="form-label">
-
-                            Nama Inspektur Pembantu
-
-                        </label>
-
-
-                        <input type="text"
-                               name="nama_inspektur_pembantu"
-                               class="form-control"
-                               value="{{ $irban->nama_inspektur_pembantu }}">
-
-
-                    </div>
-
-
-
-
                     {{-- Status --}}
 
                     <div class="mb-3">

@@ -60,16 +60,16 @@ Route::middleware("auth")->group(function () {
 
     Route::resource("master-data/users", UserController::class)->names("users");
 
-    Route::resource("irban", IrbanController::class);
+    Route::resource("master-data/irban", IrbanController::class);
 
-    Route::resource("auditee", AuditeeController::class);
+    Route::resource("master-data/auditee", AuditeeController::class);
 
-    Route::resource("pihak-ketiga", PihakKetigaController::class);
+    Route::resource("master-data/pihak-ketiga", PihakKetigaController::class);
 
     Route::resource("lhp", LhpController::class);
 
-    Route::prefix("lhp/{lhp}")->group(function () {
-        Route::get("temuan/create", [TemuanController::class, "create"])->name(
+    Route::prefix("laporan-hasil-pemeriksaan/{lhp}")->group(function () {
+        Route::get("temuan/tambah-data", [TemuanController::class, "create"])->name(
             "temuan.create"
         );
 
@@ -150,20 +150,14 @@ Route::middleware("auth")->group(function () {
         "index",
     ])->name("matriks.index");
 
-    Route::get("/laporan/irban/cetak", [
-        LaporanController::class,
-        "cetakIrban",
-    ])->name("laporan.irban.cetak");
 
-    Route::get("/laporan/irban/cetak", [
-        LaporanController::class,
-        "cetakIrban",
-    ])->name("laporan.irban.cetak");
 
+    // Akses Khusus Role Super User
     Route::middleware(['auth', 'role:super_user'])->group(function () {
 
-        Route::resource('pegawai', PegawaiController::class);
+
         Route::prefix("master-data")->group(function () {
+            Route::resource('pegawai', PegawaiController::class);
             Route::get("/profil-inspektorat", [
                 ProfilInspektoratController::class,
                 "index",
@@ -182,15 +176,15 @@ Route::middleware("auth")->group(function () {
 
         Route::resource("master-data/users", UserController::class)->names("users");
 
-        Route::resource("irban", IrbanController::class);
+        Route::resource("master-data/irban", IrbanController::class);
 
-        Route::resource("auditee", AuditeeController::class);
+        Route::resource("master-data/auditee", AuditeeController::class);
 
-        Route::resource("pihak-ketiga", PihakKetigaController::class);
+        Route::resource("master-data/pihak-ketiga", PihakKetigaController::class);
 
-        Route::resource("lhp", LhpController::class);
+        // Route::resource("laporan-hasil-pemeriksaan", LhpController::class);
 
-        Route::prefix("lhp/{lhp}")->group(function () {
+        Route::prefix("laporan-hasil-pemeriksaan/{lhp}")->group(function () {
             Route::get("temuan/create", [TemuanController::class, "create"])->name(
                 "temuan.create"
             );
@@ -276,10 +270,20 @@ Route::middleware("auth")->group(function () {
         "laporan.irban"
     );
 
-    Route::get("/laporan/irban/cetak", [
-        LaporanController::class,
-        "cetakIrban",
-    ])->name("laporan.irban.cetak");
+    Route::get(
+        '/laporan/irban/cetak',
+        [LaporanController::class, 'cetakIrban']
+    )->name('laporan.irban.cetak');
+
+    Route::get(
+        '/laporan/semua-irban/cetak',
+        [LaporanController::class, 'cetakSemuaIrban']
+    )->name('laporan.semua-irban.cetak');
+
+    // Route::get("/laporan/irban/cetak", [
+    //     LaporanController::class,
+    //     "cetakIrban",
+    // ])->name("laporan.irban.cetak");
 
 
     Route::get("/laporan", [LaporanController::class, "index"])->name(
@@ -315,9 +319,10 @@ Route::middleware("auth")->group(function () {
         [LaporanController::class, 'cetakPihakKetigaTemuan']
     )->name('laporan.pihak.ketiga.temuan.cetak');
 
-    Route::get('/laporan/pihak-ketiga-temuan',
-    [LaporanController::class, 'pihakKetigaTemuan']
-)->name('laporan.pihak.ketiga.temuan');
+    Route::get(
+        '/laporan/pihak-ketiga-temuan',
+        [LaporanController::class, 'pihakKetigaTemuan']
+    )->name('laporan.pihak.ketiga.temuan');
 });
 
 require __DIR__ . "/auth.php";

@@ -8,40 +8,69 @@
     <style>
         @page {
             size: A4 landscape;
-            margin: 15mm;
+            margin: 12mm;
         }
 
         body {
             font-family: Arial, Helvetica, sans-serif;
-            font-size: 11px;
+            font-size: 10px;
             color: #000;
         }
 
         h3 {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+            font-size: 14px;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
+            table-layout: fixed;
         }
+
 
         table th,
         table td {
             border: 1px solid #000;
-            padding: 6px;
+            padding: 5px;
             vertical-align: top;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            line-height: 1.4;
         }
+
+
+        .table-info {
+            table-layout: auto;
+        }
+
 
         .table-info td {
             border: none;
-            padding: 3px;
+            padding: 2px;
         }
+
 
         thead th {
             background: #f2f2f2;
             text-align: center;
+            vertical-align: middle;
+        }
+
+
+        tbody td {
+            text-align: justify;
+        }
+
+
+        .text-wrap {
+            white-space: pre-line;
+        }
+
+
+        tr {
+            page-break-inside: avoid;
         }
     </style>
 
@@ -130,39 +159,35 @@
 
                     <tr>
 
-                        <td align="center">
+                        <td class="text-wrap" align="center">
                             {{ $no++ }}
                         </td>
 
-                        <td>
+                        <td class="text-wrap">
                             {{ $temuan->uraian_temuan }}
                         </td>
 
-                        <td>
-
+                        <td class="text-wrap">
                             {{ $rekomendasi->uraian_rekomendasi }}
-
                         </td>
 
-                        <td>
-
+                        <td class="text-wrap">
                             {{ $tl->narasi ?? '-' }}
-
                         </td>
 
-                        <td align="center">
+                        <td class="text-wrap" align="center">
 
                             {{ $tl->status->nama_status ?? '-' }}
 
                         </td>
 
-                        <td>
+                        <td class="text-wrap">
 
                             {{ $tl->validator ?? '-' }}
 
                         </td>
 
-                        <td>
+                        <td class="text-wrap">
 
                             {{ $tl->keterangan ?? '-' }}
 

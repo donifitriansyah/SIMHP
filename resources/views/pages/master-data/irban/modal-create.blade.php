@@ -93,40 +93,6 @@
                     </div>
 
 
-
-
-                    {{-- Nama Inspektur Pembantu --}}
-
-                    <div class="mb-3">
-
-
-                        <label class="form-label">
-
-                            Nama Inspektur Pembantu
-
-                        </label>
-
-
-                        <input type="text"
-                               name="nama_inspektur_pembantu"
-                               class="form-control @error('nama_inspektur_pembantu') is-invalid @enderror"
-                               placeholder="Masukkan nama Inspektur Pembantu"
-                               value="{{ old('nama_inspektur_pembantu') }}">
-
-
-                        @error('nama_inspektur_pembantu')
-
-                            <div class="invalid-feedback">
-
-                                {{ $message }}
-
-                            </div>
-
-                        @enderror
-
-
-                    </div>
-
                     {{-- Status --}}
 
                     <div class="mb-3">

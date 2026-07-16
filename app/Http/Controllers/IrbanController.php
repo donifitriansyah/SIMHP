@@ -43,11 +43,7 @@ class IrbanController extends Controller
                 'required'
             ],
 
-            'nama_inspektur_pembantu' => [
-                'nullable',
-                'string',
-                'max:150'
-            ]
+
 
         ]);
 
@@ -56,7 +52,6 @@ class IrbanController extends Controller
             Irban::create([
                 'kode' => $request->kode,
                 'nama_irban' => $request->nama_irban,
-                'nama_inspektur_pembantu' => $request->nama_inspektur_pembantu,
                 'status' => 1
             ]);
 
@@ -107,12 +102,6 @@ class IrbanController extends Controller
             ],
 
 
-            'nama_inspektur_pembantu' => [
-                'nullable',
-                'string',
-                'max:150'
-            ],
-
 
             'status' => [
                 'required',
@@ -131,9 +120,6 @@ class IrbanController extends Controller
                 'kode' => $request->kode,
 
                 'nama_irban' => $request->nama_irban,
-
-                'nama_inspektur_pembantu' =>
-                $request->nama_inspektur_pembantu,
 
                 'status' => $request->status,
 

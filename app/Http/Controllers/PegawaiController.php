@@ -21,7 +21,7 @@ class PegawaiController extends Controller
 
         $jabatanTerpakai = Pegawai::pluck('jabatan')->toArray();
 
-        return view('pages.pegawai.index', compact('pegawais', 'irbans','jabatanTerpakai'));
+        return view('pages.master-data.pegawai.index', compact('pegawais', 'irbans','jabatanTerpakai'));
     }
 
     /**

@@ -300,37 +300,40 @@
 
             let akhir = document.querySelector('[name="tanggal_akhir"]').value;
 
-            if (!irban) {
-
-                alert('Silahkan pilih Irban');
-
-                return;
-
-            }
 
             if (!awal) {
-
                 alert('Silahkan pilih tanggal awal');
-
                 return;
-
             }
+
 
             if (!akhir) {
-
                 alert('Silahkan pilih tanggal akhir');
-
                 return;
+            }
+
+
+            let url;
+
+
+            if (irban !== "") {
+
+                // Cetak satu Irban
+                url = "{{ route('laporan.irban.cetak') }}";
+
+                url += "?irban_id=" + irban;
+
+            } else {
+
+                // Cetak semua Irban
+                url = "{{ route('laporan.semua-irban.cetak') }}";
 
             }
 
-            let url = "{{ route('laporan.irban.cetak') }}";
-
-            url += "?irban_id=" + irban;
 
             url += "&tanggal_awal=" + awal;
-
             url += "&tanggal_akhir=" + akhir;
+
 
             window.open(url, "_blank");
 

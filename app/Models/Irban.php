@@ -15,7 +15,6 @@ class Irban extends Model
     protected $fillable = [
 
         'nama_irban',
-        'nama_inspektur_pembantu',
         'kode',
         'status'
 

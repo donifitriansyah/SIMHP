@@ -118,39 +118,26 @@ class LaporanController extends Controller
 
     public function cetakIrban(Request $request)
     {
+        $inspektur = Pegawai::where('jabatan', 'Inspektur Kabupaten Ketapang')->first();
+        $sekretaris = Pegawai::where('jabatan', 'Sekretaris')->first();
+
+        $tahun = null;
+        $bulan = null;
+
+        if ($request->filled('tanggal_awal')) {
+            $tanggal = \Carbon\Carbon::parse($request->tanggal_awal);
+            $tahun = $tanggal->format('Y');
+            $bulan = $tanggal->translatedFormat('F');
+        }
+
         if ($request->filled('irban_id')) {
 
             $laporan = [
                 $this->getLaporanIrban($request)
             ];
 
-            $semuaIrban = false;
-        } else {
-
-            $laporan = $this->getLaporanSemuaIrban($request);
-
-            $semuaIrban = true;
-        }
-
-        $tanggalAwal = $request->tanggal_awal;
-
-        $tahun = null;
-        $bulan = null;
-
-        if ($tanggalAwal) {
-
-            $tanggal = \Carbon\Carbon::parse($tanggalAwal);
-
-            $tahun = $tanggal->format('Y');
-
-            $bulan = $tanggal->translatedFormat('F');
-        }
-
-        $irbanPegawai = null;
-
-        if ($request->filled('irban_id')) {
-
-            $laporan = $this->getLaporanIrban($request);
+            $irbanPegawai = Pegawai::where('irban_id', $request->irban_id)
+                ->first();
 
             return view(
                 'pages.laporan.cetak-irban',
@@ -460,9 +447,6 @@ class LaporanController extends Controller
             },
         ])->find($request->irban_id);
 
-        /*
-    Jika belum memilih irban
-    */
 
         if (!$irban) {
             return null;
@@ -474,9 +458,6 @@ class LaporanController extends Controller
             "lhp" => [],
         ];
 
-        /*
-    Jika tidak ada LHP
-    */
 
         if ($irban->lhps->count() == 0) {
             $data["nihil"] = true;
@@ -830,6 +811,39 @@ class LaporanController extends Controller
         return view(
             'pages.laporan.semua-irban',
             compact('laporan', 'listIrban')
+        );
+    }
+    public function cetakSemuaIrban(Request $request)
+    {
+        $inspektur = Pegawai::where('jabatan', 'Inspektur Kabupaten Ketapang')->first();
+        $sekretaris = Pegawai::where('jabatan', 'Sekretaris')->first();
+
+
+        $tahun = null;
+        $bulan = null;
+
+
+        if ($request->filled('tanggal_awal')) {
+
+            $tanggal = \Carbon\Carbon::parse($request->tanggal_awal);
+
+            $tahun = $tanggal->format('Y');
+            $bulan = $tanggal->translatedFormat('F');
+        }
+
+
+        $laporan = $this->getLaporanSemuaIrban($request);
+
+
+        return view(
+            'pages.laporan.semua-irban',
+            compact(
+                'laporan',
+                'tahun',
+                'bulan',
+                'inspektur',
+                'sekretaris'
+            )
         );
     }
 }

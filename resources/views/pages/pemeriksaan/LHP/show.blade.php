@@ -360,7 +360,8 @@
 
                                                 <div class="col-md-12"> <label class="text-muted"> Nilai Kerugian </label>
                                                     <p class="fw-bold text-danger"> Rp
-                                                        {{ number_format($temuan->nilai_kerugian ?? 0, 0, ',', '.') }} </p>
+                                                        {{ $temuan->nilai_kerugian ? number_format($temuan->nilai_kerugian, 2, ',', '.') : '-' }}
+                                                    </p>
                                                 </div>
 
                                                 <div class="col-md-12">
@@ -488,7 +489,7 @@
                                                         <p class="fw-bold">
 
                                                             Rp
-                                                            {{ number_format($rekomendasi->nilai_finansial ?? 0, 0, ',', '.') }}
+                                                            {{ $rekomendasi->nilai_finansial ? number_format($rekomendasi->nilai_finansial, 2, ',', '.') : '-' }}
 
                                                         </p>
 
@@ -521,6 +522,19 @@
                                                             Edit
 
                                                         </a>
+                                                        <form action="{{ route('rekomendasi.destroy', $rekomendasi->id) }}"
+                                                            method="POST" class="d-inline"
+                                                            onsubmit="return confirm('Hapus rekomendasi ini?')">
+
+                                                            @csrf @method('DELETE')
+
+                                                            <button type="submit" class="btn btn-sm btn-danger">
+
+                                                                <i class="bi bi-trash"></i> Hapus
+
+                                                            </button>
+
+                                                        </form>
                                                     @endif
                                                 @endauth
 

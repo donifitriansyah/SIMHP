@@ -155,15 +155,7 @@
                         @empty
 
 
-                            <tr>
-
-                                <td colspan="6" class="text-center">
-
-                                    Belum ada pihak ketiga yang memiliki temuan
-
-                                </td>
-
-                            </tr>
+                            
                         @endforelse
 
 

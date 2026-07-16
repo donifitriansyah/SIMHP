@@ -142,12 +142,9 @@
                             </label>
 
 
-
-
                             <input type="text" name="nilai_finansial" id="nilai_finansial" class="form-control"
-                                value="{{ $rekomendasi->nilai_finansial ? number_format($rekomendasi->nilai_finansial, 0, ',', '.') : '' }}">
-
-
+                                placeholder="Contoh: 50.000.000,00 / Kosongkan jika tidak ada"
+                                value="{{ number_format($rekomendasi->nilai_finansial, 2, ',', '.') }}">
 
                         </div>
 
@@ -158,8 +155,10 @@
                             </label>
 
 
-                            <input type="text" name="nilai_pajak" class="form-control uang"
-                                value="{{ old('nilai_pajak', $rekomendasi->nilai_pajak ?? '') }}">
+
+                                <input type="text" name="nilai_pajak" id="nilai_pajak" class="form-control"
+                                placeholder="Contoh: 50.000.000,00 / Kosongkan jika tidak ada "
+                                value="{{ number_format($rekomendasi->nilai_pajak, 2, ',', '.') }}">
 
                         </div>
 
@@ -216,39 +215,22 @@
 
 
     <script>
-        document
-            .getElementById('nilai_finansial')
-            .addEventListener('keyup', function() {
+        const input = document.getElementById('nilai_finansial');
+        const input = document.getElementById('nilai_pajak');
 
+        input.addEventListener('input', function() {
 
-                let value = this.value.replace(/\./g, '');
+            let value = this.value;
 
+            value = value.replace(/[^\d,]/g, '');
 
+            const parts = value.split(',');
 
-                if (value) {
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 
-
-                    this.value = new Intl.NumberFormat('id-ID')
-                        .format(value);
-
-
-                }
-
-
-            });
-    </script>
-    <script>
-        document.querySelectorAll('.uang').forEach(function(input) {
-
-            input.addEventListener('keyup', function(e) {
-
-                let value = this.value.replace(/\./g, '');
-
-                this.value = new Intl.NumberFormat('id-ID')
-                    .format(value);
-
-            });
+            this.value = parts.join(',');
 
         });
     </script>
+
 @endsection

@@ -83,32 +83,66 @@ class Lhp extends Model
 
     public function updateStatusLhp()
     {
+        // Jika nihil langsung lengkap
         if ($this->status_proses == 'nihil') {
+
             $this->update([
                 'status_lhp' => 'lengkap'
             ]);
+
             return;
         }
+
 
         // Belum ada temuan
         if ($this->temuans()->count() == 0) {
+
             $this->update([
                 'status_lhp' => 'tidak_lengkap'
             ]);
+
             return;
         }
 
-        // Semua temuan wajib memiliki rekomendasi
+
         foreach ($this->temuans as $temuan) {
+
+
+            // Temuan wajib memiliki rekomendasi
             if ($temuan->rekomendasis()->count() == 0) {
+
                 $this->update([
                     'status_lhp' => 'tidak_lengkap'
                 ]);
+
                 return;
+            }
+
+
+
+            foreach ($temuan->rekomendasis as $rekomendasi) {
+
+
+                $tindakLanjutSelesai = $rekomendasi->tindakLanjut()
+                    ->whereHas('status', function ($query) {
+                        $query->where('kode', 'S');
+                    })
+                    ->count();
+
+
+
+                if ($tindakLanjutSelesai == 0) {
+
+                    $this->update([
+                        'status_lhp' => 'tidak_lengkap'
+                    ]);
+
+                    return;
+                }
             }
         }
 
-        // Semua sudah punya rekomendasi
+
         $this->update([
             'status_lhp' => 'lengkap'
         ]);
@@ -116,14 +150,17 @@ class Lhp extends Model
 
     public function updateStatusProses()
     {
-        if ($this->status_proses == 'nihil') {
+        // Jika LHP ditetapkan sebagai nihil, jangan ubah statusnya
+        if ($this->status_proses === 'nihil') {
             return;
         }
 
-        $totalRekomendasi = 0;
-        $totalSelesai = 0;
-
         $this->loadMissing('temuans.rekomendasis.tindakLanjut.status');
+
+        $totalTemuan = $this->temuans->count();
+
+        $totalRekomendasi = 0;
+        $totalRekomendasiSelesai = 0;
 
         foreach ($this->temuans as $temuan) {
 
@@ -131,28 +168,37 @@ class Lhp extends Model
 
                 $totalRekomendasi++;
 
-                // Ambil tindak lanjut terakhir
-                $terakhir = $rekomendasi->tindakLanjut
+                $tindakLanjutTerakhir = $rekomendasi->tindakLanjut
                     ->sortByDesc('created_at')
                     ->first();
 
                 if (
-                    $terakhir &&
-                    $terakhir->status &&
-                    $terakhir->status->kode == 'S'
+                    $tindakLanjutTerakhir &&
+                    $tindakLanjutTerakhir->status &&
+                    $tindakLanjutTerakhir->status->kode === 'S'
                 ) {
-                    $totalSelesai++;
+                    $totalRekomendasiSelesai++;
                 }
             }
         }
 
-        if ($totalRekomendasi == 0) {
+        // Belum ada temuan
+        if ($totalTemuan === 0) {
 
             $status = 'belum_diproses';
-        } elseif ($totalSelesai == $totalRekomendasi) {
+        }
+        // Sudah ada temuan, tetapi belum ada rekomendasi
+        elseif ($totalRekomendasi === 0) {
+
+            $status = 'dalam_proses';
+        }
+        // Semua rekomendasi sudah selesai
+        elseif ($totalRekomendasi === $totalRekomendasiSelesai) {
 
             $status = 'selesai';
-        } else {
+        }
+        // Masih ada rekomendasi yang belum selesai
+        else {
 
             $status = 'dalam_proses';
         }

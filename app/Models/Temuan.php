@@ -4,15 +4,16 @@ namespace App\Models;
 
 use App\Models\Rekomendasi;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 
 class Temuan extends Model
 {
 
-    protected $table='temuan';
+    protected $table = 'temuan';
 
 
-    protected $fillable=[
+    protected $fillable = [
 
         'lhp_id',
         'nomor_temuan',
@@ -22,7 +23,6 @@ class Temuan extends Model
         'nama_pelaku'
 
     ];
-
 
 
     public function lhp()
@@ -40,5 +40,4 @@ class Temuan extends Model
             Rekomendasi::class
         );
     }
-
 }

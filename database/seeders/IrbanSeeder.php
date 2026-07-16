@@ -27,7 +27,6 @@ class IrbanSeeder extends Seeder
 
 
                 'nama_irban' => $item,
-                'nama_inspektur_pembantu' => $item,
                 'kode' => 'IRBAN-' . ($key + 1),
 
                 'status' => true

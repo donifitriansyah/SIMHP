@@ -5,7 +5,7 @@
 
     <meta charset="utf-8">
 
-    <title>Laporan Per Irban</title>
+    <title>Laporan Semua Irban</title>
 
     <style>
         @page {
@@ -15,7 +15,7 @@
 
         body {
             font-family: Arial, Helvetica, sans-serif;
-            font-size: 11px;
+            font-size: 10px;
         }
 
 
@@ -30,6 +30,7 @@
             border: 1px solid #000;
             padding: 4px;
             text-align: center;
+            vertical-align: middle;
         }
 
 
@@ -45,23 +46,25 @@
 
 
         .text-left {
-            text-align: left;
+            text-align: center;
         }
 
 
         .ttd {
             margin-top: 50px;
+            width: 100%;
         }
 
 
-        .ttd table,
-        .ttd td {
+        .ttd table {
+            width: 100%;
             border: none;
         }
 
 
         .ttd td {
-            width: 33%;
+            border: none;
+            width: 50%;
             text-align: center;
         }
 
@@ -76,6 +79,7 @@
         .no-print {
             margin-bottom: 20px;
         }
+
 
         @media print {
 
@@ -127,169 +131,174 @@
         </h4>
 
 
-
-
     </div>
 
 
 
+    <table>
+
+        <thead>
 
 
-    @foreach ($laporan as $dataIrban)
-        <h4>
-            <h4>
-                {{ strtoupper($dataIrban['wilayah']) }}
-            </h4>
+            <tr>
 
-        </h4>
+                <th rowspan="2">
+                    No
+                </th>
 
 
-
-        <table>
-
-
-            <thead>
+                <th rowspan="2">
+                    Irban
+                </th>
 
 
-                <tr>
-
-                    <th rowspan="2">
-                        No
-                    </th>
+                <th rowspan="2">
+                    Obrik
+                </th>
 
 
-                    <th rowspan="2">
-                        Obrik
-                    </th>
+                <th rowspan="2">
+                    JML LHP
+                </th>
 
 
-                    <th rowspan="2">
-                        JML LHP
-                    </th>
+                <th colspan="2">
+                    LAPORAN HASIL PEMERIKSAAN
+                </th>
 
 
-                    <th colspan="2">
-                        LAPORAN HASIL PEMERIKSAAN
-                    </th>
+                <th colspan="3">
+                    PERKEMBANGAN TINDAK LANJUT
+                </th>
 
 
-                    <th colspan="3">
-                        PERKEMBANGAN TINDAK LANJUT
-                    </th>
+                <th colspan="3">
+                    KERUGIAN NEGARA / DAERAH
+                </th>
 
 
-                    <th colspan="3">
-                        KERUGIAN NEGARA / DAERAH
-                    </th>
+                <th colspan="3">
+                    KEWAJIBAN SETOR PAJAK
+                </th>
 
 
-                    <th colspan="3">
-                        KEWAJIBAN SETOR PAJAK
-                    </th>
-
-
-                </tr>
+            </tr>
 
 
 
-                <tr>
-
-                    <th>
-                        Temuan
-                    </th>
-
-                    <th>
-                        Rekomendasi
-                    </th>
+            <tr>
 
 
-                    <th>
-                        S
-                    </th>
-
-                    <th>
-                        D
-                    </th>
-
-                    <th>
-                        B
-                    </th>
+                <th>
+                    Temuan
+                </th>
 
 
-                    <th>
-                        Nilai
-                    </th>
-
-                    <th>
-                        Disetor
-                    </th>
-
-                    <th>
-                        Sisa
-                    </th>
+                <th>
+                    Rekomendasi
+                </th>
 
 
-                    <th>
-                        Nilai
-                    </th>
-
-                    <th>
-                        Disetor
-                    </th>
-
-                    <th>
-                        Sisa
-                    </th>
+                <th>
+                    S
+                </th>
 
 
-                </tr>
+                <th>
+                    D
+                </th>
 
 
-            </thead>
+                <th>
+                    B
+                </th>
+
+
+                <th>
+                    Nilai
+                </th>
+
+
+                <th>
+                    Disetor
+                </th>
+
+
+                <th>
+                    Sisa
+                </th>
+
+
+                <th>
+                    Nilai
+                </th>
+
+
+                <th>
+                    Disetor
+                </th>
+
+
+                <th>
+                    Sisa
+                </th>
+
+
+            </tr>
+
+
+        </thead>
 
 
 
-
-            <tbody>
-
+        <tbody>
 
 
+            @php
+
+                $no = 1;
+
+                $totalLhp = 0;
+                $totalTemuan = 0;
+                $totalRekomendasi = 0;
+
+                $totalSelesai = 0;
+                $totalProses = 0;
+                $totalBelum = 0;
+
+                $totalKerugian = 0;
+                $totalDisetor = 0;
+                $totalSisa = 0;
+
+                $totalPajak = 0;
+                $totalPajakDisetor = 0;
+                $totalPajakSisa = 0;
+
+            @endphp
+
+
+
+            @foreach ($laporan as $dataIrban)
                 @if ($dataIrban['nihil'])
                     <tr>
 
-                        <td colspan="14">
-
-                            <b>
-                                NIHIL
-                            </b>
-
+                        <td>
+                            {{ $no++ }}
                         </td>
+
+
+                        <td>
+                            {{ $dataIrban['wilayah'] }}
+                        </td>
+
+
+                        <td colspan="13">
+                            <b>NIHIL</b>
+                        </td>
+
 
                     </tr>
                 @else
-                    @php
-
-                        $totalLhp = 0;
-                        $totalTemuan = 0;
-                        $totalRekomendasi = 0;
-
-                        $totalSelesai = 0;
-                        $totalProses = 0;
-                        $totalBelum = 0;
-
-                        $totalKerugian = 0;
-                        $totalDisetor = 0;
-                        $totalSisa = 0;
-
-                        $totalPajak = 0;
-                        $totalPajakDisetor = 0;
-                        $totalPajakSisa = 0;
-
-                    @endphp
-
-
-
-
                     @foreach ($dataIrban['lhp'] as $item)
                         @php
 
@@ -325,7 +334,12 @@
 
 
                             <td>
-                                {{ $loop->iteration }}
+                                {{ $no++ }}
+                            </td>
+
+
+                            <td class="text-left">
+                                {{ $dataIrban['wilayah'] }}
                             </td>
 
 
@@ -364,6 +378,7 @@
                             </td>
 
 
+
                             <td>
                                 Rp {{ number_format($item['kerugian'], 0, ',', '.') }}
                             </td>
@@ -395,97 +410,94 @@
                             </td>
 
 
-
                         </tr>
                     @endforeach
-
-
-
-
-
-                    <tr>
-
-
-                        <td colspan="2">
-                            <b>
-                                JUMLAH
-                            </b>
-                        </td>
-
-
-                        <td>
-                            {{ $totalLhp }}
-                        </td>
-
-
-                        <td>
-                            {{ $totalTemuan }}
-                        </td>
-
-
-                        <td>
-                            {{ $totalRekomendasi }}
-                        </td>
-
-
-                        <td>
-                            {{ $totalSelesai }}
-                        </td>
-
-
-                        <td>
-                            {{ $totalProses }}
-                        </td>
-
-
-                        <td>
-                            {{ $totalBelum }}
-                        </td>
-
-
-                        <td>
-                            Rp {{ number_format($totalKerugian, 0, ',', '.') }}
-                        </td>
-
-
-                        <td>
-                            Rp {{ number_format($totalDisetor, 0, ',', '.') }}
-                        </td>
-
-
-                        <td>
-                            Rp {{ number_format($totalSisa, 0, ',', '.') }}
-                        </td>
-
-
-                        <td>
-                            Rp {{ number_format($totalPajak, 0, ',', '.') }}
-                        </td>
-
-
-                        <td>
-                            Rp {{ number_format($totalPajakDisetor, 0, ',', '.') }}
-                        </td>
-
-
-                        <td>
-                            Rp {{ number_format($totalPajakSisa, 0, ',', '.') }}
-                        </td>
-
-
-
-                    </tr>
                 @endif
+            @endforeach
 
 
-            </tbody>
 
 
-        </table>
+            <tr>
 
 
-        <br><br>
-    @endforeach
+                <td colspan="3">
+
+                    <b>
+                        JUMLAH
+                    </b>
+
+                </td>
+
+
+                <td>
+                    {{ $totalLhp }}
+                </td>
+
+
+                <td>
+                    {{ $totalTemuan }}
+                </td>
+
+
+                <td>
+                    {{ $totalRekomendasi }}
+                </td>
+
+
+                <td>
+                    {{ $totalSelesai }}
+                </td>
+
+
+                <td>
+                    {{ $totalProses }}
+                </td>
+
+
+                <td>
+                    {{ $totalBelum }}
+                </td>
+
+
+                <td>
+                    Rp {{ number_format($totalKerugian, 0, ',', '.') }}
+                </td>
+
+
+                <td>
+                    Rp {{ number_format($totalDisetor, 0, ',', '.') }}
+                </td>
+
+
+                <td>
+                    Rp {{ number_format($totalSisa, 0, ',', '.') }}
+                </td>
+
+
+                <td>
+                    Rp {{ number_format($totalPajak, 0, ',', '.') }}
+                </td>
+
+
+                <td>
+                    Rp {{ number_format($totalPajakDisetor, 0, ',', '.') }}
+                </td>
+
+
+                <td>
+                    Rp {{ number_format($totalPajakSisa, 0, ',', '.') }}
+                </td>
+
+
+            </tr>
+
+
+
+        </tbody>
+
+
+    </table>
 
 
 
@@ -493,36 +505,11 @@
 
     <div class="ttd">
 
+
         <table>
 
+
             <tr>
-
-
-                @if (count($laporan) == 1)
-                    <td>
-
-                        Menyetujui,
-
-                        <br><br>
-
-                        {{ strtoupper($laporan[0]['wilayah']) }}
-
-                        <br><br><br>
-
-                        <div class="nama">
-                            {{ strtoupper($irbanPegawai->nama ?? '........................') }}
-                        </div>
-
-                        {{ $irbanPegawai->golongan ?? '' }}
-
-                        <br>
-
-                        NIP. {{ $irbanPegawai->nip ?? '........................' }}
-
-                    </td>
-                @endif
-
-
 
                 <td>
 
@@ -534,17 +521,20 @@
 
                     <br><br><br>
 
+
                     <div class="nama">
 
                         {{ strtoupper($inspektur->nama ?? '........................') }}
 
                     </div>
 
+
                     {{ $inspektur->golongan ?? '' }}
 
                     <br>
 
                     NIP. {{ $inspektur->nip ?? '........................' }}
+
 
                 </td>
 
@@ -553,13 +543,17 @@
                 <td>
 
                     Ketapang,
+
                     {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}
+
 
                     <br><br>
 
                     SEKRETARIS
 
+
                     <br><br><br>
+
 
                     <div class="nama">
 
@@ -567,18 +561,23 @@
 
                     </div>
 
+
                     {{ $sekretaris->golongan ?? '' }}
+
 
                     <br>
 
                     NIP. {{ $sekretaris->nip ?? '........................' }}
+
 
                 </td>
 
 
             </tr>
 
+
         </table>
+
 
     </div>
 
@@ -594,7 +593,7 @@
     </script>
 
 
-</body>
 
+</body>
 
 </html>

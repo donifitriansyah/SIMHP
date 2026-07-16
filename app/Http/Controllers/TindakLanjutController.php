@@ -31,44 +31,66 @@ class TindakLanjutController extends Controller
     {
         $request->validate([
             "status_id" => "required",
-
             "narasi" => "required",
 
-            "nilai_pengembalian" => "nullable",
-
-            "nilai_setor_pajak" => "nullable",
+            "nilai_pengembalian" => "nullable|string",
+            "nilai_setor_pajak" => "nullable|string",
 
             "tanggal_validasi" => "nullable",
-
             "validator" => "nullable",
 
             'keterangan' => 'nullable|string',
         ]);
 
+
+        $nilaiPengembalian = null;
+        $nilaiSetorPajak = null;
+
+
+        if ($request->filled('nilai_pengembalian')) {
+
+            $nilaiPengembalian = str_replace(
+                ['.', ','],
+                ['', '.'],
+                $request->nilai_pengembalian
+            );
+        }
+
+
+        if ($request->filled('nilai_setor_pajak')) {
+
+            $nilaiSetorPajak = str_replace(
+                ['.', ','],
+                ['', '.'],
+                $request->nilai_setor_pajak
+            );
+        }
+
+
         $tindakLanjut = TindakLanjut::create([
+
             "rekomendasi_id" => $rekomendasi->id,
 
             "status_id" => $request->status_id,
 
-            'keterangan' => $request->keterangan,
+            "keterangan" => $request->keterangan,
 
             "narasi" => $request->narasi,
 
-            "nilai_pengembalian" => $request->nilai_pengembalian
-                ? str_replace(".", "", $request->nilai_pengembalian)
-                : null,
+            "nilai_pengembalian" => $nilaiPengembalian,
 
-            "nilai_setor_pajak" => $request->nilai_setor_pajak
-                ? str_replace(".", "", $request->nilai_setor_pajak)
-                : null,
+            "nilai_setor_pajak" => $nilaiSetorPajak,
 
             "tanggal_validasi" => $request->tanggal_validasi,
 
             "validator" => $request->validator,
         ]);
 
+
         if ($request->hasFile("dokumen")) {
+
             foreach ($request->file("dokumen") as $file) {
+
                 $namaFile = time() . "_" . $file->getClientOriginalName();
 
                 $path = $file->storeAs(
@@ -77,7 +99,9 @@ class TindakLanjutController extends Controller
                     "public"
                 );
 
+
                 DokumenTindakLanjut::create([
+
                     "tindak_lanjut_id" => $tindakLanjut->id,
 
                     "nama_file" => $file->getClientOriginalName(),
@@ -85,20 +109,22 @@ class TindakLanjutController extends Controller
                     "path_file" => $path,
 
                     "tipe_file" => $file->getClientMimeType(),
+
                 ]);
             }
         }
 
-        // Ambil LHP dari rekomendasi
+
         $lhp = $rekomendasi->temuan->lhp;
 
-        // Update status proses dan status kelengkapan
+
         $lhp->updateStatusProses();
+
         $lhp->updateStatusLhp();
+
 
         return redirect()
             ->route("lhp.show", $rekomendasi->temuan->lhp_id)
-
             ->with("success", "Tindak lanjut berhasil ditambahkan");
     }
 
@@ -123,24 +149,53 @@ class TindakLanjutController extends Controller
         $request->validate([
             "status_id" => "required",
             "narasi" => "required",
+
+            "nilai_pengembalian" => "nullable|string",
+            "nilai_setor_pajak" => "nullable|string",
         ]);
 
-        $tindakLanjut->update([
-            "status_id" => $request->status_id,
-            "narasi" => $request->narasi,
-            'keterangan' => $request->keterangan,
-            "nilai_pengembalian" => $request->nilai_pengembalian
-                ? str_replace(".", "", $request->nilai_pengembalian)
-                : null,
 
-            "nilai_setor_pajak" => $request->nilai_setor_pajak
-                ? str_replace(".", "", $request->nilai_setor_pajak)
-                : null,
+        $nilaiPengembalian = null;
+        $nilaiSetorPajak = null;
+
+
+        if ($request->filled('nilai_pengembalian')) {
+
+            $nilaiPengembalian = str_replace(
+                ['.', ','],
+                ['', '.'],
+                $request->nilai_pengembalian
+            );
+        }
+
+
+        if ($request->filled('nilai_setor_pajak')) {
+
+            $nilaiSetorPajak = str_replace(
+                ['.', ','],
+                ['', '.'],
+                $request->nilai_setor_pajak
+            );
+        }
+
+
+        $tindakLanjut->update([
+
+            "status_id" => $request->status_id,
+
+            "narasi" => $request->narasi,
+
+            'keterangan' => $request->keterangan,
+
+            "nilai_pengembalian" => $nilaiPengembalian,
+
+            "nilai_setor_pajak" => $nilaiSetorPajak,
 
             "tanggal_validasi" => $request->tanggal_validasi,
 
             "validator" => $request->validator,
         ]);
+
 
         // Upload dokumen tambahan
         if ($request->hasFile("dokumen")) {
@@ -155,20 +210,28 @@ class TindakLanjutController extends Controller
                     "public"
                 );
 
+
                 DokumenTindakLanjut::create([
                     "tindak_lanjut_id" => $tindakLanjut->id,
+
                     "nama_file" => $file->getClientOriginalName(),
+
                     "path_file" => $path,
+
                     "tipe_file" => $file->getClientMimeType(),
                 ]);
             }
         }
 
+
         // Update status LHP
         $lhp = $tindakLanjut->rekomendasi->temuan->lhp;
 
+
         $lhp->updateStatusProses();
+
         $lhp->updateStatusLhp();
+
 
         return redirect()
             ->route("lhp.show", $lhp->id)

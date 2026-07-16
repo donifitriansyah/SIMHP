@@ -30,72 +30,96 @@ class TemuanController extends Controller
      */
     public function store(Request $request, Lhp $lhp)
     {
-
         $request->validate([
-
-            'nomor_temuan' => 'required',
-            'uraian_temuan' => 'required',
-            'administrasi' => 'nullable',
-            'nilai_kerugian' => 'nullable',
-            'nama_pelaku' => 'nullable'
-
+            'nomor_temuan'   => 'required|string|max:50',
+            'uraian_temuan'  => 'required|string',
+            'administrasi'   => 'nullable|string',
+            'nilai_kerugian' => 'nullable|string',
+            'nama_pelaku'    => 'nullable|string|max:255',
         ]);
 
+        try {
+
+            $nilaiKerugian = null;
+
+            if ($request->filled('nilai_kerugian')) {
+                $nilaiKerugian = str_replace(
+                    ['.', ','],
+                    ['', '.'],
+                    $request->nilai_kerugian
+                );
+            }
+
+            Temuan::create([
+                'lhp_id'           => $lhp->id,
+                'nomor_temuan'     => $request->nomor_temuan,
+                'uraian_temuan'    => $request->uraian_temuan,
+                'administrasi'     => $request->administrasi,
+                'nilai_kerugian'   => $nilaiKerugian,
+                'nama_pelaku'      => $request->nama_pelaku,
+            ]);
+            $lhp->updateStatusProses();
+            $lhp->updateStatusLhp();
 
 
-        $temuan = Temuan::create([
+            return redirect()
+                ->route('lhp.show', $lhp->id)
+                ->with('success', 'Data temuan berhasil ditambahkan.');
+        } catch (\Exception $e) {
 
-            'lhp_id' => $lhp->id,
-
-            'nomor_temuan' => $request->nomor_temuan,
-
-            'uraian_temuan' => $request->uraian_temuan,
-
-            'administrasi' => $request->administrasi,
-
-            'nilai_kerugian' => $request->nilai_kerugian
-                ? str_replace('.', '', $request->nilai_kerugian)
-                : null,
-
-            'nama_pelaku' => $request->nama_pelaku
-
-        ]);
-
-
-
-
-
-        // Update status LHP otomatis
-        // $lhp->update([
-
-        //     'status_proses' => 'dalam_proses'
-
-        // ]);
-
-        
-        $lhp->updateStatusLhp();
-
-
-
-        return redirect()
-
-            ->route('lhp.show', $lhp->id)
-
-            ->with(
-                'success',
-                'Data temuan berhasil ditambahkan'
-            );
+            return back()
+                ->withInput()
+                ->with('error', 'Data temuan gagal ditambahkan. ' . $e->getMessage());
+        }
     }
 
+    public function update(Request $request, Temuan $temuan)
+    {
+        $request->validate([
+            'nomor_temuan'   => 'required|string|max:50',
+            'uraian_temuan'  => 'required|string',
+            'administrasi'   => 'nullable|string',
+            'nilai_kerugian' => 'nullable|string',
+            'nama_pelaku'    => 'nullable|string|max:255',
+        ]);
 
+        try {
 
+            $nilaiKerugian = null;
+
+            if ($request->filled('nilai_kerugian')) {
+                $nilaiKerugian = str_replace(
+                    ['.', ','],
+                    ['', '.'],
+                    $request->nilai_kerugian
+                );
+            }
+
+            $temuan->update([
+                'nomor_temuan'    => $request->nomor_temuan,
+                'uraian_temuan'   => $request->uraian_temuan,
+                'administrasi'    => $request->administrasi,
+                'nilai_kerugian'  => $nilaiKerugian,
+                'nama_pelaku'     => $request->nama_pelaku,
+            ]);
+
+            $temuan->lhp->updateStatusLhp();
+            $temuan->lhp->updateStatusProses();
+
+            return redirect()
+                ->route('lhp.show', $temuan->lhp_id)
+                ->with('success', 'Data temuan berhasil diperbarui.');
+        } catch (\Exception $e) {
+            return back()
+                ->withInput()
+                ->with('error', 'Data temuan gagal diperbarui. ' . $e->getMessage());
+        }
+    }
     /**
      * Form edit temuan
      */
     public function edit(Temuan $temuan)
     {
-
-
         return view(
             'pages.pemeriksaan.temuan.edit',
             compact('temuan')
@@ -107,54 +131,7 @@ class TemuanController extends Controller
     /**
      * Update temuan
      */
-    public function update(Request $request, Temuan $temuan)
-    {
 
-
-        $request->validate([
-
-            'nomor_temuan' => 'required',
-            'uraian_temuan' => 'required',
-            'administrasi' => 'nullable',
-            'nilai_kerugian' => 'nullable',
-            'nama_pelaku' => 'nullable'
-
-        ]);
-
-
-        $temuan->update([
-
-
-            'nomor_temuan' => $request->nomor_temuan,
-
-
-            'uraian_temuan' => $request->uraian_temuan,
-
-
-            'administrasi' => $request->administrasi,
-
-
-            'nilai_kerugian' => $request->nilai_kerugian
-                ? str_replace('.', '', $request->nilai_kerugian)
-                : null,
-
-
-            'nama_pelaku' => $request->nama_pelaku
-
-
-        ]);
-
-
-        return redirect()
-            ->route(
-                'lhp.show',
-                $temuan->lhp_id
-            )
-            ->with(
-                'success',
-                'Data temuan berhasil diperbarui'
-            );
-    }
 
     /**
      * Hapus temuan
