@@ -4,58 +4,181 @@ namespace App\Http\Controllers;
 
 use App\Models\Irban;
 use App\Models\Pegawai;
+use App\Models\PejabatAuditee;
+use App\Models\PihakKetiga;
 use Illuminate\Http\Request;
 
 class LaporanController extends Controller
 {
-
-    public function cetakIrban(Request $request)
+    public function cetakPihakKetigaTemuan()
     {
-        $laporan = $this->getLaporanIrban($request);
 
-        $listIrban = Irban::orderBy('nama_irban')->get();
-
-
-        $tanggalAwal = $request->tanggal_awal;
-
-        $tanggalAkhir = $request->tanggal_akhir;
+        $pihakKetiga = PihakKetiga::with([
+            'lhps.temuans.rekomendasis'
+        ])
+            ->whereHas('lhps.temuans')
+            ->get();
 
 
-        $tahun = null;
-        $bulan = null;
+        $inspektur = Pegawai::where(
+            'jabatan',
+            'Inspektur Kabupaten Ketapang'
+        )->first();
 
 
-        if ($tanggalAwal) {
+        $sekretaris = Pegawai::where(
+            'jabatan',
+            'Sekretaris'
+        )->first();
 
-            $tahun = \Carbon\Carbon::parse($tanggalAwal)
-                ->format('Y');
-
-
-            $bulan = \Carbon\Carbon::parse($tanggalAwal)
-                ->translatedFormat('F');
-        }
-
-        $irbanPegawai = Pegawai::where('irban_id', $request->irban_id)
-            ->first();
-
-        $inspektur = Pegawai::where('jabatan', 'Inspektur Kabupaten Ketapang')->first();
-
-        $sekretaris = Pegawai::where('jabatan', 'Sekretaris')->first();
 
 
         return view(
-            'pages.laporan.cetak-irban',
+            'pages.laporan.cetak-pihak-ketiga-temuan',
             compact(
-                'laporan',
-                'listIrban',
-                'tahun',
-                'bulan',
-                'irbanPegawai',
+                'pihakKetiga',
                 'inspektur',
                 'sekretaris'
             )
         );
     }
+    public function pihakKetigaTemuan()
+    {
+
+        $pihakKetiga = PihakKetiga::with([
+            'lhps.temuans'
+        ])
+            ->whereHas('lhps.temuans')
+            ->get();
+
+
+        return view(
+            'pages.laporan.pihak-ketiga-temuan',
+            compact('pihakKetiga')
+        );
+    }
+    public function pnsTemuan()
+    {
+
+        $pegawai = PejabatAuditee::with([
+
+            'auditee',
+
+            'lhps.temuans.rekomendasis'
+
+        ])
+
+            ->whereHas('lhps.temuans')
+
+            ->get();
+
+
+
+        return view(
+            'pages.laporan.pns-temuan',
+            compact('pegawai')
+        );
+    }
+
+    public function cetakPnsTemuan()
+    {
+
+        $pegawai = PejabatAuditee::with([
+            'auditee',
+            'lhps.temuans.rekomendasis'
+        ])
+            ->whereHas('lhps.temuans')
+            ->get();
+
+
+
+        $inspektur = Pegawai::where(
+            'jabatan',
+            'Inspektur Kabupaten Ketapang'
+        )->first();
+
+
+
+        $sekretaris = Pegawai::where(
+            'jabatan',
+            'Sekretaris'
+        )->first();
+
+
+
+        return view(
+            'pages.laporan.cetak-pns-temuan',
+            compact(
+                'pegawai',
+                'inspektur',
+                'sekretaris'
+            )
+        );
+    }
+
+    public function cetakIrban(Request $request)
+    {
+        if ($request->filled('irban_id')) {
+
+            $laporan = [
+                $this->getLaporanIrban($request)
+            ];
+
+            $semuaIrban = false;
+        } else {
+
+            $laporan = $this->getLaporanSemuaIrban($request);
+
+            $semuaIrban = true;
+        }
+
+        $tanggalAwal = $request->tanggal_awal;
+
+        $tahun = null;
+        $bulan = null;
+
+        if ($tanggalAwal) {
+
+            $tanggal = \Carbon\Carbon::parse($tanggalAwal);
+
+            $tahun = $tanggal->format('Y');
+
+            $bulan = $tanggal->translatedFormat('F');
+        }
+
+        $irbanPegawai = null;
+
+        if ($request->filled('irban_id')) {
+
+            $laporan = $this->getLaporanIrban($request);
+
+            return view(
+                'pages.laporan.cetak-irban',
+                compact(
+                    'laporan',
+                    'tahun',
+                    'bulan',
+                    'irbanPegawai',
+                    'inspektur',
+                    'sekretaris'
+                )
+            );
+        }
+
+        $laporan = $this->getLaporanSemuaIrban($request);
+
+        return view(
+            'pages.laporan.cetak-semua-irban',
+            compact(
+                'laporan',
+                'tahun',
+                'bulan',
+                'inspektur',
+                'sekretaris'
+            )
+        );
+    }
+
     public function cetak(Request $request)
     {
         $inspektur = Pegawai::where(
@@ -435,12 +558,278 @@ class LaporanController extends Controller
         return $data;
     }
 
+    private function getLaporanSemuaIrban(Request $request)
+    {
+        $irbans = Irban::with([
+            "lhps" => function ($query) use ($request) {
+
+                if ($request->filled("tanggal_awal")) {
+
+                    $query->whereDate(
+                        "tanggal_lhp",
+                        ">=",
+                        $request->tanggal_awal
+                    );
+                }
+
+
+                if ($request->filled("tanggal_akhir")) {
+
+                    $query->whereDate(
+                        "tanggal_lhp",
+                        "<=",
+                        $request->tanggal_akhir
+                    );
+                }
+
+
+                $query->where('status_proses', '!=', 'nihil');
+
+
+                $query->with([
+                    'temuans.rekomendasis.tindakLanjut'
+                ]);
+            },
+
+        ])
+            ->orderBy('nama_irban')
+            ->get();
+
+
+
+        $laporan = [];
+
+
+
+        foreach ($irbans as $irban) {
+
+
+            $data = [
+
+                "wilayah" => $irban->nama_irban,
+
+                "lhp" => [],
+
+                "nihil" => false
+
+            ];
+
+
+
+            /*
+        |--------------------------------------------------------------------------
+        | Jika Irban tidak memiliki LHP
+        |--------------------------------------------------------------------------
+        */
+
+
+            if ($irban->lhps->count() == 0) {
+
+
+                $data["nihil"] = true;
+
+
+                $laporan[] = $data;
+
+
+                continue;
+            }
+
+
+
+
+            /*
+        |--------------------------------------------------------------------------
+        | Loop LHP
+        |--------------------------------------------------------------------------
+        */
+
+
+            foreach ($irban->lhps as $lhp) {
+
+
+                $item = [
+
+
+                    "nomor" => $lhp->nomor_lhp,
+
+
+                    "tanggal" => $lhp->tanggal_lhp,
+                    'wilayah' => $irban->nama_irban,
+
+                    "obrik" => $lhp->objek_pemeriksaan,
+
+
+                    "temuan" => 0,
+
+
+                    "rekomendasi" => 0,
+
+
+                    "selesai" => 0,
+
+
+                    "dalam_proses" => 0,
+
+
+                    "belum" => 0,
+
+
+                    "kerugian" => 0,
+
+
+                    "disetor" => 0,
+
+
+                    "sisa" => 0,
+
+
+                    "pajak" => 0,
+
+
+                    "pajak_disetor" => 0,
+
+
+                    "pajak_sisa" => 0,
+
+
+                ];
+
+
+
+
+                foreach ($lhp->temuans as $temuan) {
+
+
+                    $item["temuan"]++;
+
+
+
+                    foreach ($temuan->rekomendasis as $rek) {
+
+
+
+                        $item["rekomendasi"]++;
+
+
+
+                        $item["kerugian"] += $rek->nilai_finansial ?? 0;
+
+
+
+                        $item["pajak"] += $rek->nilai_pajak ?? 0;
+
+
+
+
+                        /*
+                    |--------------------------------------------------------------------------
+                    | Ambil tindak lanjut terakhir
+                    |--------------------------------------------------------------------------
+                    */
+
+
+                        $tl = $rek->tindakLanjut
+                            ->sortByDesc('created_at')
+                            ->first();
+
+
+
+
+                        if (!$tl) {
+
+
+                            $item["belum"]++;
+                        } elseif ($tl->status_id == 3) {
+
+
+                            $item["selesai"]++;
+                        } elseif ($tl->status_id == 2) {
+
+
+                            $item["dalam_proses"]++;
+                        } else {
+
+
+                            $item["belum"]++;
+                        }
+
+
+
+
+                        if ($tl) {
+
+
+                            $item["disetor"] +=
+                                $tl->nilai_pengembalian ?? 0;
+
+
+
+                            $item["pajak_disetor"] +=
+                                $tl->nilai_setor_pajak ?? 0;
+                        }
+                    }
+                }
+
+
+
+
+                $item["sisa"] =
+                    $item["kerugian"] -
+                    $item["disetor"];
+
+
+
+                $item["pajak_sisa"] =
+                    $item["pajak"] -
+                    $item["pajak_disetor"];
+
+
+
+
+                $data["lhp"][] = $item;
+            }
+
+
+
+            $laporan[] = $data;
+        }
+
+
+
+        return $laporan;
+    }
+
     public function irban(Request $request)
     {
-        $laporan = $this->getLaporanIrban($request);
+        $listIrban = Irban::orderBy('nama_irban')->get();
 
-        $listIrban = Irban::orderBy("nama_irban")->get();
+        $laporan = null;
 
-        return view("pages.laporan.irban", compact("laporan", "listIrban"));
+        // Halaman pertama kali dibuka
+        if (!$request->has('tanggal_awal') && !$request->has('tanggal_akhir')) {
+
+            return view(
+                'pages.laporan.irban',
+                compact('listIrban', 'laporan')
+            );
+        }
+
+        if ($request->filled('irban_id')) {
+
+            $laporan = $this->getLaporanIrban($request);
+
+            return view(
+                'pages.laporan.irban',
+                compact('laporan', 'listIrban')
+            );
+        }
+
+        $laporan = $this->getLaporanSemuaIrban($request);
+
+        return view(
+            'pages.laporan.semua-irban',
+            compact('laporan', 'listIrban')
+        );
     }
 }

@@ -293,6 +293,31 @@ Route::middleware("auth")->group(function () {
         MatriksTindakLanjutController::class,
         "index",
     ])->name("matriks.index");
+
+    Route::get('/lhp/{lhp}/cetak', [LhpController::class, 'cetak'])
+        ->name('lhp.cetak');
+
+    Route::get(
+        '/laporan/pns-temuan',
+        [LaporanController::class, 'pnsTemuan']
+    )
+        ->name('laporan.pns.temuan');
+
+
+    Route::get(
+        '/laporan/pns-temuan/cetak',
+        [LaporanController::class, 'cetakPnsTemuan']
+    )
+        ->name('laporan.pns.temuan.cetak');
+
+    Route::get(
+        '/laporan/pihak-ketiga-temuan/cetak',
+        [LaporanController::class, 'cetakPihakKetigaTemuan']
+    )->name('laporan.pihak.ketiga.temuan.cetak');
+
+    Route::get('/laporan/pihak-ketiga-temuan',
+    [LaporanController::class, 'pihakKetigaTemuan']
+)->name('laporan.pihak.ketiga.temuan');
 });
 
 require __DIR__ . "/auth.php";

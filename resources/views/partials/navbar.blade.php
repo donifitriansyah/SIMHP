@@ -284,6 +284,25 @@
                             </a>
 
                         </li>
+                        <li>
+
+                            <a class="dropdown-item" href="{{ route('laporan.pns.temuan') }}">
+
+                                Temuan (PNS)
+
+                            </a>
+
+                        </li>
+
+                        <li>
+
+                            <a class="dropdown-item" href="{{ route('laporan.pihak.ketiga.temuan') }}">
+
+                                Temuan (Pihak Ketiga)
+
+                            </a>
+
+                        </li>
 
                         {{-- <li>
 

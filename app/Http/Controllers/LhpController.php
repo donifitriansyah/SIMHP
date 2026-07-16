@@ -439,6 +439,24 @@ class LhpController extends Controller
         );
     }
 
+    public function cetak(Lhp $lhp)
+    {
+        $lhp->load([
+            'irban',
+            'auditee',
+            'pejabatAuditee',
+            'pihakKetiga',
+            'temuans.rekomendasis.tindakLanjut.status',
+            'temuans.rekomendasis.tindakLanjut.dokumen',
+            'dokumen'
+        ]);
+                
+        return view(
+            'pages.pemeriksaan.lhp.cetak',
+            compact('lhp')
+        );
+    }
+
     public function edit(Lhp $lhp)
     {
 

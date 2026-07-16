@@ -108,7 +108,7 @@
 
                         <div class="col-md-6 mb-3">
                             <label class="form-label">
-                               Pilih Jenis  Tindak Lanjut
+                                Pilih Jenis Tindak Lanjut
                             </label>
 
                             <select name="jenis_tindak_lanjut" class="form-select" required>
@@ -261,6 +261,12 @@
                             </small>
 
 
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Keterangan</label>
+
+                            <textarea name="keterangan" class="form-control" rows="3"></textarea>
                         </div>
 
 

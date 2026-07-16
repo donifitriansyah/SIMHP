@@ -21,7 +21,8 @@ class TindakLanjut extends Model
         'nilai_pengembalian',
         'nilai_setor_pajak',
         'tanggal_validasi',
-        'validator'
+        'validator',
+        'keterangan',
 
 
     ];

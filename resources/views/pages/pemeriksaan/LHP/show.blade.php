@@ -21,6 +21,10 @@
                     <i class="bi bi-arrow-left"></i> Kembali
 
                 </a>
+                <a href="{{ route('lhp.cetak', $lhp->id) }}" target="_blank" class="btn btn-danger">
+                    <i class="bi bi-printer"></i>
+                    Cetak PDF
+                </a>
                 @auth
                     @if (auth()->user()->role == 'super_user')
                         <a href="{{ route('lhp.edit', $lhp->id) }}" class="btn btn-warning">

@@ -41,12 +41,16 @@ class TindakLanjutController extends Controller
             "tanggal_validasi" => "nullable",
 
             "validator" => "nullable",
+
+            'keterangan' => 'nullable|string',
         ]);
 
         $tindakLanjut = TindakLanjut::create([
             "rekomendasi_id" => $rekomendasi->id,
 
             "status_id" => $request->status_id,
+
+            'keterangan' => $request->keterangan,
 
             "narasi" => $request->narasi,
 
@@ -124,7 +128,7 @@ class TindakLanjutController extends Controller
         $tindakLanjut->update([
             "status_id" => $request->status_id,
             "narasi" => $request->narasi,
-
+            'keterangan' => $request->keterangan,
             "nilai_pengembalian" => $request->nilai_pengembalian
                 ? str_replace(".", "", $request->nilai_pengembalian)
                 : null,
