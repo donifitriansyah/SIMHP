@@ -209,11 +209,7 @@
 
                             @empty
 
-                                <tr>
-                                    <td colspan="11" class="text-center">
-                                        Tidak ada data.
-                                    </td>
-                                </tr>
+                                
                             @endforelse
 
                         </tbody>

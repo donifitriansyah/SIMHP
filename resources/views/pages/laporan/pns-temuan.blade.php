@@ -81,12 +81,12 @@
 
                 <div class="col-md-2 d-flex align-items-end">
                     <a href="{{ route('laporan.pns.temuan.cetak', request()->query()) }}" target="_blank"
-                    class="btn btn-success w-100">
+                        class="btn btn-success w-100">
 
-                    <i class="bi bi-printer"></i>
-                    Cetak
+                        <i class="bi bi-printer"></i>
+                        Cetak
 
-                </a>
+                    </a>
 
                 </div>
 
@@ -102,15 +102,14 @@
                         <tr>
 
                             <th>No</th>
-
-                            <th>Nomor LHP</th>
-
                             <th>Nama PNS</th>
 
                             @if ($jenis == 'internal')
                                 <th>Jabatan</th>
-
                                 <th>Instansi</th>
+                            @endif
+                             @if ($jenis == 'eksternal')
+                                <th>Instansi Pemeriksa</th>
                             @endif
 
                             <th>Jumlah Temuan</th>
@@ -123,47 +122,78 @@
                     <tbody>
 
 
-                        @foreach ($lhps as $lhp)
-                            <tr>
+                        @if ($jenis == 'internal')
+                            {{-- DATA PEJABAT AUDITEE --}}
 
-                                <td>
-                                    {{ $loop->iteration }}
-                                </td>
+                            @foreach ($pegawai as $item)
+                                <tr>
 
-                                <td>
-                                    {{ $lhp->nomor_lhp }}
-                                </td>
-
-
-                                <td>
-
-                                    @if ($lhp->instansi_pemeriksa == 'Itkab')
-                                        {{ $lhp->pejabatAuditee->nama ?? '-' }}
-                                    @else
-                                        {{ $lhp->nama_pejabat_eksternal ?? '-' }}
-                                    @endif
-
-                                </td>
-
-                                @if ($jenis == 'internal')
                                     <td>
-                                        {{ $lhp->pejabatAuditee->jenis_jabatan ?? '-' }}
+                                        {{ $loop->iteration }}
                                     </td>
+
                                     <td>
-                                        {{ $lhp->auditee->nama_dinas ?? '-' }}
+                                        {{ $item->nama }}
                                     </td>
-                                @endif
 
+                                    <td>
+                                        {{ $item->jenis_jabatan }}
+                                    </td>
 
+                                    <td>
+                                        {{ $item->auditee->nama_dinas ?? '-' }}
+                                    </td>
 
+                                    <td>
+                                        {{ $item->lhps->sum(function ($lhp) {
+                                            return $lhp->temuans->count();
+                                        }) }}
+                                    </td>
 
-                                <td>
-                                    {{ $lhp->temuans->count() }}
-                                </td>
+                                </tr>
+                            @endforeach
+                        @else
+                            {{-- DATA EKSTERNAL DARI LHP --}}
 
+                            @foreach ($lhps as $lhp)
+                                <tr>
 
-                            </tr>
-                        @endforeach
+                                    <td>
+                                        {{ $loop->iteration }}
+                                    </td>
+
+                                    <td>
+                                        {{ $lhp->nama_pejabat_eksternal }}
+                                    </td>
+
+                                    <td>
+
+                                        @switch($lhp->instansi_pemeriksa)
+                                            @case('Itprov')
+                                                Inspektorat Provinsi
+                                            @break
+
+                                            @case('BPK RI')
+                                                Badan Pemeriksa Keuangan Republik Indonesia
+                                            @break
+
+                                            @case('BPKP')
+                                                Badan Pengawasan Keuangan dan Pembangunan
+                                            @break
+
+                                            @default
+                                                -
+                                        @endswitch
+
+                                    </td>
+
+                                    <td>
+                                        {{ $lhp->temuans->count() }}
+                                    </td>
+
+                                </tr>
+                            @endforeach
+                        @endif
 
 
                     </tbody>

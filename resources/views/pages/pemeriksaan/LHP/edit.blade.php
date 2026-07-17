@@ -17,9 +17,9 @@
             </div>
 
 
-            <a href="{{ url()->previous() }}" class="btn btn-secondary">
+            <a href="{{ $lhp->instansi_pemeriksa == 'Itkab' ? route('pemeriksaan.internal') : route('pemeriksaan.eksternal') }}"
+                class="btn btn-secondary">
 
-                <i class="bi bi-arrow-left"></i>
                 Kembali
 
             </a>
@@ -144,6 +144,9 @@
 
 
                         </div>
+                        @if ($jenis == 'internal')
+                        <input type="hidden" name="instansi_pemeriksa" value="Itkab">
+                        @endif
 
                         @if ($jenis == 'eksternal')
                             <div class="col-md-6 mb-3">

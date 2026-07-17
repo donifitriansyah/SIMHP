@@ -575,16 +575,31 @@
 
                                                     </h6>
                                                     @auth
+
                                                         @if (auth()->user()->role == 'super_user')
-                                                            <a href="{{ route('tindak-lanjut.create', $rekomendasi->id) }}"
-                                                                class="btn btn-success btn-sm">
+                                                            @php
+                                                                $tindakLanjutTerakhir = $rekomendasi->tindakLanjut
+                                                                    ->sortByDesc('created_at')
+                                                                    ->first();
+                                                            @endphp
 
-                                                                <i class="bi bi-plus"></i>
 
-                                                                Tambah
+                                                            @if (!$tindakLanjutTerakhir || $tindakLanjutTerakhir->status_id != 3)
+                                                                <a href="{{ route('tindak-lanjut.create', $rekomendasi->id) }}"
+                                                                    class="btn btn-success btn-sm">
 
-                                                            </a>
+                                                                    <i class="bi bi-plus"></i>
+
+                                                                    Tambah
+
+                                                                </a>
+                                                            @else
+                                                                <span class="badge bg-success">
+                                                                    Selesai
+                                                                </span>
+                                                            @endif
                                                         @endif
+
                                                     @endauth
 
 

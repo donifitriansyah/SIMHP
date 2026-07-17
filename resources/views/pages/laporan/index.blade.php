@@ -9,10 +9,12 @@
                     Jenis Pemeriksaan
                 </label>
                 <select name="jenis" class="form-select">
-                    <option value="internal" {{ request('jenis') == 'internal' ? 'selected' : '' }}>
+
+                    <option value="internal" {{ $jenis == 'internal' ? 'selected' : '' }}>
                         Internal
                     </option>
-                    <option value="eksternal" {{ request('jenis') == 'eksternal' ? 'selected' : '' }}>
+
+                    <option value="eksternal" {{ $jenis == 'eksternal' ? 'selected' : '' }}>
                         Eksternal
                     </option>
 

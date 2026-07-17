@@ -18,9 +18,35 @@ class TindakLanjutController extends Controller
     {
         $statuses = StatusTindakLanjut::all();
 
+
+        // Load relasi tindak lanjut
+        $rekomendasi->load('tindakLanjut');
+
+
+        // Ambil tindak lanjut terakhir
+        $terakhir = $rekomendasi->tindakLanjut
+            ->sortByDesc('created_at')
+            ->first();
+
+
+        // Jika sudah selesai tidak boleh tambah lagi
+        if ($terakhir && $terakhir->status_id == 3) {
+
+            return redirect()
+                ->back()
+                ->with(
+                    'error',
+                    'Tindak lanjut sudah selesai dan tidak dapat ditambahkan lagi.'
+                );
+        }
+
+
         return view(
             "pages.tindak-lanjut.create",
-            compact("rekomendasi", "statuses")
+            compact(
+                "rekomendasi",
+                "statuses"
+            )
         );
     }
 

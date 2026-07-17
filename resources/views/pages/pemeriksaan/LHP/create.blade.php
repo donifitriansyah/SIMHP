@@ -129,6 +129,9 @@
                                 value="{{ old('tahun_pkpt', date('Y')) }}" required>
 
                         </div>
+                        @if ($jenis == 'internal')
+                            <input type="hidden" name="instansi_pemeriksa" value="Itkab">
+                        @endif
                         @if ($jenis == 'eksternal')
                             <div class="col-md-6 mb-3">
 

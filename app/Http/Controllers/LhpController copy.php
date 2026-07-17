@@ -547,7 +547,7 @@ class LhpController extends Controller
             'irban_id'             => 'required|exists:irban,id',
             'auditee_id'           => 'required|exists:auditee,id',
             'pejabat_auditee_id'   => 'required|exists:pejabat_auditee,id',
-            'instansi_pemeriksa'   => 'required|in:Itkab,Itprov,BPK RI,BPKP',
+            'instansi_pemeriksa'   => 'nullable|in:Itkab,Itprov,BPK RI,BPKP',
             'objek_pemeriksaan'    => 'required',
 
             'nomor_lhp'            => 'required',

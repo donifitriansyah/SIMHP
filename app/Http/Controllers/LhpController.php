@@ -8,6 +8,7 @@ use App\Models\Lhp;
 use App\Models\PejabatAuditee;
 use App\Models\PihakKetiga;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class LhpController extends Controller
 {
@@ -507,13 +508,14 @@ class LhpController extends Controller
             'nama_pejabat_eksternal' => 'nullable|string|max:255',
             'auditee_id'           => 'nullable|exists:auditee,id',
             'pejabat_auditee_id'   => 'nullable|exists:pejabat_auditee,id',
-            'instansi_pemeriksa'   => 'required|in:Itkab,Itprov,BPK RI,BPKP',
+            'instansi_pemeriksa'   => 'nullable|in:Itkab,Itprov,BPK RI,BPKP',
             'objek_pemeriksaan'    => 'required',
 
-            'nomor_lhp'            => 'required',
+            'nomor_lhp' => 'required|unique:lhp,nomor_lhp',
+
+            'nomor_spt' => 'required|unique:lhp,nomor_spt',
             'tanggal_lhp'          => 'required|date',
 
-            'nomor_spt'            => 'required',
             'tanggal_spt'          => 'required|date',
 
             'tahun_pkpt'           => 'required',
@@ -585,7 +587,7 @@ class LhpController extends Controller
 
         return redirect()
             ->route(
-                $request->jenis == 'internal'
+                $request->instansi_pemeriksa == 'Itkab'
                     ? 'pemeriksaan.internal'
                     : 'pemeriksaan.eksternal'
             )
@@ -684,11 +686,22 @@ class LhpController extends Controller
             'pejabat_auditee_id'   => 'nullable|exists:pejabat_auditee,id',
 
             'objek_pemeriksaan'    => 'required',
+            'instansi_pemeriksa'   => 'nullable|in:Itkab,Itprov,BPK RI,BPKP',
 
-            'nomor_lhp'            => 'required',
+            'nomor_lhp' => [
+                'required',
+                Rule::unique('lhp', 'nomor_lhp')
+                    ->ignore($lhp->id)
+            ],
+
+
+            'nomor_spt' => [
+                'required',
+                Rule::unique('lhp', 'nomor_spt')
+                    ->ignore($lhp->id)
+            ],
             'tanggal_lhp'          => 'required|date',
 
-            'nomor_spt'            => 'required',
             'tanggal_spt'          => 'required|date',
 
             'tahun_pkpt'           => 'required',
@@ -706,6 +719,8 @@ class LhpController extends Controller
             'auditee_id'           => $request->auditee_id,
 
             'nama_pejabat_eksternal' => $request->nama_pejabat_eksternal,
+
+            'instansi_pemeriksa'  => $request->instansi_pemeriksa,
 
             'pejabat_auditee_id'   => $request->pejabat_auditee_id,
 
@@ -756,13 +771,13 @@ class LhpController extends Controller
 
         return redirect()
             ->route(
-                $request->jenis == 'internal'
+                $lhp->instansi_pemeriksa == 'Itkab'
                     ? 'pemeriksaan.internal'
                     : 'pemeriksaan.eksternal'
             )
             ->with(
                 'success',
-                'Data LHP berhasil diperbarui'
+                'Data LHP berhasil diupdate'
             );
     }
 
@@ -774,7 +789,7 @@ class LhpController extends Controller
 
         return redirect()
             ->route(
-                $lhp->jenis == 'internal'
+                $lhp->instansi_pemeriksa == 'Itkab'
                     ? 'pemeriksaan.internal'
                     : 'pemeriksaan.eksternal'
             )

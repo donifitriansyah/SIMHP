@@ -251,9 +251,12 @@ class LaporanController extends Controller
             compact('pihakKetiga')
         );
     }
+
+
+
+
     public function pnsTemuan(Request $request)
     {
-        // Default tampil internal
         if (!$request->filled('jenis')) {
             $request->merge([
                 'jenis' => 'internal'
@@ -261,68 +264,114 @@ class LaporanController extends Controller
         }
 
 
-        $lhps = Lhp::with([
-            'auditee',
-            'pejabatAuditee',
-            'temuans.rekomendasis'
-        ])
-            ->whereHas('temuans');
-
-
-        // Filter jenis pemeriksaan
-        if ($request->jenis == 'internal') {
-
-            $lhps->where(
-                'instansi_pemeriksa',
-                'Itkab'
-            );
-        } elseif ($request->jenis == 'eksternal') {
-
-            $lhps->whereIn(
-                'instansi_pemeriksa',
-                [
-                    'Itprov',
-                    'BPK RI',
-                    'BPKP'
-                ]
-            );
-        }
-
-
-        // Filter tanggal
-        if ($request->filled('tanggal_awal')) {
-
-            $lhps->whereDate(
-                'tanggal_lhp',
-                '>=',
-                $request->tanggal_awal
-            );
-        }
-
-
-        if ($request->filled('tanggal_akhir')) {
-
-            $lhps->whereDate(
-                'tanggal_lhp',
-                '<=',
-                $request->tanggal_akhir
-            );
-        }
-
-
-        $lhps = $lhps->latest()->get();
-
         $jenis = $request->jenis;
-        return view(
-            'pages.laporan.pns-temuan',
-            compact('lhps', 'jenis')
-        );
+
+
+        if ($jenis == 'internal') {
+
+            // ============================
+            // INTERNAL
+            // ============================
+
+            $pegawai = PejabatAuditee::with([
+                'auditee',
+                'lhps.temuans.rekomendasis'
+            ])
+                ->whereHas('lhps', function ($query) use ($request) {
+
+                    $query->where(
+                        'instansi_pemeriksa',
+                        'Itkab'
+                    );
+
+
+                    if ($request->filled('tanggal_awal')) {
+
+                        $query->whereDate(
+                            'tanggal_lhp',
+                            '>=',
+                            $request->tanggal_awal
+                        );
+                    }
+
+
+                    if ($request->filled('tanggal_akhir')) {
+
+                        $query->whereDate(
+                            'tanggal_lhp',
+                            '<=',
+                            $request->tanggal_akhir
+                        );
+                    }
+                })
+                ->whereHas('lhps.temuans')
+                ->get();
+
+
+            return view(
+                'pages.laporan.pns-temuan',
+                compact(
+                    'pegawai',
+                    'jenis'
+                )
+            );
+        } else {
+
+
+            // ============================
+            // EKSTERNAL
+            // ============================
+
+            $lhps = Lhp::with([
+                'temuans.rekomendasis'
+            ])
+                ->whereIn(
+                    'instansi_pemeriksa',
+                    [
+                        'Itprov',
+                        'BPK RI',
+                        'BPKP'
+                    ]
+                )
+                ->whereHas('temuans');
+
+
+            if ($request->filled('tanggal_awal')) {
+
+                $lhps->whereDate(
+                    'tanggal_lhp',
+                    '>=',
+                    $request->tanggal_awal
+                );
+            }
+
+
+            if ($request->filled('tanggal_akhir')) {
+
+                $lhps->whereDate(
+                    'tanggal_lhp',
+                    '<=',
+                    $request->tanggal_akhir
+                );
+            }
+
+
+            $lhps = $lhps->get();
+
+
+            return view(
+                'pages.laporan.pns-temuan',
+                compact(
+                    'lhps',
+                    'jenis'
+                )
+            );
+        }
     }
 
     public function cetakPnsTemuan(Request $request)
     {
 
-        // Default internal
         if (!$request->filled('jenis')) {
 
             $request->merge([
@@ -331,73 +380,89 @@ class LaporanController extends Controller
         }
 
 
-        $lhps = Lhp::with([
-
-            'auditee',
-            'pejabatAuditee',
-            'temuans.rekomendasis'
-
-        ])
-            ->whereHas('temuans');
+        $jenis = $request->jenis;
 
 
+        if ($jenis == 'internal') {
 
-        /*
-    |--------------------------------------------------------------------------
-    | Filter Jenis Pemeriksaan
-    |--------------------------------------------------------------------------
-    */
 
-        if ($request->jenis == 'internal') {
+            $pegawai = PejabatAuditee::with([
+                'auditee',
+                'lhps.temuans.rekomendasis'
+            ])
+                ->whereHas('lhps', function ($query) use ($request) {
 
-            $lhps->where(
-                'instansi_pemeriksa',
-                'Itkab'
-            );
-        } elseif ($request->jenis == 'eksternal') {
 
-            $lhps->whereIn(
-                'instansi_pemeriksa',
-                [
-                    'Itprov',
-                    'BPK RI',
-                    'BPKP'
-                ]
-            );
+                    $query->where(
+                        'instansi_pemeriksa',
+                        'Itkab'
+                    );
+
+
+                    if ($request->filled('tanggal_awal')) {
+
+                        $query->whereDate(
+                            'tanggal_lhp',
+                            '>=',
+                            $request->tanggal_awal
+                        );
+                    }
+
+
+                    if ($request->filled('tanggal_akhir')) {
+
+                        $query->whereDate(
+                            'tanggal_lhp',
+                            '<=',
+                            $request->tanggal_akhir
+                        );
+                    }
+                })
+                ->whereHas('lhps.temuans')
+                ->get();
+
+
+
+            $data = $pegawai;
+        } else {
+
+
+            $lhps = Lhp::with([
+                'temuans.rekomendasis'
+            ])
+                ->whereIn(
+                    'instansi_pemeriksa',
+                    [
+                        'Itprov',
+                        'BPK RI',
+                        'BPKP'
+                    ]
+                )
+                ->whereHas('temuans');
+
+
+            if ($request->filled('tanggal_awal')) {
+
+                $lhps->whereDate(
+                    'tanggal_lhp',
+                    '>=',
+                    $request->tanggal_awal
+                );
+            }
+
+
+            if ($request->filled('tanggal_akhir')) {
+
+                $lhps->whereDate(
+                    'tanggal_lhp',
+                    '<=',
+                    $request->tanggal_akhir
+                );
+            }
+
+
+            $data = $lhps->latest()->get();
         }
-
-
-
-        /*
-    |--------------------------------------------------------------------------
-    | Filter Tanggal
-    |--------------------------------------------------------------------------
-    */
-
-        if ($request->filled('tanggal_awal')) {
-
-            $lhps->whereDate(
-                'tanggal_lhp',
-                '>=',
-                $request->tanggal_awal
-            );
-        }
-
-
-        if ($request->filled('tanggal_akhir')) {
-
-            $lhps->whereDate(
-                'tanggal_lhp',
-                '<=',
-                $request->tanggal_akhir
-            );
-        }
-
-
-
-        $lhps = $lhps
-            ->latest()
-            ->get();
 
 
 
@@ -405,7 +470,6 @@ class LaporanController extends Controller
             'jabatan',
             'Inspektur Kabupaten Ketapang'
         )->first();
-
 
 
         $sekretaris = Pegawai::where(
@@ -418,7 +482,8 @@ class LaporanController extends Controller
         return view(
             'pages.laporan.cetak-pns-temuan',
             compact(
-                'lhps',
+                'data',
+                'jenis',
                 'inspektur',
                 'sekretaris'
             )
@@ -735,16 +800,26 @@ class LaporanController extends Controller
 
     public function index(Request $request)
     {
+        // Default jenis pemeriksaan = internal
+        if (!$request->filled('jenis')) {
+            $request->merge([
+                'jenis' => 'internal'
+            ]);
+        }
+
+
         $laporan = $this->getLaporan($request);
 
         $listIrban = Irban::orderBy("nama_irban")->get();
+
         $jenis = $request->jenis;
+
+
         return view(
             "pages.laporan.index",
-
             compact(
                 "laporan",
-                'jenis',
+                "jenis",
                 "listIrban"
             )
         );
