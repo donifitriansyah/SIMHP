@@ -120,18 +120,19 @@
 
                 <th>No</th>
 
+                <th>No LHP</th>
                 <th>Nama Perusahaan</th>
 
                 <th>Pimpinan</th>
 
                 <th>Paket Pekerjaan</th>
 
+
                 <th>Objek Pemeriksaan</th>
 
                 <th>Jumlah Temuan</th>
 
                 <th>Jumlah Rekomendasi</th>
-
 
             </tr>
 
@@ -150,6 +151,20 @@
 
                     <td>
                         {{ $loop->iteration }}
+                    </td>
+
+                    <td>
+
+                        @foreach ($item->lhps as $lhp)
+                            @if ($lhp->temuans->count() > 0)
+                                {{ $lhp->nomor_lhp }}
+
+                                @if (!$loop->last)
+                                    <br>
+                                @endif
+                            @endif
+                        @endforeach
+
                     </td>
 
 
@@ -224,7 +239,7 @@
 
                 <tr>
 
-                    <td colspan="7" align="center">
+                    <td colspan="8" align="center">
 
                         Tidak ada data
 

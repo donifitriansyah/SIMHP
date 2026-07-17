@@ -11,6 +11,10 @@ class Lhp extends Model
 
     protected $table = 'lhp';
 
+    public const INSTANSI_ITKAB = 'Itkab';
+    public const INSTANSI_ITPROV = 'Itprov';
+    public const INSTANSI_BPK_RI = 'BPK RI';
+    public const INSTANSI_BPKP = 'BPKP';
 
     protected $fillable = [
 
@@ -19,6 +23,7 @@ class Lhp extends Model
         'pejabat_auditee_id',
         'pihak_ketiga_id',
         'objek_pemeriksaan',
+        'nama_pejabat_eksternal',
         'nomor_lhp',
         'tanggal_lhp',
         'nomor_spt',
@@ -26,10 +31,32 @@ class Lhp extends Model
         'tahun_pkpt',
         'jumlah_dana_diawasi',
         'jenis_pemeriksaan',
+        'instansi_pemeriksa',
         'status_lhp',
         'status_proses'
 
     ];
+
+    public static function getInstansiPemeriksa(): array
+    {
+        return [
+            self::INSTANSI_ITKAB => 'Inspektorat Kabupaten',
+            self::INSTANSI_ITPROV => 'Inspektorat Provinsi',
+            self::INSTANSI_BPK_RI => 'Badan Pemeriksa Keuangan Republik Indonesia',
+            self::INSTANSI_BPKP => 'Badan Pengawasan Keuangan dan Pembangunan',
+        ];
+    }
+
+    public function getInstansiPemeriksaLabelAttribute()
+    {
+        return match ($this->instansi_pemeriksa) {
+            'Itkab' => 'Inspektorat Kabupaten',
+            'Itprov' => 'Inspektorat Provinsi',
+            'BPK RI' => 'Badan Pemeriksa Keuangan Republik Indonesia',
+            'BPKP' => 'Badan Pengawasan Keuangan dan Pembangunan',
+            default => $this->instansi_pemeriksa,
+        };
+    }
 
     public function pejabatAuditee()
     {

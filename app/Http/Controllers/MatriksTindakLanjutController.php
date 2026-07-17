@@ -7,13 +7,52 @@ use Illuminate\Http\Request;
 
 class MatriksTindakLanjutController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $lhps = Lhp::with([
             'auditee',
             'temuans.rekomendasis.tindakLanjut.status',
             'temuans.rekomendasis.tindakLanjut.dokumen'
         ])
+
+            ->when($request->jenis == 'internal', function ($query) {
+
+                $query->where(
+                    'instansi_pemeriksa',
+                    'Itkab'
+                );
+            })
+
+            ->when($request->jenis == 'eksternal', function ($query) {
+
+                $query->whereIn(
+                    'instansi_pemeriksa',
+                    [
+                        'Itprov',
+                        'BPK RI',
+                        'BPKP'
+                    ]
+                );
+            })
+
+            ->when($request->filled('tanggal_awal'), function ($query) use ($request) {
+
+                $query->whereDate(
+                    'tanggal_lhp',
+                    '>=',
+                    $request->tanggal_awal
+                );
+            })
+
+            ->when($request->filled('tanggal_akhir'), function ($query) use ($request) {
+
+                $query->whereDate(
+                    'tanggal_lhp',
+                    '<=',
+                    $request->tanggal_akhir
+                );
+            })
+
             ->latest()
             ->get();
 
@@ -132,6 +171,8 @@ class MatriksTindakLanjutController extends Controller
 
                 'auditee' => $lhp->auditee->nama_dinas ?? '-',
 
+                'nama_pejabat_eksternal' => $lhp->nama_pejabat_eksternal,
+
                 'temuan' => $jumlahTemuan,
 
                 'rekomendasi' => $jumlahRekomendasi,
@@ -159,6 +200,4 @@ class MatriksTindakLanjutController extends Controller
             compact('matriks')
         );
     }
-
-    
 }

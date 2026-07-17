@@ -18,7 +18,20 @@
             </p>
 
         </div>
+        <div class="mb-4">
 
+            <a href="{{ route('dashboard', ['jenis' => 'internal']) }}"
+                class="btn {{ $jenis == 'internal' ? 'btn-primary' : 'btn-outline-primary' }}">
+                Internal
+            </a>
+
+
+            <a href="{{ route('dashboard', ['jenis' => 'eksternal']) }}"
+                class="btn {{ $jenis == 'eksternal' ? 'btn-primary' : 'btn-outline-primary' }}">
+                Eksternal
+            </a>
+
+        </div>
         <!-- Statistik -->
 
         <div class="row g-4">
@@ -355,43 +368,51 @@
                             <strong>Aktivitas Terbaru</strong>
                         </div>
 
-                        <div class="card-body">
+                        <div class="card-body p-0">
 
-                            <ul class="list-group list-group-flush">
+                            <div style="max-height: 350px; overflow-y: auto;">
 
-                                @forelse($aktivitas as $item)
-                                    <li class="list-group-item">
+                                <ul class="list-group list-group-flush">
 
-                                        <div class="d-flex">
+                                    @forelse($aktivitas as $item)
+                                        <li class="list-group-item">
 
-                                            <div class="me-3">
-                                                <i class="bi {{ $item['icon'] }} fs-4 text-primary"></i>
+                                            <div class="d-flex">
+
+                                                <div class="me-3">
+                                                    <i class="bi {{ $item['icon'] }} fs-4 text-primary"></i>
+                                                </div>
+
+                                                <div>
+
+                                                    <strong>
+                                                        {{ $item['judul'] }}
+                                                    </strong>
+
+                                                    <div>
+                                                        {{ $item['deskripsi'] }}
+                                                    </div>
+
+                                                    <small class="text-muted">
+                                                        {{ $item['tanggal']->diffForHumans() }}
+                                                    </small>
+
+                                                </div>
+
                                             </div>
 
-                                            <div>
+                                        </li>
 
-                                                <strong>{{ $item['judul'] }}</strong>
+                                    @empty
 
-                                                <div>{{ $item['deskripsi'] }}</div>
+                                        <li class="list-group-item text-muted">
+                                            Belum ada aktivitas
+                                        </li>
+                                    @endforelse
 
-                                                <small class="text-muted">
-                                                    {{ $item['tanggal']->diffForHumans() }}
-                                                </small>
+                                </ul>
 
-                                            </div>
-
-                                        </div>
-
-                                    </li>
-
-                                @empty
-
-                                    <li class="list-group-item text-muted">
-                                        Belum ada aktivitas
-                                    </li>
-                                @endforelse
-
-                            </ul>
+                            </div>
 
                         </div>
 

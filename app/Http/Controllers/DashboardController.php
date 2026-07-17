@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use Illuminate\Http\Request;
 
 use App\Models\Irban;
 use App\Models\Lhp;
@@ -87,117 +88,384 @@ class DashboardController extends Controller
 
     // }
 
-    public function index()
+    public function index(Request $request)
     {
-
-        $totalLhp = Lhp::count();
-
-
-        $totalTemuan = Temuan::count();
+        $jenis = $request->jenis ?? 'internal';
 
 
-        $totalRekomendasi = Rekomendasi::count();
+        /*
+    |--------------------------------------------------------------------------
+    | Filter LHP Internal / Eksternal
+    |--------------------------------------------------------------------------
+    */
+
+        $lhpQuery = Lhp::query();
 
 
-        $totalTindakLanjut = TindakLanjut::count();
+        if ($jenis == 'internal') {
+
+            $lhpQuery->where(
+                'instansi_pemeriksa',
+                'Itkab'
+            );
+        } else {
+
+            $lhpQuery->whereIn(
+                'instansi_pemeriksa',
+                [
+                    'Itprov',
+                    'BPK RI',
+                    'BPKP'
+                ]
+            );
+        }
 
 
 
-        // Status LHP Lengkap / Tidak Lengkap
+        /*
+    |--------------------------------------------------------------------------
+    | Statistik Utama
+    |--------------------------------------------------------------------------
+    */
 
-        $lhpLengkap = Lhp::where(
-            'status_lhp',
-            'lengkap'
+
+        $totalLhp = (clone $lhpQuery)->count();
+
+
+
+        $totalTemuan = Temuan::whereHas(
+            'lhp',
+            function ($q) use ($jenis) {
+
+                if ($jenis == 'internal') {
+
+                    $q->where(
+                        'instansi_pemeriksa',
+                        'Itkab'
+                    );
+                } else {
+
+                    $q->whereIn(
+                        'instansi_pemeriksa',
+                        [
+                            'Itprov',
+                            'BPK RI',
+                            'BPKP'
+                        ]
+                    );
+                }
+            }
         )->count();
 
 
 
-        $lhpTidakLengkap = Lhp::where(
-            'status_lhp',
-            'tidak_lengkap'
+        $totalRekomendasi = Rekomendasi::whereHas(
+            'temuan.lhp',
+            function ($q) use ($jenis) {
+
+                if ($jenis == 'internal') {
+
+                    $q->where(
+                        'instansi_pemeriksa',
+                        'Itkab'
+                    );
+                } else {
+
+                    $q->whereIn(
+                        'instansi_pemeriksa',
+                        [
+                            'Itprov',
+                            'BPK RI',
+                            'BPKP'
+                        ]
+                    );
+                }
+            }
         )->count();
 
 
 
-        // Status Proses LHP untuk Grafik
+        $totalTindakLanjut = TindakLanjut::whereHas(
+            'rekomendasi.temuan.lhp',
+            function ($q) use ($jenis) {
+
+                if ($jenis == 'internal') {
+
+                    $q->where(
+                        'instansi_pemeriksa',
+                        'Itkab'
+                    );
+                } else {
+
+                    $q->whereIn(
+                        'instansi_pemeriksa',
+                        [
+                            'Itprov',
+                            'BPK RI',
+                            'BPKP'
+                        ]
+                    );
+                }
+            }
+        )->count();
+
+
+
+
+
+        /*
+    |--------------------------------------------------------------------------
+    | Status LHP
+    |--------------------------------------------------------------------------
+    */
+
+
+        $lhpLengkap = (clone $lhpQuery)
+            ->where(
+                'status_lhp',
+                'lengkap'
+            )
+            ->count();
+
+
+
+        $lhpTidakLengkap = (clone $lhpQuery)
+            ->where(
+                'status_lhp',
+                'tidak_lengkap'
+            )
+            ->count();
+
+
+
+
+
+        /*
+    |--------------------------------------------------------------------------
+    | Grafik Status LHP
+    |--------------------------------------------------------------------------
+    */
+
 
         $statusLhp = [
 
-            'selesai' => Lhp::where(
-                'status_proses',
-                'selesai'
-            )->count(),
+            'selesai' => (clone $lhpQuery)
+                ->where(
+                    'status_proses',
+                    'selesai'
+                )
+                ->count(),
 
 
-            'dalam_proses' => Lhp::where(
-                'status_proses',
-                'dalam_proses'
-            )->count(),
+            'dalam_proses' => (clone $lhpQuery)
+                ->where(
+                    'status_proses',
+                    'dalam_proses'
+                )
+                ->count(),
 
 
-            'belum_proses' => Lhp::where(
-                'status_proses',
-                'belum_proses'
-            )->count(),
+            'belum_proses' => (clone $lhpQuery)
+                ->where(
+                    'status_proses',
+                    'belum_diproses'
+                )
+                ->count(),
 
 
-            'nihil' => Lhp::where(
-                'status_proses',
-                'nihil'
-            )->count(),
+            'nihil' => (clone $lhpQuery)
+                ->where(
+                    'status_proses',
+                    'nihil'
+                )
+                ->count(),
 
         ];
 
-        // Nilai kerugian
-
-        $totalKerugian = Rekomendasi::sum(
-            'nilai_finansial'
-        );
-
-        // Pengembalian
-
-        $totalPengembalian = TindakLanjut::sum(
-            'nilai_pengembalian'
-        );
 
 
 
-        // Aktivitas terakhir
 
-        $aktivitas = Lhp::latest()
-            ->limit(5)
-            ->get();
+        /*
+    |--------------------------------------------------------------------------
+    | Nilai Kerugian
+    |--------------------------------------------------------------------------
+    */
 
-        $temuanIrban = Irban::with('lhps.temuans')
+
+        $totalKerugian = Rekomendasi::whereHas(
+            'temuan.lhp',
+            function ($q) use ($jenis) {
+
+
+                if ($jenis == 'internal') {
+
+                    $q->where(
+                        'instansi_pemeriksa',
+                        'Itkab'
+                    );
+                } else {
+
+                    $q->whereIn(
+                        'instansi_pemeriksa',
+                        [
+                            'Itprov',
+                            'BPK RI',
+                            'BPKP'
+                        ]
+                    );
+                }
+            }
+        )->sum('nilai_finansial');
+
+
+
+
+
+        /*
+    |--------------------------------------------------------------------------
+    | Pengembalian
+    |--------------------------------------------------------------------------
+    */
+
+
+        $totalPengembalian = TindakLanjut::whereHas(
+            'rekomendasi.temuan.lhp',
+            function ($q) use ($jenis) {
+
+
+                if ($jenis == 'internal') {
+
+                    $q->where(
+                        'instansi_pemeriksa',
+                        'Itkab'
+                    );
+                } else {
+
+                    $q->whereIn(
+                        'instansi_pemeriksa',
+                        [
+                            'Itprov',
+                            'BPK RI',
+                            'BPKP'
+                        ]
+                    );
+                }
+            }
+        )->sum('nilai_pengembalian');
+
+
+
+
+
+        /*
+    |--------------------------------------------------------------------------
+    | Temuan Per Irban
+    |--------------------------------------------------------------------------
+    */
+
+
+        $temuanIrban = Irban::with([
+            'lhps.temuans'
+        ])
             ->get()
-            ->map(function ($irban) {
+            ->map(function ($irban) use ($jenis) {
+
+
+                $total = $irban->lhps
+                    ->filter(function ($lhp) use ($jenis) {
+
+
+                        if ($jenis == 'internal') {
+
+                            return $lhp->instansi_pemeriksa == 'Itkab';
+                        }
+
+
+                        return in_array(
+                            $lhp->instansi_pemeriksa,
+                            [
+                                'Itprov',
+                                'BPK RI',
+                                'BPKP'
+                            ]
+                        );
+                    })
+                    ->sum(function ($lhp) {
+
+
+                        return $lhp->temuans->count();
+                    });
+
+
 
                 return [
 
                     'nama' => $irban->nama_irban,
 
-                    'total' => $irban->lhps
-                        ->sum(function ($lhp) {
-
-                            return $lhp->temuans->count();
-                        })
+                    'total' => $total
 
                 ];
             });
 
-        $dataKerugian = [
-
-            'total' => Rekomendasi::sum(
-                'nilai_finansial'
-            ),
 
 
-            'dikembalikan' => TindakLanjut::sum(
-                'nilai_pengembalian'
-            ),
 
 
-        ];
+        /*
+    |--------------------------------------------------------------------------
+    | Aktivitas Terbaru
+    |--------------------------------------------------------------------------
+    */
+
+
+        $aktivitas = collect();
+
+
+
+        Lhp::whereIn(
+            'id',
+            (clone $lhpQuery)
+                ->latest()
+                ->limit(5)
+                ->pluck('id')
+        )
+            ->latest()
+            ->get()
+            ->each(function ($item) use ($aktivitas) {
+
+
+                $aktivitas->push([
+
+                    'judul' => 'LHP Baru',
+
+                    'deskripsi' =>
+                    'LHP ' . $item->nomor_lhp . ' telah ditambahkan',
+
+                    'tanggal' => $item->created_at,
+
+                    'icon' => 'bi-file-earmark-text'
+
+                ]);
+            });
+
+
+
+
+
+        $aktivitas = $aktivitas
+            ->sortByDesc('tanggal')
+            ->take(8);
+
+
+
+
+
+        /*
+    |--------------------------------------------------------------------------
+    | Data Kerugian Grafik
+    |--------------------------------------------------------------------------
+    */
 
 
         $dataKerugian = [
@@ -206,73 +474,13 @@ class DashboardController extends Controller
 
             'dikembalikan' => $totalPengembalian,
 
-            'sisa' => $totalKerugian - $totalPengembalian
+            'sisa' =>
+            $totalKerugian - $totalPengembalian
 
         ];
 
-        $aktivitas = collect();
 
 
-
-        foreach (Lhp::latest()->limit(5)->get() as $item) {
-
-            $aktivitas->push([
-
-                'judul' => 'LHP Baru',
-
-                'deskripsi' =>
-                'LHP ' . $item->nomor_lhp . ' telah ditambahkan',
-
-                'tanggal' => $item->created_at,
-
-                'icon' => 'bi-file-earmark-text'
-
-            ]);
-        }
-
-
-
-        foreach (Temuan::latest()->limit(5)->get() as $item) {
-
-            $aktivitas->push([
-
-                'judul' => 'Temuan Baru',
-
-                'deskripsi' =>
-                'Temuan nomor ' . $item->nomor_temuan .
-                    ' pada LHP ' . $item->lhp->nomor_lhp,
-
-                'tanggal' => $item->created_at,
-
-                'icon' => 'bi-search'
-
-            ]);
-        }
-
-
-
-        foreach (TindakLanjut::latest()->limit(5)->get() as $item) {
-
-            $aktivitas->push([
-
-                'judul' => 'Tindak Lanjut',
-
-                'deskripsi' =>
-                'Status tindak lanjut ' .
-                    ($item->status->nama_status ?? '-'),
-
-                'tanggal' => $item->created_at,
-
-                'icon' => 'bi-check-circle'
-
-            ]);
-        }
-
-
-
-        $aktivitas = $aktivitas
-            ->sortByDesc('tanggal')
-            ->take(8);
 
 
         return view(
@@ -290,6 +498,7 @@ class DashboardController extends Controller
                 'aktivitas',
                 'temuanIrban',
                 'dataKerugian',
+                'jenis'
             )
         );
     }

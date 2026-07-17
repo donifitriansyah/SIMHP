@@ -5,7 +5,29 @@
     <div class="container-fluid py-4">
 
         <form method="GET" id="formLaporan" action="{{ route('laporan.irban') }}" class="row g-3 mb-4">
+            <div class="col-md-2">
 
+                <label class="form-label">
+                    Jenis Pemeriksaan
+                </label>
+
+                <select name="jenis" class="form-select" required>
+
+                    <option value="">
+                        -- Pilih Jenis --
+                    </option>
+
+                    <option value="internal" {{ request('jenis') == 'internal' ? 'selected' : '' }}>
+                        Internal
+                    </option>
+
+                    <option value="eksternal" {{ request('jenis') == 'eksternal' ? 'selected' : '' }}>
+                        Eksternal
+                    </option>
+
+                </select>
+
+            </div>
             <div class="col-md-2">
 
                 <label class="form-label">Wilayah Kerja (Irban)</label>
@@ -294,11 +316,14 @@
     <script>
         function cetakLaporan() {
 
+            let jenis = document.querySelector('[name="jenis"]').value;
+
             let irban = document.querySelector('[name="irban_id"]').value;
 
             let awal = document.querySelector('[name="tanggal_awal"]').value;
 
             let akhir = document.querySelector('[name="tanggal_akhir"]').value;
+
 
 
             if (!awal) {
@@ -313,7 +338,9 @@
             }
 
 
+
             let url;
+
 
 
             if (irban !== "") {
@@ -321,7 +348,6 @@
                 // Cetak satu Irban
                 url = "{{ route('laporan.irban.cetak') }}";
 
-                url += "?irban_id=" + irban;
 
             } else {
 
@@ -331,8 +357,15 @@
             }
 
 
+
+            url += "?jenis=" + jenis;
+
+            url += "&irban_id=" + irban;
+
             url += "&tanggal_awal=" + awal;
+
             url += "&tanggal_akhir=" + akhir;
+
 
 
             window.open(url, "_blank");

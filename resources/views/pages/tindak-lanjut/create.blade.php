@@ -167,21 +167,37 @@
     </div>
 
     <script>
-        const input = document.getElementById('nilai_pengembalian');
-        const input = document.getElementById('nilai_setor_pajak');
+        function formatRupiah(input) {
 
-        input.addEventListener('input', function() {
+            input.addEventListener('input', function() {
 
-            let value = this.value;
+                let value = this.value;
 
-            value = value.replace(/[^\d,]/g, '');
+                value = value.replace(/[^\d,]/g, '');
 
-            const parts = value.split(',');
+                const parts = value.split(',');
 
-            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 
-            this.value = parts.join(',');
+                this.value = parts.join(',');
 
-        });
+            });
+
+        }
+
+
+        const nilaiFinansial = document.getElementById('nilai_pengembalian');
+        const nilaiPajak = document.getElementById('nilai_setor_pajak');
+
+
+        if (nilaiFinansial) {
+            formatRupiah(nilaiFinansial);
+        }
+
+
+        if (nilaiPajak) {
+            formatRupiah(nilaiPajak);
+        }
+        
     </script>
 @endsection

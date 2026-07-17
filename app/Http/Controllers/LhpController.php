@@ -71,7 +71,131 @@ class LhpController extends Controller
         );
     }
 
-    public function index(Request $request)
+    // public function index(Request $request)
+    // {
+    //     $query = Lhp::with([
+    //         'irban',
+    //         'auditee',
+    //         'temuans.rekomendasis.tindakLanjut.status'
+    //     ]);
+
+
+    //     if ($request->filled('keyword')) {
+
+    //         $keyword = $request->keyword;
+
+    //         $query->where(function ($q) use ($keyword) {
+
+    //             $q->where('nomor_lhp', 'like', "%{$keyword}%")
+    //                 ->orWhere('objek_pemeriksaan', 'like', "%{$keyword}%")
+    //                 ->orWhereHas('auditee', function ($a) use ($keyword) {
+
+    //                     $a->where('nama_dinas', 'like', "%{$keyword}%");
+    //                 });
+    //         });
+    //     }
+
+    //     if ($request->filled('irban_id')) {
+
+    //         $query->where('irban_id', $request->irban_id);
+    //     }
+
+
+
+    //     if ($request->filled('status')) {
+
+    //         $query->where('status_proses', $request->status);
+    //     }
+
+
+    //     if ($request->filled('tanggal_awal')) {
+
+    //         $query->whereDate(
+    //             'tanggal_lhp',
+    //             '>=',
+    //             $request->tanggal_awal
+    //         );
+    //     }
+
+    //     if ($request->filled('tanggal_akhir')) {
+
+    //         $query->whereDate(
+    //             'tanggal_lhp',
+    //             '<=',
+    //             $request->tanggal_akhir
+    //         );
+    //     }
+
+
+    //     $lhps = $query
+    //         ->withCount('temuans')
+    //         ->latest()
+    //         ->paginate(10)
+    //         ->withQueryString();
+
+
+    //     foreach ($lhps as $lhp) {
+
+    //         $totalRekomendasi = 0;
+    //         $totalSelesai = 0;
+
+    //         foreach ($lhp->temuans as $temuan) {
+
+    //             foreach ($temuan->rekomendasis as $rekomendasi) {
+
+    //                 $totalRekomendasi++;
+
+    //                 // Ambil tindak lanjut terakhir
+    //                 $tindakLanjutTerakhir = $rekomendasi->tindakLanjut
+    //                     ->sortByDesc('created_at')
+    //                     ->first();
+
+    //                 if (
+    //                     $tindakLanjutTerakhir &&
+    //                     $tindakLanjutTerakhir->status &&
+    //                     $tindakLanjutTerakhir->status->kode == 'S'
+    //                 ) {
+    //                     $totalSelesai++;
+    //                 }
+    //             }
+    //         }
+
+    //         $lhp->totalRekomendasi = $totalRekomendasi;
+    //         $lhp->totalSelesai = $totalSelesai;
+
+    //         $lhp->progress = $totalRekomendasi > 0
+    //             ? round(($totalSelesai / $totalRekomendasi) * 100)
+    //             : 0;
+    //     }
+
+
+    //     $statistik = [
+
+    //         'total' => Lhp::count(),
+
+    //         'nihil' => Lhp::where('status_proses', 'nihil')->count(),
+
+    //         'belum_proses' => Lhp::where('status_proses', 'belum_diproses')->count(),
+
+    //         'dalam_proses' => Lhp::where('status_proses', 'dalam_proses')->count(),
+
+    //         'selesai' => Lhp::where('status_proses', 'selesai')->count(),
+
+    //     ];
+
+    //     $irbans = Irban::orderBy('nama_irban')->get();
+
+    //     return view(
+    //         'pages.pemeriksaan.lhp.index',
+    //         compact(
+    //             'lhps',
+    //             'statistik',
+    //             'irbans'
+    //         )
+    //     );
+    // }
+
+    public function index(Request $request, $jenis = null)
     {
         $query = Lhp::with([
             'irban',
@@ -79,11 +203,21 @@ class LhpController extends Controller
             'temuans.rekomendasis.tindakLanjut.status'
         ]);
 
-        /*
-    |--------------------------------------------------------------------------
-    | Filter Pencarian
-    |--------------------------------------------------------------------------
-    */
+
+        // Filter Internal / Eksternal
+        if ($jenis == 'internal') {
+
+            $query->where('instansi_pemeriksa', 'Itkab');
+        } elseif ($jenis == 'eksternal') {
+
+            $query->whereIn('instansi_pemeriksa', [
+                'Itprov',
+                'BPK RI',
+                'BPKP'
+            ]);
+        }
+
+
 
         if ($request->filled('keyword')) {
 
@@ -100,33 +234,27 @@ class LhpController extends Controller
             });
         }
 
-        /*
-    |--------------------------------------------------------------------------
-    | Filter Irban
-    |--------------------------------------------------------------------------
-    */
+
 
         if ($request->filled('irban_id')) {
 
-            $query->where('irban_id', $request->irban_id);
+            $query->where(
+                'irban_id',
+                $request->irban_id
+            );
         }
 
-        /*
-    |--------------------------------------------------------------------------
-    | Filter Status
-    |--------------------------------------------------------------------------
-    */
+
 
         if ($request->filled('status')) {
 
-            $query->where('status_proses', $request->status);
+            $query->where(
+                'status_proses',
+                $request->status
+            );
         }
 
-        /*
-    |--------------------------------------------------------------------------
-    | Filter Periode
-    |--------------------------------------------------------------------------
-    */
+
 
         if ($request->filled('tanggal_awal')) {
 
@@ -137,6 +265,8 @@ class LhpController extends Controller
             );
         }
 
+
+
         if ($request->filled('tanggal_akhir')) {
 
             $query->whereDate(
@@ -146,11 +276,7 @@ class LhpController extends Controller
             );
         }
 
-        /*
-    |--------------------------------------------------------------------------
-    | Data
-    |--------------------------------------------------------------------------
-    */
+
 
         $lhps = $query
             ->withCount('temuans')
@@ -158,16 +284,13 @@ class LhpController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        /*
-|--------------------------------------------------------------------------
-| Progress Rekomendasi
-|--------------------------------------------------------------------------
-*/
+
 
         foreach ($lhps as $lhp) {
 
             $totalRekomendasi = 0;
             $totalSelesai = 0;
+
 
             foreach ($lhp->temuans as $temuan) {
 
@@ -175,57 +298,98 @@ class LhpController extends Controller
 
                     $totalRekomendasi++;
 
-                    // Ambil tindak lanjut terakhir
-                    $tindakLanjutTerakhir = $rekomendasi->tindakLanjut
+
+                    $tindakLanjutTerakhir = $rekomendasi
+                        ->tindakLanjut
                         ->sortByDesc('created_at')
                         ->first();
+
+
 
                     if (
                         $tindakLanjutTerakhir &&
                         $tindakLanjutTerakhir->status &&
                         $tindakLanjutTerakhir->status->kode == 'S'
                     ) {
+
                         $totalSelesai++;
                     }
                 }
             }
 
+
             $lhp->totalRekomendasi = $totalRekomendasi;
+
             $lhp->totalSelesai = $totalSelesai;
+
 
             $lhp->progress = $totalRekomendasi > 0
                 ? round(($totalSelesai / $totalRekomendasi) * 100)
                 : 0;
         }
 
-        /*
-    |--------------------------------------------------------------------------
-    | Statistik
-    |--------------------------------------------------------------------------
-    */
+
+
+
+        // Statistik mengikuti menu yang sedang dibuka
+        $statistikQuery = Lhp::query();
+
+
+        if ($jenis == 'internal') {
+
+            $statistikQuery->where(
+                'instansi_pemeriksa',
+                'Itkab'
+            );
+        } elseif ($jenis == 'eksternal') {
+
+            $statistikQuery->whereIn(
+                'instansi_pemeriksa',
+                [
+                    'Itprov',
+                    'BPK RI',
+                    'BPKP'
+                ]
+            );
+        }
+
+
 
         $statistik = [
 
-            'total' => Lhp::count(),
+            'total' => (clone $statistikQuery)->count(),
 
-            'nihil' => Lhp::where('status_proses', 'nihil')->count(),
+            'nihil' => (clone $statistikQuery)
+                ->where('status_proses', 'nihil')
+                ->count(),
 
-            'belum_proses' => Lhp::where('status_proses', 'belum_diproses')->count(),
+            'belum_proses' => (clone $statistikQuery)
+                ->where('status_proses', 'belum_diproses')
+                ->count(),
 
-            'dalam_proses' => Lhp::where('status_proses', 'dalam_proses')->count(),
+            'dalam_proses' => (clone $statistikQuery)
+                ->where('status_proses', 'dalam_proses')
+                ->count(),
 
-            'selesai' => Lhp::where('status_proses', 'selesai')->count(),
+            'selesai' => (clone $statistikQuery)
+                ->where('status_proses', 'selesai')
+                ->count(),
 
         ];
 
+
+
         $irbans = Irban::orderBy('nama_irban')->get();
+
+
 
         return view(
             'pages.pemeriksaan.lhp.index',
             compact(
                 'lhps',
                 'statistik',
-                'irbans'
+                'irbans',
+                'jenis'
             )
         );
     }
@@ -314,7 +478,7 @@ class LhpController extends Controller
         );
     }
 
-    public function create()
+    public function create($jenis = null)
     {
 
         $irbans = Irban::all();
@@ -324,13 +488,13 @@ class LhpController extends Controller
         $pihakKetigas = PihakKetiga::all();
 
 
-
         return view(
             'pages.pemeriksaan.lhp.create',
             compact(
                 'irbans',
                 'auditees',
                 'pihakKetigas',
+                'jenis'
             )
         );
     }
@@ -340,9 +504,10 @@ class LhpController extends Controller
         $request->validate([
 
             'irban_id'             => 'required|exists:irban,id',
-            'auditee_id'           => 'required|exists:auditee,id',
-            'pejabat_auditee_id'   => 'required|exists:pejabat_auditee,id',
-
+            'nama_pejabat_eksternal' => 'nullable|string|max:255',
+            'auditee_id'           => 'nullable|exists:auditee,id',
+            'pejabat_auditee_id'   => 'nullable|exists:pejabat_auditee,id',
+            'instansi_pemeriksa'   => 'required|in:Itkab,Itprov,BPK RI,BPKP',
             'objek_pemeriksaan'    => 'required',
 
             'nomor_lhp'            => 'required',
@@ -366,6 +531,10 @@ class LhpController extends Controller
 
             'pejabat_auditee_id'   => $request->pejabat_auditee_id,
 
+            'instansi_pemeriksa'  => $request->instansi_pemeriksa,
+
+            'nama_pejabat_eksternal' => $request->nama_pejabat_eksternal,
+
             'pihak_ketiga_id'      => $request->pihak_ketiga_id,
 
             'objek_pemeriksaan'    => $request->objek_pemeriksaan,
@@ -380,8 +549,12 @@ class LhpController extends Controller
 
             'tahun_pkpt'           => $request->tahun_pkpt,
 
-            'jumlah_dana_diawasi'  => $request->jumlah_dana_diawasi
-                ? str_replace('.', '', $request->jumlah_dana_diawasi)
+            'jumlah_dana_diawasi' => $request->filled('jumlah_dana_diawasi')
+                ? str_replace(
+                    ['.', ','],
+                    ['', '.'],
+                    $request->jumlah_dana_diawasi
+                )
                 : null,
 
             'jenis_pemeriksaan'    => $request->jenis_pemeriksaan,
@@ -411,16 +584,19 @@ class LhpController extends Controller
         }
 
         return redirect()
-            ->route('lhp.index')
+            ->route(
+                $request->jenis == 'internal'
+                    ? 'pemeriksaan.internal'
+                    : 'pemeriksaan.eksternal'
+            )
             ->with(
                 'success',
-                'Data LHP berhasil ditambahkan'
+                'Data LHP berhasil ditambah'
             );
     }
 
     public function show(Lhp $lhp)
     {
-
         $lhp->load([
 
             'irban',
@@ -433,9 +609,17 @@ class LhpController extends Controller
         ]);
 
 
+        $jenis = $lhp->instansi_pemeriksa == 'Itkab'
+            ? 'internal'
+            : 'eksternal';
+
+
         return view(
             'pages.pemeriksaan.lhp.show',
-            compact('lhp')
+            compact(
+                'lhp',
+                'jenis'
+            )
         );
     }
 
@@ -450,26 +634,32 @@ class LhpController extends Controller
             'temuans.rekomendasis.tindakLanjut.dokumen',
             'dokumen'
         ]);
-                
+
+
+        $jenis = $lhp->instansi_pemeriksa == 'Itkab'
+            ? 'internal'
+            : 'eksternal';
+
+
         return view(
             'pages.pemeriksaan.lhp.cetak',
-            compact('lhp')
+            compact(
+                'lhp',
+                'jenis'
+            )
         );
     }
 
     public function edit(Lhp $lhp)
     {
-
         $irbans = Irban::all();
-
         $auditees = Auditee::all();
-
         $pihakKetigas = PihakKetiga::all();
 
-        $pejabats = PejabatAuditee::where(
-            'auditee_id',
-            $lhp->auditee_id
-        )->get();
+
+        $jenis = $lhp->instansi_pemeriksa == 'Itkab'
+            ? 'internal'
+            : 'eksternal';
 
 
         return view(
@@ -479,7 +669,7 @@ class LhpController extends Controller
                 'irbans',
                 'auditees',
                 'pihakKetigas',
-                'pejabats',
+                'jenis'
             )
         );
     }
@@ -489,8 +679,9 @@ class LhpController extends Controller
         $request->validate([
 
             'irban_id'             => 'required|exists:irban,id',
-            'auditee_id'           => 'required|exists:auditee,id',
-            'pejabat_auditee_id'   => 'required|exists:pejabat_auditee,id',
+            'auditee_id'           => 'nullable|exists:auditee,id',
+            'nama_pejabat_eksternal' => 'nullable|string|max:255',
+            'pejabat_auditee_id'   => 'nullable|exists:pejabat_auditee,id',
 
             'objek_pemeriksaan'    => 'required',
 
@@ -514,6 +705,8 @@ class LhpController extends Controller
 
             'auditee_id'           => $request->auditee_id,
 
+            'nama_pejabat_eksternal' => $request->nama_pejabat_eksternal,
+
             'pejabat_auditee_id'   => $request->pejabat_auditee_id,
 
             'pihak_ketiga_id'      => $request->pihak_ketiga_id,
@@ -530,8 +723,12 @@ class LhpController extends Controller
 
             'tahun_pkpt'           => $request->tahun_pkpt,
 
-            'jumlah_dana_diawasi'  => $request->jumlah_dana_diawasi
-                ? str_replace('.', '', $request->jumlah_dana_diawasi)
+            'jumlah_dana_diawasi' => $request->filled('jumlah_dana_diawasi')
+                ? str_replace(
+                    ['.', ','],
+                    ['', '.'],
+                    $request->jumlah_dana_diawasi
+                )
                 : null,
 
             'jenis_pemeriksaan'    => $request->jenis_pemeriksaan,
@@ -558,8 +755,15 @@ class LhpController extends Controller
         }
 
         return redirect()
-            ->route('lhp.index')
-            ->with('success', 'Data LHP berhasil diperbarui');
+            ->route(
+                $request->jenis == 'internal'
+                    ? 'pemeriksaan.internal'
+                    : 'pemeriksaan.eksternal'
+            )
+            ->with(
+                'success',
+                'Data LHP berhasil diperbarui'
+            );
     }
 
     public function destroy(Lhp $lhp)
@@ -569,7 +773,11 @@ class LhpController extends Controller
 
 
         return redirect()
-            ->route('lhp.index')
+            ->route(
+                $lhp->jenis == 'internal'
+                    ? 'pemeriksaan.internal'
+                    : 'pemeriksaan.eksternal'
+            )
             ->with(
                 'success',
                 'Data LHP berhasil dihapus'

@@ -11,16 +11,87 @@
 
         <div class="card-body">
 
-            <div class="col-md-2 d-flex align-items-end">
 
-                <a href="{{ route('laporan.pns.temuan.cetak') }}" target="_blank" class="btn btn-success w-100">
+            <form method="GET" action="{{ route('laporan.pns.temuan') }}" class="row g-3 mb-4">
+
+                <div class="col-md-3">
+
+                    <label class="form-label">
+                        Jenis Pemeriksaan
+                    </label>
+
+                    <select name="jenis" class="form-select" required>
+
+                        <option value="internal" {{ request('jenis', 'internal') == 'internal' ? 'selected' : '' }}>
+                            Internal
+                        </option>
+
+                        <option value="eksternal" {{ request('jenis') == 'eksternal' ? 'selected' : '' }}>
+                            Eksternal
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="col-md-2">
+
+                    <label class="form-label">
+                        Tanggal Awal
+                    </label>
+
+                    <input type="date" name="tanggal_awal" class="form-control" value="{{ request('tanggal_awal') }}">
+
+                </div>
+
+
+                <div class="col-md-2">
+
+                    <label class="form-label">
+                        Tanggal Akhir
+                    </label>
+
+                    <input type="date" name="tanggal_akhir" class="form-control" value="{{ request('tanggal_akhir') }}">
+
+                </div>
+
+
+                <div class="col-md-2 d-flex align-items-end">
+
+                    <button class="btn btn-primary w-100">
+
+                        <i class="bi bi-search"></i>
+                        Tampilkan
+
+                    </button>
+
+                </div>
+
+
+                <div class="col-md-2 d-flex align-items-end">
+
+                    <a href="{{ route('laporan.pns.temuan') }}" class="btn btn-secondary w-100">
+
+                        Reset
+
+                    </a>
+
+                </div>
+
+                <div class="col-md-2 d-flex align-items-end">
+                    <a href="{{ route('laporan.pns.temuan.cetak', request()->query()) }}" target="_blank"
+                    class="btn btn-success w-100">
 
                     <i class="bi bi-printer"></i>
                     Cetak
 
                 </a>
 
-            </div>
+                </div>
+
+
+            </form>
 
             <div class="table-responsive">
 
@@ -32,11 +103,15 @@
 
                             <th>No</th>
 
+                            <th>Nomor LHP</th>
+
                             <th>Nama PNS</th>
 
-                            <th>Jabatan</th>
+                            @if ($jenis == 'internal')
+                                <th>Jabatan</th>
 
-                            <th>Instansi</th>
+                                <th>Instansi</th>
+                            @endif
 
                             <th>Jumlah Temuan</th>
 
@@ -48,33 +123,42 @@
                     <tbody>
 
 
-                        @foreach ($pegawai as $item)
+                        @foreach ($lhps as $lhp)
                             <tr>
 
                                 <td>
                                     {{ $loop->iteration }}
                                 </td>
 
-
                                 <td>
-                                    {{ $item->nama }}
-                                </td>
-
-
-                                <td>
-                                    {{ strtoupper($item->jenis_jabatan) }}
-                                </td>
-
-
-                                <td>
-                                    {{ $item->auditee->nama_dinas ?? '-' }}
+                                    {{ $lhp->nomor_lhp }}
                                 </td>
 
 
                                 <td>
 
-                                    {{ $item->lhps->sum(fn($lhp) => $lhp->temuans->count()) }}
+                                    @if ($lhp->instansi_pemeriksa == 'Itkab')
+                                        {{ $lhp->pejabatAuditee->nama ?? '-' }}
+                                    @else
+                                        {{ $lhp->nama_pejabat_eksternal ?? '-' }}
+                                    @endif
 
+                                </td>
+
+                                @if ($jenis == 'internal')
+                                    <td>
+                                        {{ $lhp->pejabatAuditee->jenis_jabatan ?? '-' }}
+                                    </td>
+                                    <td>
+                                        {{ $lhp->auditee->nama_dinas ?? '-' }}
+                                    </td>
+                                @endif
+
+
+
+
+                                <td>
+                                    {{ $lhp->temuans->count() }}
                                 </td>
 
 

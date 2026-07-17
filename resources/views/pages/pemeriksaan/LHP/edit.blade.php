@@ -17,7 +17,7 @@
             </div>
 
 
-            <a href="{{ route('lhp.show', $lhp->id) }}" class="btn btn-secondary">
+            <a href="{{ url()->previous() }}" class="btn btn-secondary">
 
                 <i class="bi bi-arrow-left"></i>
                 Kembali
@@ -139,10 +139,38 @@
 
 
                             <input type="text" name="jumlah_dana_diawasi" id="jumlah_dana_diawasi" class="form-control"
-                                value="{{ number_format($lhp->jumlah_dana_diawasi, 0, ',', '.') }}">
+                                value="{{ number_format($lhp->jumlah_dana_diawasi, 2, ',', '.') }}">
+
 
 
                         </div>
+
+                        @if ($jenis == 'eksternal')
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+                                    Instansi Pemeriksa
+                                </label>
+
+                                <select name="instansi_pemeriksa" class="form-select" required>
+
+                                    <option value="">
+                                        -- Pilih Instansi Pemeriksa --
+                                    </option>
+
+                                    @foreach (\App\Models\Lhp::getInstansiPemeriksa() as $value => $label)
+                                        @if ($value != 'Itkab')
+                                            <option value="{{ $value }}"
+                                                {{ old('instansi_pemeriksa', $lhp->instansi_pemeriksa) == $value ? 'selected' : '' }}>
+                                                {{ $label }}
+                                            </option>
+                                        @endif
+                                    @endforeach
+
+                                </select>
+
+                            </div>
+                        @endif
 
 
                     </div>
@@ -176,9 +204,6 @@
 
 
                     <div class="row">
-
-
-
                         <div class="col-md-6 mb-3">
 
                             <label class="form-label">
@@ -208,90 +233,95 @@
 
 
                         </div>
+                        @if ($jenis == 'eksternal')
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+                                    Nama Pejabat
+                                </label>
+
+                                <input type="text" name="nama_pejabat_eksternal" class="form-control"
+                                    value="{{ old('nama_pejabat_eksternal') }}" placeholder="Masukkan nama pejabat">
+
+                            </div>
+                        @endif
+
+                        @if ($jenis == 'internal')
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+                                    Auditee
+                                </label>
 
 
+                                <select name="auditee_id" id="auditee" class="form-select">
+
+                                    <option value="">Pilih Auditee</option>
+
+                                    @foreach ($auditees as $auditee)
+                                        <option value="{{ $auditee->id }}"
+                                            {{ old('auditee_id', $lhp->auditee_id) == $auditee->id ? 'selected' : '' }}>
+
+                                            {{ $auditee->nama_dinas }}
+
+                                        </option>
+                                    @endforeach
+
+                                </select>
 
 
+                            </div>
 
-                        <div class="col-md-6 mb-3">
+                            <div class="col-md-6 mb-3">
 
-                            <label class="form-label">
-                                Auditee
-                            </label>
+                                <label class="form-label">
+                                    Nama Pejabat
+                                </label>
 
 
-                            <select name="auditee_id" id="auditee" class="form-select" required>
+                                <select name="pejabat_auditee_id" id="pejabat" class="form-select">
 
-                                <option value="">Pilih Auditee</option>
-
-                                @foreach ($auditees as $auditee)
-                                    <option value="{{ $auditee->id }}"
-                                        {{ old('auditee_id', $lhp->auditee_id) == $auditee->id ? 'selected' : '' }}>
-
-                                        {{ $auditee->nama_dinas }}
-
+                                    <option value="">
+                                        Pilih Pejabat
                                     </option>
-                                @endforeach
 
-                            </select>
-
-
-                        </div>
-                        <div class="col-md-6 mb-3">
-
-                            <label class="form-label">
-                                Nama Pejabat
-                            </label>
+                                </select>
 
 
-                            <select name="pejabat_auditee_id" id="pejabat" class="form-select" required>
+                            </div>
 
-                                <option value="">
-                                    Pilih Pejabat
-                                </option>
+                            <div class="col-md-6 mb-3">
 
-                            </select>
-
-
-                        </div>
+                                <label class="form-label">
+                                    Pihak Ketiga
+                                </label>
 
 
+                                <select name="pihak_ketiga_id" class="form-select">
 
 
-
-                        <div class="col-md-6 mb-3">
-
-                            <label class="form-label">
-                                Pihak Ketiga
-                            </label>
-
-
-                            <select name="pihak_ketiga_id" class="form-select">
-
-
-                                <option value="">
-                                    Tidak Ada
-                                </option>
-
-
-                                @foreach ($pihakKetigas as $pihak)
-                                    <option value="{{ $pihak->id }}"
-                                        {{ $lhp->pihak_ketiga_id == $pihak->id ? 'selected' : '' }}>
-
-
-                                        {{ $pihak->nama_perusahaan }}
-
-
+                                    <option value="">
+                                        Tidak Ada
                                     </option>
-                                @endforeach
 
 
-                            </select>
+                                    @foreach ($pihakKetigas as $pihak)
+                                        <option value="{{ $pihak->id }}"
+                                            {{ $lhp->pihak_ketiga_id == $pihak->id ? 'selected' : '' }}>
 
 
-                        </div>
+                                            {{ $pihak->nama_perusahaan }}
 
 
+                                        </option>
+                                    @endforeach
+
+
+                                </select>
+
+
+                            </div>
+                        @endif
 
 
 
@@ -416,21 +446,21 @@
 
 
     <script>
-        document
-            .getElementById('jumlah_dana_diawasi')
-            .addEventListener('keyup', function() {
+        const input = document.getElementById('jumlah_dana_diawasi');
 
-                let value = this.value.replace(/\./g, '');
+        input.addEventListener('input', function() {
 
+            let value = this.value;
 
-                if (value) {
+            value = value.replace(/[^\d,]/g, '');
 
-                    this.value = new Intl.NumberFormat('id-ID')
-                        .format(value);
+            const parts = value.split(',');
 
-                }
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 
-            });
+            this.value = parts.join(',');
+
+        });
     </script>
     <script>
         const auditee = document.getElementById('auditee');

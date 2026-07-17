@@ -129,7 +129,9 @@
 
                             <input type="text" name="nilai_finansial" id="nilai_finansial" class="form-control"
                                 value="{{ old('nilai_finansial') }}" placeholder="Contoh: 50.000.000">
-                            
+
+
+
 
                         </div>
 
@@ -139,8 +141,7 @@
                                 Kewajiban Setor Pajak
                             </label>
 
-
-                            <input type="text" name="nilai_pajak" class="form-control uang"
+                            <input type="text" name="nilai_pajak" id="nilai_pajak" class="form-control"
                                 value="{{ old('nilai_pajak') }}">
 
                         </div>
@@ -190,21 +191,36 @@
 
 
     <script>
-        const input = document.getElementById('nilai_finansial');
-        const input = document.getElementById('nilai_pajak');
+        function formatRupiah(input) {
 
-        input.addEventListener('input', function() {
+            input.addEventListener('input', function() {
 
-            let value = this.value;
+                let value = this.value;
 
-            value = value.replace(/[^\d,]/g, '');
+                value = value.replace(/[^\d,]/g, '');
 
-            const parts = value.split(',');
+                const parts = value.split(',');
 
-            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 
-            this.value = parts.join(',');
+                this.value = parts.join(',');
 
-        });
+            });
+
+        }
+
+
+        const nilaiFinansial = document.getElementById('nilai_finansial');
+        const nilaiPajak = document.getElementById('nilai_pajak');
+
+
+        if (nilaiFinansial) {
+            formatRupiah(nilaiFinansial);
+        }
+
+
+        if (nilaiPajak) {
+            formatRupiah(nilaiPajak);
+        }
     </script>
 @endsection

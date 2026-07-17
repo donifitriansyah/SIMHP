@@ -104,7 +104,32 @@
 
                 <li class="nav-item">
 
-                    <a class="nav-link" href="{{ route('lhp.index') }}">
+                    <a class="nav-link {{ request()->routeIs('pemeriksaan.internal') ? 'active' : '' }}"
+                        href="{{ route('pemeriksaan.internal') }}">
+
+                        <i class="bi bi-folder2-open me-1"></i>
+
+                        LHP (Internal)
+
+                    </a>
+
+                </li>
+                <li class="nav-item">
+
+                    <a class="nav-link {{ request()->routeIs('pemeriksaan.eksternal') ? 'active' : '' }}"
+                        href="{{ route('pemeriksaan.eksternal') }}">
+
+                        <i class="bi bi-folder2-open me-1"></i>
+
+                        LHP (Eksternal)
+
+                    </a>
+
+                </li>
+                {{-- <li class="nav-item dropdown">
+
+                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#"
+                        data-bs-toggle="dropdown">
 
 
                         <i class="bi bi-folder2-open me-1"></i>
@@ -116,128 +141,43 @@
 
 
 
-                    {{-- <ul class="dropdown-menu shadow border-0">
-
-
+                    <ul class="dropdown-menu shadow border-0">
                         <li>
 
                             <a class="dropdown-item d-flex justify-content-between align-items-center"
-                                href="{{ route('lhp.index') }}">
+                                href="{{ route('pemeriksaan.eksternal') }}">
 
 
                                 <span>
-                                    Semua Data
+                                    Eksternal
                                 </span>
 
-
-                                <span class="badge bg-primary rounded-pill">
-                                    {{ $jumlahLhp['semua'] ?? 0 }}
-                                </span>
 
 
                             </a>
 
                         </li>
-
-
-
-
                         <li>
 
                             <a class="dropdown-item d-flex justify-content-between align-items-center"
-                                href="{{ route('lhp.filter', 'nihil') }}">
+                                href="{{ route('pemeriksaan.internal') }}">
 
 
                                 <span>
-                                    Nihil
+                                    Internal
                                 </span>
 
 
-                                <span class="badge bg-info rounded-pill">
-                                    {{ $jumlahLhp['nihil'] ?? 0 }}
-                                </span>
+
 
 
                             </a>
 
                         </li>
+                    </ul>
 
 
-
-
-                        <li>
-
-                            <a class="dropdown-item d-flex justify-content-between align-items-center"
-                                href="{{ route('lhp.filter', 'belum_proses') }}">
-
-
-                                <span>
-                                    Belum Proses
-                                </span>
-
-
-                                <span class="badge bg-secondary rounded-pill">
-                                    {{ $jumlahLhp['belum_proses'] ?? 0 }}
-                                </span>
-
-
-                            </a>
-
-                        </li>
-
-
-
-
-
-                        <li>
-
-                            <a class="dropdown-item d-flex justify-content-between align-items-center"
-                                href="{{ route('lhp.filter', 'dalam_proses') }}">
-
-
-                                <span>
-                                    Dalam Proses
-                                </span>
-
-
-                                <span class="badge bg-warning rounded-pill">
-                                    {{ $jumlahLhp['dalam_proses'] ?? 0 }}
-                                </span>
-
-
-                            </a>
-
-                        </li>
-
-
-
-
-
-                        <li>
-
-                            <a class="dropdown-item d-flex justify-content-between align-items-center"
-                                href="{{ route('lhp.filter', 'selesai') }}">
-
-
-                                <span>
-                                    Selesai
-                                </span>
-
-
-                                <span class="badge bg-success rounded-pill">
-                                    {{ $jumlahLhp['selesai'] ?? 0 }}
-                                </span>
-
-
-                            </a>
-
-                        </li>
-
-
-                    </ul> --}}
-
-
-                </li>
+                </li> --}}
 
                 <!-- Tindak Lanjut -->
 

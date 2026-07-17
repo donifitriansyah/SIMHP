@@ -120,11 +120,6 @@
 
                         </div>
 
-
-
-
-
-
                         {{-- Administrasi --}}
 
                         <div class="col-md-6 mb-3">
@@ -139,12 +134,6 @@
 
 
                         </div>
-
-
-
-
-
-
 
                         {{-- Nilai Kerugian --}}
 

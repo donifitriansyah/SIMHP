@@ -16,9 +16,10 @@
 
             <div>
 
-                <a href="{{ route('lhp.index') }}" class="btn btn-secondary">
+                <a href="{{ url()->previous() }}" class="btn btn-secondary">
 
-                    <i class="bi bi-arrow-left"></i> Kembali
+                    <i class="bi bi-arrow-left"></i>
+                    Kembali
 
                 </a>
                 <a href="{{ route('lhp.cetak', $lhp->id) }}" target="_blank" class="btn btn-danger">
@@ -96,7 +97,15 @@
 
                         <label class="text-muted"> Dana Diawasi </label>
 
-                        <h6> Rp {{ number_format($lhp->jumlah_dana_diawasi, 0, ',', '.') }} </h6>
+                        <h6> Rp {{ number_format($lhp->jumlah_dana_diawasi, 2, ',', '.') }} </h6>
+
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+
+                        <label class="text-muted"> Instansi Pemeriksa </label>
+
+                        <h6>{{ $lhp->instansi_pemeriksa_label }}</h6>
 
                     </div>
 
@@ -126,39 +135,51 @@
 
                     </div>
 
-                    <div class="col-md-4">
 
-                        <label class="text-muted"> Auditee </label>
+                    @if ($jenis == 'internal')
+                        <div class="col-md-4">
 
-                        <h6> {{ $lhp->auditee->nama_dinas ?? '-' }} </h6>
+                            <label class="text-muted"> Auditee </label>
 
-                    </div>
+                            <h6> {{ $lhp->auditee->nama_dinas ?? '-' }} </h6>
 
-                    <div class="col-md-4">
+                        </div>
 
-                        <label class="text-muted"> Entitas yang Diperiksa </label>
+                        <div class="col-md-4">
 
-                        <h6>
+                            <label class="text-muted"> Entitas yang Diperiksa </label>
 
-                            {{ $lhp->pejabatAuditee->nama ?? '-' }}
+                            <h6>
 
-                            @if ($lhp->pejabatAuditee)
-                                <br> <small class="text-muted"> {{ $lhp->pejabatAuditee->jenis_jabatan }} </small>
-                            @endif
+                                {{ $lhp->pejabatAuditee->nama ?? '-' }}
 
-                        </h6>
+                                @if ($lhp->pejabatAuditee)
+                                    <br> <small class="text-muted"> {{ $lhp->pejabatAuditee->jenis_jabatan }} </small>
+                                @endif
 
-                    </div>
+                            </h6>
 
-                    <div class="col-md-4">
+                        </div>
 
-                        <label class="text-muted"> Pihak Ketiga </label>
+                        <div class="col-md-4">
 
-                        <h6> {{ $lhp->pihakKetiga->nama_perusahaan ?? '-' }} </h6>
+                            <label class="text-muted"> Pihak Ketiga </label>
 
-                    </div>
+                            <h6> {{ $lhp->pihakKetiga->nama_perusahaan ?? '-' }} </h6>
 
-                    <div class="col-md-4 mt-3">
+                        </div>
+                    @endif
+                    @if ($jenis == 'eksternal')
+                        <div class="col-md-4">
+
+                            <label class="text-muted"> Nama Pejabat </label>
+
+                            <h6> {{ $lhp->nama_pejabat_eksternal ?? '-' }} </h6>
+
+                        </div>
+                    @endif
+
+                    <div class="col-md-4 ">
 
                         <label class="text-muted"> Objek Pemeriksaan </label>
 
@@ -277,7 +298,8 @@
             </div>
         @endif
 
-        {{-- Temuan Pemeriksaan --}} <div class="card shadow-sm border-0 mb-4">
+        {{-- Temuan Pemeriksaan --}}
+        <div class="card shadow-sm border-0 mb-4">
 
             <div class="card-header d-flex justify-content-between align-items-center">
 
@@ -612,7 +634,7 @@
                                                                     <p>
 
                                                                         Rp
-                                                                        {{ number_format($tl->nilai_pengembalian ?? 0, 0, ',', '.') }}
+                                                                        {{ number_format($tl->nilai_pengembalian ?? 0, 2, ',', '.') }}
 
                                                                     </p>
 

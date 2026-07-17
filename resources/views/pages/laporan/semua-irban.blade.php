@@ -8,7 +8,29 @@
 
 
         <form method="GET" id="formLaporan" action="{{ route('laporan.irban') }}" class="row g-3 mb-4">
+            <div class="col-md-2">
 
+                <label class="form-label">
+                    Jenis Pemeriksaan
+                </label>
+
+                <select name="jenis" class="form-select" required>
+
+                    <option value="">
+                        -- Pilih Jenis --
+                    </option>
+
+                    <option value="internal" {{ request('jenis') == 'internal' ? 'selected' : '' }}>
+                        Internal
+                    </option>
+
+                    <option value="eksternal" {{ request('jenis') == 'eksternal' ? 'selected' : '' }}>
+                        Eksternal
+                    </option>
+
+                </select>
+
+            </div>
             <div class="col-md-2">
                 <label class="form-label">Wilayah Kerja (Irban)</label>
 

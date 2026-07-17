@@ -62,8 +62,6 @@
 
                     <div class="row">
 
-
-
                         {{-- Nomor Temuan --}}
 
                         <div class="col-md-6 mb-3">
@@ -79,10 +77,6 @@
 
 
                         </div>
-
-
-
-
 
 
                         {{-- Nama Pelaku --}}
@@ -101,11 +95,6 @@
 
                         </div>
 
-
-
-
-
-
                         {{-- Uraian Temuan --}}
 
                         <div class="col-md-12 mb-3">
@@ -121,12 +110,6 @@
 
                         </div>
 
-
-
-
-
-
-
                         {{-- Administrasi --}}
 
                         <div class="col-md-6 mb-3">
@@ -141,13 +124,6 @@
 
 
                         </div>
-
-
-
-
-
-
-
 
                         {{-- Nilai Kerugian --}}
 

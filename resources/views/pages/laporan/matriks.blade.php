@@ -1,6 +1,84 @@
 @extends('layouts.backend')
 
 @section('content')
+    <form method="GET" action="{{ route('matriks.index') }}" class="row g-3 mb-4">
+
+
+        <div class="col-md-3">
+
+            <label class="form-label">
+                Jenis Pemeriksaan
+            </label>
+
+            <select name="jenis" class="form-select" required>
+
+                <option value="">
+                    -- Pilih Jenis --
+                </option>
+
+                <option value="internal" {{ request('jenis') == 'internal' ? 'selected' : '' }}>
+                    Internal
+                </option>
+
+                <option value="eksternal" {{ request('jenis') == 'eksternal' ? 'selected' : '' }}>
+                    Eksternal
+                </option>
+
+            </select>
+
+        </div>
+
+
+
+        <div class="col-md-2">
+
+            <label class="form-label">
+                Tanggal Awal
+            </label>
+
+            <input type="date" name="tanggal_awal" class="form-control" value="{{ request('tanggal_awal') }}">
+
+        </div>
+
+
+
+        <div class="col-md-2">
+
+            <label class="form-label">
+                Tanggal Akhir
+            </label>
+
+            <input type="date" name="tanggal_akhir" class="form-control" value="{{ request('tanggal_akhir') }}">
+
+        </div>
+
+
+
+        <div class="col-md-2 d-flex align-items-end">
+
+            <button class="btn btn-primary w-100">
+
+                <i class="bi bi-search"></i>
+                Tampilkan
+
+            </button>
+
+        </div>
+
+
+
+        <div class="col-md-2 d-flex align-items-end">
+
+            <a href="{{ route('matriks.index') }}" class="btn btn-secondary w-100">
+
+                Reset
+
+            </a>
+
+        </div>
+
+
+    </form>
     <div class="card shadow-sm border-0">
 
         <div class="card-header bg-white">
@@ -8,6 +86,8 @@
                 Matriks Tindak Lanjut
             </h5>
         </div>
+
+
 
         <div class="card-body">
 
@@ -21,7 +101,9 @@
                             <th width="50">No</th>
                             <th>No. LHP</th>
                             <th>Tanggal</th>
-                            <th>Auditee</th>
+                            <th>
+                                {{ request('jenis') == 'eksternal' ? 'Pejabat Eksternal' : 'Auditee' }}
+                            </th>
                             <th>Jumlah Temuan</th>
                             <th>Jumlah Rekomendasi</th>
                             <th>Jenis Tindak Lanjut</th>
@@ -51,7 +133,13 @@
                                 </td>
 
                                 <td>
-                                    {{ $item['auditee'] }}
+
+                                    @if (request('jenis') == 'eksternal')
+                                        {{ $item['nama_pejabat_eksternal'] ?? '-' }}
+                                    @else
+                                        {{ $item['auditee'] ?? '-' }}
+                                    @endif
+
                                 </td>
 
                                 <td class="text-center">

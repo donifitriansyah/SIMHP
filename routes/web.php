@@ -147,7 +147,7 @@ Route::middleware("auth")->group(function () {
 
     Route::get("/matriks-tindak-lanjut", [
         MatriksTindakLanjutController::class,
-        "index",
+        'index',
     ])->name("matriks.index");
 
 
@@ -318,6 +318,42 @@ Route::middleware("auth")->group(function () {
         '/laporan/pihak-ketiga-temuan/cetak',
         [LaporanController::class, 'cetakPihakKetigaTemuan']
     )->name('laporan.pihak.ketiga.temuan.cetak');
+
+    Route::get(
+        '/pemeriksaan/internal',
+        [LhpController::class, 'index']
+    )->defaults('jenis', 'internal')
+        ->name('pemeriksaan.internal');
+
+    Route::get(
+        '/pemeriksaan/internal/create',
+        [LhpController::class, 'create']
+    )
+        ->defaults('jenis', 'internal')
+        ->name('lhp.internal.create');
+
+
+    Route::get(
+        '/pemeriksaan/eksternal/create',
+        [LhpController::class, 'create']
+    )
+        ->defaults('jenis', 'eksternal')
+        ->name('lhp.eksternal.create');
+
+    Route::get(
+        '/pemeriksaan/eksternal',
+        [LhpController::class, 'index']
+    )->defaults('jenis', 'eksternal')
+        ->name('pemeriksaan.eksternal');
+
+    Route::get('/dashboard/internal', [DashboardController::class, 'index'])
+        ->defaults('jenis', 'internal')
+        ->name('dashboard.internal');
+
+
+    Route::get('/dashboard/eksternal', [DashboardController::class, 'index'])
+        ->defaults('jenis', 'eksternal')
+        ->name('dashboard.eksternal');
 
     Route::get(
         '/laporan/pihak-ketiga-temuan',

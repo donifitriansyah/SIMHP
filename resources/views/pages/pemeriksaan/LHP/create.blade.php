@@ -17,7 +17,7 @@
             </div>
 
 
-            <a href="{{ route('lhp.index') }}" class="btn btn-secondary">
+            <a href="{{ url()->previous() }}" class="btn btn-secondary">
 
                 <i class="bi bi-arrow-left"></i>
                 Kembali
@@ -129,8 +129,32 @@
                                 value="{{ old('tahun_pkpt', date('Y')) }}" required>
 
                         </div>
+                        @if ($jenis == 'eksternal')
+                            <div class="col-md-6 mb-3">
 
+                                <label class="form-label">
+                                    Instansi Pemeriksa
+                                </label>
 
+                                <select name="instansi_pemeriksa" class="form-select" required>
+
+                                    <option value="">
+                                        -- Pilih Instansi Pemeriksa --
+                                    </option>
+
+                                    @foreach (\App\Models\Lhp::getInstansiPemeriksa() as $value => $label)
+                                        @if ($value != 'Itkab')
+                                            <option value="{{ $value }}"
+                                                {{ old('instansi_pemeriksa') == $value ? 'selected' : '' }}>
+                                                {{ $label }}
+                                            </option>
+                                        @endif
+                                    @endforeach
+
+                                </select>
+
+                            </div>
+                        @endif
 
 
                         <div class="col-md-6 mb-3">
@@ -138,7 +162,6 @@
                             <label class="form-label">
                                 Jumlah Dana Diawasi
                             </label>
-
 
                             <input type="text" name="jumlah_dana_diawasi" id="jumlah_dana_diawasi" class="form-control"
                                 value="{{ old('jumlah_dana_diawasi') }}" placeholder="Masukkan nominal">
@@ -208,80 +231,91 @@
 
                         </div>
 
+                        @if ($jenis == 'eksternal')
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+                                    Nama Pejabat
+                                </label>
+
+                                <input type="text" name="nama_pejabat_eksternal" class="form-control"
+                                    value="{{ old('nama_pejabat_eksternal') }}" placeholder="Masukkan nama pejabat">
+
+                            </div>
+                        @endif
+                        @if ($jenis == 'internal')
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+                                    Auditee / Entitas Diperiksa
+                                </label>
 
 
+                                <select name="auditee_id" id="auditee" class="form-select">
 
-
-                        <div class="col-md-6 mb-3">
-
-                            <label class="form-label">
-                                Auditee / Entitas Diperiksa
-                            </label>
-
-
-                            <select name="auditee_id" id="auditee" class="form-select">
-
-                                <option value="">
-                                    -- Pilih Auditee --
-                                </option>
-
-                                @foreach ($auditees as $auditee)
-                                    <option value="{{ $auditee->id }}">
-
-                                        {{ $auditee->nama_dinas }}
-
+                                    <option value="">
+                                        -- Pilih Auditee --
                                     </option>
-                                @endforeach
 
-                            </select>
+                                    @foreach ($auditees as $auditee)
+                                        <option value="{{ $auditee->id }}">
 
-                        </div>
+                                            {{ $auditee->nama_dinas }}
 
-                        <div class="mb-3">
+                                        </option>
+                                    @endforeach
 
-                            <label class="form-label">
+                                </select>
 
-                                Pejabat yang Diperiksa
+                            </div>
 
-                            </label>
+                            <div class="mb-3">
 
-                            <select name="pejabat_auditee_id" id="pejabat" class="form-select">
+                                <label class="form-label">
 
-                                <option value="">
-                                    Pilih Auditee terlebih dahulu
-                                </option>
+                                    Pejabat yang Diperiksa
 
-                            </select>
+                                </label>
 
-                        </div>
+                                <select name="pejabat_auditee_id" id="pejabat" class="form-select">
 
-                        <div class="col-md-6 mb-3">
-
-                            <label class="form-label">
-                                Pihak Ketiga
-                            </label>
-
-
-                            <select name="pihak_ketiga_id" class="form-select">
-
-
-                                <option value="">
-                                    Tidak Ada
-                                </option>
-
-
-                                @foreach ($pihakKetigas as $pihak)
-                                    <option value="{{ $pihak->id }}">
-
-                                        {{ $pihak->nama_perusahaan }}
-
+                                    <option value="">
+                                        Pilih Auditee terlebih dahulu
                                     </option>
-                                @endforeach
+
+                                </select>
+
+                            </div>
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+                                    Pihak Ketiga
+                                </label>
 
 
-                            </select>
+                                <select name="pihak_ketiga_id" class="form-select">
 
-                        </div>
+
+                                    <option value="">
+                                        Tidak Ada
+                                    </option>
+
+
+                                    @foreach ($pihakKetigas as $pihak)
+                                        <option value="{{ $pihak->id }}">
+
+                                            {{ $pihak->nama_perusahaan }}
+
+                                        </option>
+                                    @endforeach
+
+
+                                </select>
+
+                            </div>
+                        @endif
+
+
 
                         <div class="col-md-6 mb-3">
 
@@ -395,23 +429,21 @@
     </div>
 
     <script>
-        document
-            .getElementById('jumlah_dana_diawasi')
-            .addEventListener('keyup', function(e) {
+        const input = document.getElementById('jumlah_dana_diawasi');
 
+        input.addEventListener('input', function() {
 
-                let value = this.value.replace(/\./g, '');
+            let value = this.value;
 
+            value = value.replace(/[^\d,]/g, '');
 
-                if (!isNaN(value) && value !== '') {
+            const parts = value.split(',');
 
-                    this.value = new Intl.NumberFormat('id-ID')
-                        .format(value);
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 
-                }
+            this.value = parts.join(',');
 
-
-            });
+        });
 
         document.getElementById('auditee').addEventListener('change', function() {
 

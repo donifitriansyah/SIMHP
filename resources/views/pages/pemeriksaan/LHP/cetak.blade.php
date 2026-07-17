@@ -89,16 +89,26 @@
             <td width="10">:</td>
             <td>{{ $lhp->nomor_lhp }}</td>
         </tr>
+
         <tr>
             <td width="170">Tanggal LHP</td>
             <td width="10">:</td>
             <td>{{ \Carbon\Carbon::parse($lhp->tanggal_lhp)->translatedFormat('d F Y') }}</td>
         </tr>
+        @if ($jenis == 'internal')
         <tr>
             <td>Instansi</td>
             <td>:</td>
             <td>{{ $lhp->auditee->nama_dinas ?? '-' }}</td>
         </tr>
+        @endif
+        @if ($jenis == 'eksternal')
+        <tr>
+            <td>Pejabat</td>
+            <td>:</td>
+            <td>{{ $lhp->nama_pejabat_eksternal ?? '-' }}</td>
+        </tr>
+        @endif
         <tr>
             <td>Objek Pemeriksaan</td>
             <td>:</td>

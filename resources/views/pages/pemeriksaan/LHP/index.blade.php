@@ -164,7 +164,7 @@
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body">
 
-            <form method="GET" action="{{ route('lhp.index') }}">
+            <form method="GET" action="{{ url()->current() }}">
 
                 <div class="row g-3">
 
@@ -245,7 +245,7 @@
 
                         </button>
 
-                        <a href="{{ route('lhp.index') }}" class="btn btn-secondary">
+                        <a href="{{ url()->current() }}" class="btn btn-secondary">
 
                             Reset
 
@@ -266,8 +266,12 @@
             <div>
 
                 <h5 class="fw-bold mb-1">
+
                     <i class="bi bi-briefcase-fill me-2"></i>
+
                     Data Laporan Hasil Pemeriksaan (LHP)
+                    {{ ucfirst($jenis) }}
+
                 </h5>
 
                 <small class="text-muted mb-0">
@@ -277,12 +281,21 @@
             </div>
             @auth
                 @if (auth()->user()->role == 'super_user')
-                    <a href="{{ route('lhp.create') }}" class="btn btn-primary">
+                    @if ($jenis == 'internal')
+                        <a href="{{ route('lhp.internal.create') }}" class="btn btn-primary">
 
-                        <i class="bi bi-plus-circle"></i>
-                        Tambah LHP
+                            <i class="bi bi-plus-circle"></i>
+                            Tambah LHP
 
-                    </a>
+                        </a>
+                    @elseif($jenis == 'eksternal')
+                        <a href="{{ route('lhp.eksternal.create') }}" class="btn btn-primary">
+
+                            <i class="bi bi-plus-circle"></i>
+                            Tambah LHP
+
+                        </a>
+                    @endif
                 @endif
             @endauth
 
@@ -307,9 +320,14 @@
 
                             <th>Nomor LHP</th>
 
-                            <th>Irban</th>
+                            @if ($jenis == 'eksternal')
+                                <th>Instansi Pemeriksa</th>
+                            @endif
 
-                            <th>Auditee</th>
+                            <th>Irban</th>
+                            @if ($jenis == 'internal')
+                                <th>Auditee</th>
+                            @endif
 
                             <th>Objek Pemeriksaan</th>
 
@@ -321,7 +339,7 @@
 
                             <th>Status</th>
 
-                            <th>Aksi</th>
+                            <th style="width:10px">Aksi</th>
 
 
                         </tr>
@@ -385,17 +403,45 @@
 
                                 </td>
 
+                                @if ($jenis == 'eksternal')
+                                    <td>
+
+                                        @switch($l->instansi_pemeriksa)
+                                            @case('Itprov')
+                                                <span class="badge bg-success">
+                                                    Inspektorat Provinsi
+                                                </span>
+                                            @break
+
+                                            @case('BPK RI')
+                                                <span class="badge bg-danger">
+                                                    Badan Pemeriksa Keuangan Republik Indonesia
+                                                </span>
+                                            @break
+
+                                            @case('BPKP')
+                                                <span class="badge bg-dark">
+                                                    Badan Pengawasan Keuangan dan Pembangunan
+                                                </span>
+                                            @break
+                                        @endswitch
+
+                                    </td>
+                                @endif
+
                                 <td>
 
                                     {{ $l->irban->nama_irban ?? '-' }}
 
                                 </td>
 
-                                <td>
+                                @if ($jenis == 'internal')
+                                    <td>
 
-                                    {{ $l->auditee->nama_dinas ?? '-' }}
+                                        {{ $l->auditee->nama_dinas ?? '-' }}
 
-                                </td>
+                                    </td>
+                                @endif
 
 
 
@@ -517,7 +563,7 @@
 
 
 
-                                <td>
+                                <td class="wrap-text">
 
 
                                     <div class="d-flex gap-1">
@@ -572,10 +618,12 @@
                                                     </form>
                                                 @endif
 
-                                               
+
                                                 <a href="{{ route('lhp.edit', $l->id) }}" class="btn btn-warning btn-sm">
 
                                                     <i class="bi bi-pencil"></i>
+
+                                                    Edit
 
                                                 </a>
 
@@ -594,7 +642,7 @@
 
 
                                                         <i class="bi bi-trash"></i>
-
+                                                        Hapus
 
                                                     </button>
 
@@ -616,65 +664,63 @@
 
 
 
-                        @empty
-                        @endforelse
+                            @empty
+                            @endforelse
 
 
-                    </tbody>
+                        </tbody>
 
 
-                </table>
+                    </table>
 
+
+                </div>
 
             </div>
+
+            @if ($errors->any())
+                <div class="alert alert-danger">
+
+                    <strong>Terjadi kesalahan:</strong>
+
+                    <ul class="mb-0 mt-2">
+
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+
+                    </ul>
+
+                </div>
+            @endif
 
         </div>
 
-        @if ($errors->any())
-            <div class="alert alert-danger">
+        <style>
+            #dataTable {
+                font-size: 12px;
+            }
 
-                <strong>Terjadi kesalahan:</strong>
+            .table-responsive {
+                overflow-x: auto;
+            }
 
-                <ul class="mb-0 mt-2">
+            #dataTable th {
+                font-size: 10px;
+            }
 
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
+            #dataTable td {
+                vertical-align: middle;
+            }
 
-                </ul>
+            #dataTable .btn {
+                padding: .2rem .4rem;
+                font-size: 10px;
+            }
 
-            </div>
-        @endif
+            #dataTable .badge {
+                font-size: 10px;
+            }
+        </style>
 
-    </div>
-
-    <style>
-        #dataTable {
-            font-size: 12px;
-            white-space: nowrap;
-        }
-
-        .table-responsive {
-            overflow-x: auto;
-        }
-
-        #dataTable th {
-            font-size: 10px;
-            white-space: nowrap;
-        }
-
-        #dataTable td {
-            vertical-align: middle;
-        }
-
-        #dataTable .btn {
-            padding: .2rem .4rem;
-            font-size: 10px;
-        }
-
-        #dataTable .badge {
-            font-size: 10px;
-        }
-    </style>
-
-@endsection
+    @endsection
