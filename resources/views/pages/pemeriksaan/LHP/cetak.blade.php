@@ -96,18 +96,18 @@
             <td>{{ \Carbon\Carbon::parse($lhp->tanggal_lhp)->translatedFormat('d F Y') }}</td>
         </tr>
         @if ($jenis == 'internal')
-        <tr>
-            <td>Instansi</td>
-            <td>:</td>
-            <td>{{ $lhp->auditee->nama_dinas ?? '-' }}</td>
-        </tr>
+            <tr>
+                <td>Instansi</td>
+                <td>:</td>
+                <td>{{ $lhp->auditee->nama_dinas ?? '-' }}</td>
+            </tr>
         @endif
         @if ($jenis == 'eksternal')
-        <tr>
-            <td>Pejabat</td>
-            <td>:</td>
-            <td>{{ $lhp->nama_pejabat_eksternal ?? '-' }}</td>
-        </tr>
+            <tr>
+                <td>Pejabat</td>
+                <td>:</td>
+                <td>{{ $lhp->nama_pejabat_eksternal ?? '-' }}</td>
+            </tr>
         @endif
         <tr>
             <td>Objek Pemeriksaan</td>
@@ -164,46 +164,118 @@
             @foreach ($lhp->temuans as $temuan)
                 @foreach ($temuan->rekomendasis as $rekomendasi)
                     @php
-                        $tl = $rekomendasi->tindakLanjut->sortByDesc('created_at')->first();
+                        $tindakLanjuts = $rekomendasi->tindakLanjut->sortBy('created_at');
+
+                        $jumlahTL = $tindakLanjuts->count();
+
+                        // jika belum ada tindak lanjut
+                        if ($jumlahTL == 0) {
+                            $jumlahTL = 1;
+                        }
                     @endphp
 
-                    <tr>
 
-                        <td class="text-wrap" align="center">
-                            {{ $no++ }}
-                        </td>
+                    @if ($tindakLanjuts->count() > 0)
+                        @foreach ($tindakLanjuts as $index => $tl)
+                            <tr>
 
-                        <td class="text-wrap">
-                            {{ $temuan->uraian_temuan }}
-                        </td>
+                                {{-- Nomor --}}
+                                @if ($index == 0)
+                                    <td rowspan="{{ $jumlahTL }}" align="center">
+                                        {{ $no++ }}
+                                    </td>
+                                @endif
 
-                        <td class="text-wrap">
-                            {{ $rekomendasi->uraian_rekomendasi }}
-                        </td>
 
-                        <td class="text-wrap">
-                            {{ $tl->narasi ?? '-' }}
-                        </td>
+                                {{-- Temuan --}}
+                                @if ($index == 0)
+                                    <td rowspan="{{ $jumlahTL }}" class="text-wrap">
+                                        {{ $temuan->uraian_temuan }}
+                                    </td>
+                                @endif
 
-                        <td class="text-wrap" align="center">
 
-                            {{ $tl->status->nama_status ?? '-' }}
+                                {{-- Rekomendasi --}}
+                                @if ($index == 0)
+                                    <td rowspan="{{ $jumlahTL }}" class="text-wrap">
+                                        {{ $rekomendasi->uraian_rekomendasi }}
+                                    </td>
+                                @endif
 
-                        </td>
 
-                        <td class="text-wrap">
+                                {{-- Tindak lanjut --}}
+                                <td class="text-wrap">
+                                    {{ $tl->narasi ?? '-' }}
+                                </td>
 
-                            {{ $tl->validator ?? '-' }}
 
-                        </td>
+                                {{-- Status --}}
+                                @if ($index == 0)
+                                    <td rowspan="{{ $jumlahTL }}" align="center">
 
-                        <td class="text-wrap">
+                                        @php
+                                            $tlTerakhir = $rekomendasi->tindakLanjut->sortByDesc('created_at')->first();
+                                        @endphp
 
-                            {{ $tl->keterangan ?? '-' }}
+                                        {{ $tlTerakhir->status->nama_status ?? '-' }}
 
-                        </td>
+                                    </td>
+                                @endif
 
-                    </tr>
+
+                                {{-- Validator --}}
+                                <td>
+                                    {{ $tl->validator ?? '-' }}
+                                </td>
+
+
+                                {{-- Keterangan --}}
+                                <td>
+                                    {{ $tl->keterangan ?? '-' }}
+                                </td>
+
+
+                            </tr>
+                        @endforeach
+                    @else
+                        <tr>
+
+                            <td align="center">
+                                {{ $no++ }}
+                            </td>
+
+
+                            <td class="text-wrap">
+                                {{ $temuan->uraian_temuan }}
+                            </td>
+
+
+                            <td class="text-wrap">
+                                {{ $rekomendasi->uraian_rekomendasi }}
+                            </td>
+
+
+                            <td>
+                                Belum ada tindak lanjut
+                            </td>
+
+
+                            <td>
+                                -
+                            </td>
+
+
+                            <td>
+                                -
+                            </td>
+
+
+                            <td>
+                                -
+                            </td>
+
+                        </tr>
+                    @endif
                 @endforeach
             @endforeach
 
