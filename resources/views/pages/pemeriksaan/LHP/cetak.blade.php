@@ -189,8 +189,19 @@
 
                                 {{-- Temuan --}}
                                 @if ($index == 0)
-                                    <td rowspan="{{ $jumlahTL }}" class="text-wrap">
+                                    <td rowspan="{{ $jumlahTL }}" class="">
+
+                                        <small>
+
+                                            {{ $temuan->created_at ? $temuan->created_at->format('d-m-Y') : '-' }}
+                                        </small>
+                                        <br>
                                         {{ $temuan->uraian_temuan }}
+
+                                        <br>
+
+
+
                                     </td>
                                 @endif
 
@@ -204,10 +215,19 @@
 
 
                                 {{-- Tindak lanjut --}}
-                                <td class="text-wrap">
-                                    {{ $tl->narasi ?? '-' }}
-                                </td>
+                                <td class="">
 
+                                    <small>
+                                        Tanggal Validasi:
+                                        {{ $tl->tanggal_validasi ? \Carbon\Carbon::parse($tl->tanggal_validasi)->translatedFormat('d F Y') : '-' }}
+                                    </small>
+                                    <br>
+
+                                    {{ $tl->narasi ?? '-' }}
+
+
+
+                                </td>
 
                                 {{-- Status --}}
                                 @if ($index == 0)
