@@ -6,40 +6,57 @@ use Illuminate\Database\Seeder;
 use App\Models\Temuan;
 use App\Models\Rekomendasi;
 
-
 class RekomendasiSeeder extends Seeder
 {
-
     public function run(): void
     {
-
 
         $temuans = Temuan::all();
 
 
-        foreach($temuans as $temuan){
+        foreach ($temuans as $temuan) {
+
+
+            $nilaiFinansial = $temuan->nilai_kerugian ?? 0;
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Nilai Pajak Maksimal 10% dari Nilai Finansial
+            |--------------------------------------------------------------------------
+            */
+
+            $nilaiPajak = $nilaiFinansial > 0
+                ? $nilaiFinansial * 0.10
+                : 0;
+
 
 
             Rekomendasi::create([
 
 
-                'temuan_id'=>$temuan->id,
+                'temuan_id' => $temuan->id,
 
 
-                'uraian_rekomendasi'=>
-                'Agar pihak terkait melakukan pengembalian kerugian dan melengkapi administrasi',
+                'uraian_rekomendasi' =>
+                    'Kepada pihak terkait agar melakukan tindak lanjut '
+                    .'dan menyelesaikan permasalahan atas temuan nomor '
+                    .$temuan->nomor_temuan,
 
 
-                'administrasi'=>
-                'Melengkapi dokumen pendukung',
+
+                'administrasi' =>
+                    'Melengkapi dokumen pendukung sesuai ketentuan yang berlaku',
 
 
-                'nilai_finansial'=>
-                5000000,
+
+                'nilai_finansial' =>
+                    $nilaiFinansial,
 
 
-                'nilai_pajak'=>
-                500000
+
+                'nilai_pajak' =>
+                    $nilaiPajak,
 
 
             ]);

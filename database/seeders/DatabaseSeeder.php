@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
 
-            // LhpSeeder::class,
+            LhpSeeder::class,
 
             TemuanSeeder::class,
 

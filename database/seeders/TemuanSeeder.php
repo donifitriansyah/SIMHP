@@ -11,36 +11,133 @@ class TemuanSeeder extends Seeder
     public function run(): void
     {
 
-        $lhps = Lhp::all();
+        $lhps = Lhp::orderBy('id')->get();
 
 
-        foreach($lhps as $lhp){
+        foreach ($lhps as $index => $lhp) {
 
 
-            for($i=1;$i<=2;$i++){
+            /*
+            |--------------------------------------------------------------------------
+            | LHP NIHIL
+            |--------------------------------------------------------------------------
+            |
+            | LHP ke 5 dan 10 internal/eksternal dibuat nihil
+            |
+            */
+
+
+            if (($index + 1) % 5 == 0) {
+
+
+                $lhp->update([
+
+                    'status_proses' => 'nihil',
+
+                    'status_lhp' => 'lengkap'
+
+                ]);
+
+
+                continue;
+
+            }
+
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | LHP MEMILIKI TEMUAN
+            |--------------------------------------------------------------------------
+            */
+
+
+            $jumlahTemuan = rand(1, 3);
+
+
+
+            for ($i = 1; $i <= $jumlahTemuan; $i++) {
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Nilai kerugian realistis
+                |--------------------------------------------------------------------------
+                */
+
+
+                $nilaiKerugian = [
+
+                    10000000,
+
+                    25000000,
+
+                    50000000,
+
+                    75000000
+
+                ];
+
+
+
+                $nilai = $nilaiKerugian[array_rand($nilaiKerugian)];
+
 
 
                 Temuan::create([
 
-                    'lhp_id'=>$lhp->id,
 
-                    'nomor_temuan'=>$i,
+                    'lhp_id' => $lhp->id,
 
-                    'uraian_temuan'=>
-                    'Terdapat ketidaksesuaian administrasi dan realisasi pekerjaan pada pemeriksaan '.$lhp->nomor_lhp,
 
-                    'administrasi'=>
-                    'Dokumen belum lengkap',
+                    // nomor hanya 1,2,3
+                    'nomor_temuan' => $i,
 
-                    'nilai_kerugian'=>
-                    5000000,
 
-                    'nama_pelaku'=>
-                    'Budi Santoso'
+
+                    'uraian_temuan' =>
+                        'Terdapat ketidaksesuaian hasil pemeriksaan pada '
+                        .$lhp->objek_pemeriksaan,
+
+
+
+                    'administrasi' =>
+                        'Dokumen pendukung belum lengkap',
+
+
+
+                    'nilai_kerugian' =>
+                        $nilai,
+
+
+
+                    'nama_pelaku' =>
+                        $lhp->instansi_pemeriksa == 'Itkab'
+                            ? 'Budi Santoso'
+                            : $lhp->nama_pejabat_eksternal,
+
 
                 ]);
 
+
             }
+
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Status awal
+            |--------------------------------------------------------------------------
+            */
+
+            $lhp->update([
+
+                'status_proses' => 'dalam_proses',
+
+                'status_lhp' => 'tidak_lengkap'
+
+            ]);
+
 
         }
 

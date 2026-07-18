@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Models\Lhp;
+use App\Models\TindakLanjut;
+use App\Observers\TindakLanjutObserver;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -22,7 +24,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-
+        TindakLanjut::observe(
+            TindakLanjutObserver::class
+        );
         View::composer(
             'layouts.backend',
             function ($view) {

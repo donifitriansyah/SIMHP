@@ -302,7 +302,7 @@ class LhpController extends Controller
 
                     $tindakLanjutTerakhir = $rekomendasi
                         ->tindakLanjut
-                        ->sortByDesc('created_at')
+                        ->sortByDesc('id')
                         ->first();
 
 

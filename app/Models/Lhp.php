@@ -177,58 +177,70 @@ class Lhp extends Model
 
     public function updateStatusProses()
     {
-        // Jika LHP ditetapkan sebagai nihil, jangan ubah statusnya
         if ($this->status_proses === 'nihil') {
             return;
         }
 
-        $this->loadMissing('temuans.rekomendasis.tindakLanjut.status');
+
+        $this->loadMissing(
+            'temuans.rekomendasis'
+        );
+
 
         $totalTemuan = $this->temuans->count();
 
         $totalRekomendasi = 0;
+
         $totalRekomendasiSelesai = 0;
+
+
 
         foreach ($this->temuans as $temuan) {
 
+
             foreach ($temuan->rekomendasis as $rekomendasi) {
+
 
                 $totalRekomendasi++;
 
-                $tindakLanjutTerakhir = $rekomendasi->tindakLanjut
-                    ->sortByDesc('created_at')
+
+
+                $tindakLanjutTerakhir = $rekomendasi
+                    ->tindakLanjut()
+                    ->with('status')
+                    ->orderBy('id', 'desc')
                     ->first();
+
+
 
                 if (
                     $tindakLanjutTerakhir &&
                     $tindakLanjutTerakhir->status &&
                     $tindakLanjutTerakhir->status->kode === 'S'
                 ) {
+
                     $totalRekomendasiSelesai++;
                 }
             }
         }
 
-        // Belum ada temuan
-        if ($totalTemuan === 0) {
+
+
+        if ($totalTemuan == 0) {
 
             $status = 'belum_diproses';
-        }
-        // Sudah ada temuan, tetapi belum ada rekomendasi
-        elseif ($totalRekomendasi === 0) {
+        } elseif ($totalRekomendasi == 0) {
 
             $status = 'dalam_proses';
-        }
-        // Semua rekomendasi sudah selesai
-        elseif ($totalRekomendasi === $totalRekomendasiSelesai) {
+        } elseif ($totalRekomendasi == $totalRekomendasiSelesai) {
 
             $status = 'selesai';
-        }
-        // Masih ada rekomendasi yang belum selesai
-        else {
+        } else {
 
             $status = 'dalam_proses';
         }
+
+
 
         $this->update([
             'status_proses' => $status

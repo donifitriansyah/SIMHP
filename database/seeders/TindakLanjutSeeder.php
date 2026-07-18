@@ -2,101 +2,85 @@
 
 namespace Database\Seeders;
 
-
-use Illuminate\Database\Seeder;
+use App\Models\Lhp;
 use App\Models\Rekomendasi;
 use App\Models\TindakLanjut;
-
-
+use Carbon\Carbon;
+use Illuminate\Database\Seeder;
 
 class TindakLanjutSeeder extends Seeder
 {
-
     public function run(): void
     {
-
 
         $rekomendasis = Rekomendasi::all();
 
 
-        foreach($rekomendasis as $index=>$rekomendasi){
+        foreach ($rekomendasis as $rekomendasi) {
 
-
-            // tindak lanjut pertama
 
             TindakLanjut::create([
 
-                'rekomendasi_id'=>$rekomendasi->id,
+                'rekomendasi_id' => $rekomendasi->id,
 
+                'status_id' => 2,
 
-                'status_id'=>2,
+                'narasi' =>
+                'Telah dilakukan proses tindak lanjut.',
 
+                'nilai_pengembalian' => 2000000,
 
-                'narasi'=>
-                'Sedang dilakukan proses tindak lanjut rekomendasi',
+                'nilai_setor_pajak' => 250000,
 
+                'validator' => null,
 
-                'nilai_pengembalian'=>2000000,
+                'tanggal_validasi' => null,
 
-
-                'nilai_setor_pajak'=>0,
-
-
-                'validator'=>'Doni',
-
-
-                'keterangan'=>
-                'Dalam proses verifikasi',
-
-                'tanggal_validasi'=>now()
-
+                'keterangan' =>
+                'Masih dalam proses.'
 
             ]);
 
 
 
-            // sebagian dibuat selesai
+            TindakLanjut::create([
 
-            if($index % 3 == 0){
+                'rekomendasi_id' => $rekomendasi->id,
 
+                'status_id' => 3,
 
-                TindakLanjut::create([
+                'narasi' =>
+                'Rekomendasi telah selesai ditindaklanjuti.',
 
+                'nilai_pengembalian' =>
+                $rekomendasi->nilai_finansial,
 
-                    'rekomendasi_id'=>$rekomendasi->id,
+                'nilai_setor_pajak' =>
+                $rekomendasi->nilai_pajak,
 
+                'validator' =>
+                'Doni Fitriansyah',
 
-                    'status_id'=>3,
+                'tanggal_validasi' =>
+                Carbon::now()->subDays(5),
 
+                'keterangan' =>
+                'Telah diverifikasi dan selesai.'
 
-                    'narasi'=>
-                    'Rekomendasi telah selesai dilaksanakan',
-
-
-                    'nilai_pengembalian'=>3000000,
-
-
-                    'nilai_setor_pajak'=>500000,
-
-
-                    'validator'=>'Doni',
-
-
-                    'keterangan'=>
-                    'Telah diverifikasi dan dinyatakan selesai',
-
-
-                    'tanggal_validasi'=>now()
-
-
-                ]);
-
-            }
-
-
+            ]);
         }
 
 
-    }
 
+        /*
+        |--------------------------------------------------------------------------
+        | UPDATE STATUS SEMUA LHP
+        |--------------------------------------------------------------------------
+        */
+
+        foreach (Lhp::all() as $lhp) {
+
+            $lhp->updateStatusProses();
+        }
+    }
 }
