@@ -3,31 +3,46 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use App\Models\Lhp;
 use App\Models\Temuan;
-
 
 class TemuanSeeder extends Seeder
 {
-
     public function run(): void
     {
 
-
-        Temuan::create([
-
-            'lhp_id' => 1,
-
-            'nomor_temuan' => '1',
-
-            'uraian_temuan' => 'Pekerjaan jalan mengalami kekurangan volume',
-
-            'administrasi' => 'Dokumen pekerjaan belum lengkap',
-
-            'nilai_kerugian' => 50000000,
-
-            'nama_pelaku' => 'Kontraktor Pelaksana'
+        $lhps = Lhp::all();
 
 
-        ]);
+        foreach($lhps as $lhp){
+
+
+            for($i=1;$i<=2;$i++){
+
+
+                Temuan::create([
+
+                    'lhp_id'=>$lhp->id,
+
+                    'nomor_temuan'=>$i,
+
+                    'uraian_temuan'=>
+                    'Terdapat ketidaksesuaian administrasi dan realisasi pekerjaan pada pemeriksaan '.$lhp->nomor_lhp,
+
+                    'administrasi'=>
+                    'Dokumen belum lengkap',
+
+                    'nilai_kerugian'=>
+                    5000000,
+
+                    'nama_pelaku'=>
+                    'Budi Santoso'
+
+                ]);
+
+            }
+
+        }
+
     }
 }
