@@ -125,7 +125,7 @@
 
             <tr>
 
-                <th width="4%">No</th>
+                <th width="1%" style="text-align:center;">No</th>
 
                 <th width="18%">
                     Temuan / Penyebab
@@ -135,19 +135,19 @@
                     Rekomendasi
                 </th>
 
-                <th width="18%">
+                <th width="10%">
                     Tindak Lanjut
                 </th>
 
-                <th width="10%">
+                <th width="4%">
                     Status
                 </th>
 
-                <th width="15%">
+                <th width="8%">
                     Nama Validator
                 </th>
 
-                <th>
+                <th width="8%">
                     Keterangan
                 </th>
 
@@ -189,7 +189,7 @@
 
                                 {{-- Temuan --}}
                                 @if ($index == 0)
-                                    <td rowspan="{{ $jumlahTL }}" class="">
+                                    <td rowspan="{{ $jumlahTL }}" class="nowrap">
 
                                         <small>
 
@@ -197,9 +197,82 @@
                                         </small>
                                         <br>
                                         {{ $temuan->uraian_temuan }}
-
                                         <br>
+                                        @if ($temuan->detailFinansial->count())
+                                            <small style="margin-top: -5px;">Dengan Rincian Temuan Finansial Sebagai Berikut</small>
 
+                                            <table
+                                                style="
+        width:100%;
+        border-collapse:collapse;
+        font-size:9px;
+        line-height:1.1;
+    ">
+
+                                                <thead>
+                                                    <tr>
+                                                        <th style="border:1px solid #000;padding:2px 4px;width:8%;"
+                                                            align="center">
+                                                            No
+                                                        </th>
+
+                                                        <th style="border:1px solid #000;padding:2px 4px;">
+                                                            {{ $temuan->detailFinansial->first()->jenis == 'pns' ? 'Nama PNS' : 'Nama Penyedia' }}
+                                                        </th>
+
+                                                        <th style="border:1px solid #000;padding:2px 4px;width:30%;"
+                                                            align="center">
+                                                            Nilai Temuan
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+
+                                                <tbody>
+                                                    @php $total = 0; @endphp
+
+                                                    @foreach ($temuan->detailFinansial as $detail)
+                                                        @php $total += $detail->nilai_temuan; @endphp
+
+                                                        <tr>
+
+                                                            <td style="border:1px solid #000;padding:2px 4px;"
+                                                                align="center">
+                                                                {{ $loop->iteration }}
+                                                            </td>
+
+                                                            <td style="border:1px solid #000;padding:2px 4px;">
+                                                                {{ $detail->jenis == 'pns' ? $detail->nama_pihak : $detail->nama_penyedia }}
+                                                            </td>
+
+                                                            <td style="border:1px solid #000;padding:2px 4px;"
+                                                                align="right">
+                                                                Rp
+                                                                {{ number_format($detail->nilai_temuan, 0, ',', '.') }}
+                                                            </td>
+
+                                                        </tr>
+                                                    @endforeach
+
+                                                    <tr>
+
+                                                        <td colspan="2"
+                                                            style="border:1px solid #000;padding:2px 4px;"
+                                                            align="right">
+                                                            <strong>Total</strong>
+                                                        </td>
+
+                                                        <td style="border:1px solid #000;padding:2px 4px;"
+                                                            align="right">
+                                                            <strong>Rp
+                                                                {{ number_format($total, 0, ',', '.') }}</strong>
+                                                        </td>
+
+                                                    </tr>
+
+                                                </tbody>
+
+                                            </table>
+                                        @endif
 
 
                                     </td>
@@ -208,7 +281,12 @@
 
                                 {{-- Rekomendasi --}}
                                 @if ($index == 0)
-                                    <td rowspan="{{ $jumlahTL }}" class="text-wrap">
+                                    <td rowspan="{{ $jumlahTL }}" class="nowrap">
+                                        <small>
+
+                                            {{ $rekomendasi->created_at ? $rekomendasi->created_at->format('d-m-Y') : '-' }}
+                                        </small>
+                                        <br>
                                         {{ $rekomendasi->uraian_rekomendasi }}
                                     </td>
                                 @endif
@@ -265,12 +343,87 @@
                             </td>
 
 
-                            <td class="text-wrap">
+                            <td class="nowrap">
+
+                                <small>
+
+                                    {{ $temuan->created_at ? $temuan->created_at->format('d-m-Y') : '-' }}
+                                </small>
+                                <br>
                                 {{ $temuan->uraian_temuan }}
+                                <br>
+                                @if ($temuan->detailFinansial->count())
+                                    <small style="margin-top: -5px;">Dengan Rincian Temuan Finansial Sebagai Berikut:</small>
+
+                                    <table style=" width:100%; border-collapse:collapse;font-size:9px;line-height:1.1;">
+
+                                        <thead>
+                                            <tr>
+                                                <th style="border:1px solid #000;padding:2px 4px;width:8%;"
+                                                    align="center">
+                                                    No
+                                                </th>
+
+                                                <th style="border:1px solid #000;padding:2px 4px;">
+                                                    {{ $temuan->detailFinansial->first()->jenis == 'pns' ? 'Nama PNS' : 'Nama Penyedia' }}
+                                                </th>
+
+                                                <th style="border:1px solid #000;padding:2px 4px;width:30%;"
+                                                    align="center">
+                                                    Nilai Temuan
+                                                </th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            @php $total = 0; @endphp
+
+                                            @foreach ($temuan->detailFinansial as $detail)
+                                                @php $total += $detail->nilai_temuan; @endphp
+
+                                                <tr>
+
+                                                    <td style="border:1px solid #000;padding:2px 4px;" align="center">
+                                                        {{ $loop->iteration }}
+                                                    </td>
+
+                                                    <td style="border:1px solid #000;padding:2px 4px;">
+                                                        {{ $detail->jenis == 'pns' ? $detail->nama_pihak : $detail->nama_penyedia }}
+                                                    </td>
+
+                                                    <td style="border:1px solid #000;padding:2px 4px;" align="right">
+                                                        Rp {{ number_format($detail->nilai_temuan, 0, ',', '.') }}
+                                                    </td>
+
+                                                </tr>
+                                            @endforeach
+
+                                            <tr>
+
+                                                <td colspan="2" style="border:1px solid #000;padding:2px 4px;"
+                                                    align="right">
+                                                    <strong>Total</strong>
+                                                </td>
+
+                                                <td style="border:1px solid #000;padding:2px 4px;" align="right">
+                                                    <strong>Rp {{ number_format($total, 0, ',', '.') }}</strong>
+                                                </td>
+
+                                            </tr>
+
+                                        </tbody>
+
+                                    </table>
+                                @endif
                             </td>
 
 
-                            <td class="text-wrap">
+                            <td class="nowrap">
+                                <small>
+
+                                    {{ $rekomendasi->created_at ? $rekomendasi->created_at->format('d-m-Y') : '-' }}
+                                </small>
+                                <br>
                                 {{ $rekomendasi->uraian_rekomendasi }}
                             </td>
 

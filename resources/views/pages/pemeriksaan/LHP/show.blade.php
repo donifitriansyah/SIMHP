@@ -41,7 +41,8 @@
 
         </div>
 
-        {{-- Informasi LHP --}} <div class="card shadow-sm border-0 mb-4">
+        {{-- Informasi LHP --}}
+        <div class="card shadow-sm border-0 mb-4">
 
             <div class="card-header bg-primary text-white">
 
@@ -115,7 +116,8 @@
 
         </div>
 
-        {{-- Entitas Pemeriksaan --}} <div class="card shadow-sm border-0 mb-4">
+        {{-- Entitas Pemeriksaan --}}
+        <div class="card shadow-sm border-0 mb-4">
 
             <div class="card-header bg-info text-white">
 
@@ -372,6 +374,14 @@
 
                                                 </div>
 
+                                                <div class="col-md-12">
+
+                                                    <label class="text-muted"> Nama Pelaku </label>
+
+                                                    <p> {{ $temuan->nama_pelaku ?? '-' }} </p>
+
+                                                </div>
+
                                                 <div class="col-md-6">
 
                                                     <label class="text-muted"> Uraian Administrasi </label>
@@ -386,13 +396,82 @@
                                                     </p>
                                                 </div>
 
-                                                <div class="col-md-12">
+                                                @if ($temuan->detailFinansial->count())
+                                                    <div class="col-md-12 mt-3">
 
-                                                    <label class="text-muted"> Nama Pelaku </label>
+                                                        <label class="text-muted fw-bold">
+                                                            Detail Temuan Finansial
+                                                        </label>
 
-                                                    <p> {{ $temuan->nama_pelaku ?? '-' }} </p>
+                                                        <table class="table table-bordered table-sm mt-2">
 
-                                                </div>
+                                                            <thead class="table-light">
+
+                                                                <tr>
+
+                                                                    <th width="60">No</th>
+
+                                                                    <th>Jenis</th>
+
+                                                                    <th>Nama</th>
+
+                                                                    <th class="text-end">Nilai Temuan</th>
+
+                                                                </tr>
+
+                                                            </thead>
+
+                                                            <tbody>
+
+                                                                @foreach ($temuan->detailFinansial as $detail)
+                                                                    <tr>
+
+                                                                        <td>{{ $loop->iteration }}</td>
+
+                                                                        <td>
+                                                                            {{ $detail->jenis == 'pns' ? 'PNS' : 'Penyedia' }}
+                                                                        </td>
+
+                                                                        <td>
+                                                                            {{ $detail->jenis == 'pns' ? $detail->nama_pihak : $detail->nama_penyedia }}
+                                                                        </td>
+
+                                                                        <td class="text-end">
+                                                                            Rp
+                                                                            {{ number_format($detail->nilai_temuan, 0, ',', '.') }}
+                                                                        </td>
+
+
+                                                                    </tr>
+                                                                @endforeach
+
+                                                            </tbody>
+
+                                                            <tfoot>
+
+                                                                <tr class="table-secondary">
+
+                                                                    <th colspan="3" class="text-end">
+                                                                        Total
+                                                                    </th>
+
+                                                                    <th class="text-end">
+
+                                                                        Rp
+                                                                        {{ number_format($temuan->detailFinansial->sum('nilai_temuan'), 0, ',', '.') }}
+
+                                                                    </th>
+
+                                                                </tr>
+
+                                                            </tfoot>
+
+                                                        </table>
+
+                                                    </div>
+                                                @endif
+
+
 
                                             </div>
                                             @auth

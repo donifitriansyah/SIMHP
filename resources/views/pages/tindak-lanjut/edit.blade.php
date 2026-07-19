@@ -205,7 +205,7 @@
 
 
 
-                                <input type="text" name="nilai_setor_pajak" id="nilai_setor_pajak" class="form-control"
+                            <input type="text" name="nilai_setor_pajak" id="nilai_setor_pajak" class="form-control"
                                 placeholder="Contoh: 50.000.000,00 / Kosongkan jika tidak ada "
                                 value="{{ number_format($tindakLanjut->nilai_setor_pajak, 2, ',', '.') }}">
 
@@ -242,14 +242,64 @@
 
                         <div class="col-md-12 mb-3">
 
+                            <label class="form-label">
+                                Dokumen Pendukung
+                            </label>
 
+                            {{-- Dokumen yang sudah ada --}}
+                            @if ($tindakLanjut->dokumen->count())
+                                <div class="mb-3">
+
+                                    @foreach ($tindakLanjut->dokumen as $dokumen)
+                                        <div
+                                            class="d-flex justify-content-between align-items-center border rounded p-2 mb-2">
+
+                                            <div>
+
+                                                <a href="{{ asset('storage/' . $dokumen->path_file) }}" target="_blank">
+
+                                                    <i class="bi bi-file-earmark"></i>
+
+                                                    {{ $dokumen->nama_file }}
+
+                                                </a>
+
+                                            </div>
+
+                                            <div>
+
+                                                <label class="text-danger mb-0">
+
+                                                    <input type="checkbox" name="hapus_dokumen[]"
+                                                        value="{{ $dokumen->id }}">
+
+                                                    Hapus
+
+                                                </label>
+
+                                            </div>
+
+                                        </div>
+                                    @endforeach
+
+                                </div>
+                            @else
+                                <div class="alert alert-light">
+                                    Belum ada dokumen.
+                                </div>
+                            @endif
+
+
+                            {{-- Upload dokumen baru --}}
                             <label class="form-label">
                                 Tambah Dokumen Pendukung
                             </label>
 
-
                             <input type="file" name="dokumen[]" class="form-control" multiple>
 
+                            <small class="text-muted">
+                                File yang dipilih akan ditambahkan, bukan mengganti dokumen lama.
+                            </small>
 
                         </div>
 
@@ -265,60 +315,6 @@
 
 
                 </div>
-
-
-
-
-
-
-                {{-- Dokumen Lama --}}
-
-                <div class="card-footer">
-
-
-                    <h6 class="fw-bold">
-                        Dokumen Tersimpan
-                    </h6>
-
-
-
-                    <ul>
-
-
-                        @forelse($tindakLanjut->dokumen as $dok)
-                            <li>
-
-                                <a href="{{ asset('storage/' . $dok->path_file) }}" target="_blank">
-
-
-                                    {{ $dok->nama_file }}
-
-
-                                </a>
-
-
-                            </li>
-
-
-                        @empty
-
-
-                            <li class="text-muted">
-
-                                Belum ada dokumen
-
-                            </li>
-                        @endforelse
-
-
-                    </ul>
-
-
-                </div>
-
-
-
-
 
 
 

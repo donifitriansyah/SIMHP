@@ -167,17 +167,14 @@ class TindakLanjutController extends Controller
         );
     }
 
-    /**
-     * Update
-     */
     public function update(Request $request, TindakLanjut $tindakLanjut)
     {
         $request->validate([
-            "status_id" => "required",
-            "narasi" => "required",
+            'status_id' => 'required',
+            'narasi' => 'required',
 
-            "nilai_pengembalian" => "nullable|string",
-            "nilai_setor_pajak" => "nullable|string",
+            'nilai_pengembalian' => 'nullable|string',
+            'nilai_setor_pajak' => 'nullable|string',
         ]);
 
 
@@ -207,52 +204,87 @@ class TindakLanjutController extends Controller
 
         $tindakLanjut->update([
 
-            "status_id" => $request->status_id,
+            'status_id' => $request->status_id,
 
-            "narasi" => $request->narasi,
+            'narasi' => $request->narasi,
 
             'keterangan' => $request->keterangan,
 
-            "nilai_pengembalian" => $nilaiPengembalian,
+            'nilai_pengembalian' => $nilaiPengembalian,
 
-            "nilai_setor_pajak" => $nilaiSetorPajak,
+            'nilai_setor_pajak' => $nilaiSetorPajak,
 
-            "tanggal_validasi" => $request->tanggal_validasi,
+            'tanggal_validasi' => $request->tanggal_validasi,
 
-            "validator" => $request->validator,
+            'validator' => $request->validator,
+
         ]);
 
 
-        // Upload dokumen tambahan
-        if ($request->hasFile("dokumen")) {
+        /*
+    |--------------------------------------------------------------------------
+    | Hapus Dokumen yang Dipilih
+    |--------------------------------------------------------------------------
+    */
 
-            foreach ($request->file("dokumen") as $file) {
+        if ($request->filled('hapus_dokumen')) {
 
-                $namaFile = time() . "_" . $file->getClientOriginalName();
+            $dokumen = DokumenTindakLanjut::whereIn(
+                'id',
+                $request->hapus_dokumen
+            )->get();
 
-                $path = $file->storeAs(
-                    "dokumen-tindak-lanjut",
-                    $namaFile,
-                    "public"
+            foreach ($dokumen as $file) {
+
+                Storage::disk('public')->delete(
+                    $file->path_file
                 );
 
+                $file->delete();
+            }
+        }
+
+
+        /*
+    |--------------------------------------------------------------------------
+    | Upload Dokumen Baru
+    |--------------------------------------------------------------------------
+    */
+
+        if ($request->hasFile('dokumen')) {
+
+            foreach ($request->file('dokumen') as $file) {
+
+                $namaFile = time() . '_' . uniqid() . '_' . $file->getClientOriginalName();
+
+                $path = $file->storeAs(
+                    'dokumen-tindak-lanjut',
+                    $namaFile,
+                    'public'
+                );
 
                 DokumenTindakLanjut::create([
-                    "tindak_lanjut_id" => $tindakLanjut->id,
 
-                    "nama_file" => $file->getClientOriginalName(),
+                    'tindak_lanjut_id' => $tindakLanjut->id,
 
-                    "path_file" => $path,
+                    'nama_file' => $file->getClientOriginalName(),
 
-                    "tipe_file" => $file->getClientMimeType(),
+                    'path_file' => $path,
+
+                    'tipe_file' => $file->getClientMimeType(),
+
                 ]);
             }
         }
 
 
-        // Update status LHP
-        $lhp = $tindakLanjut->rekomendasi->temuan->lhp;
+        /*
+    |--------------------------------------------------------------------------
+    | Update Status LHP
+    |--------------------------------------------------------------------------
+    */
 
+        $lhp = $tindakLanjut->rekomendasi->temuan->lhp;
 
         $lhp->updateStatusProses();
 
@@ -260,8 +292,11 @@ class TindakLanjutController extends Controller
 
 
         return redirect()
-            ->route("lhp.show", $lhp->id)
-            ->with("success", "Tindak lanjut berhasil diperbarui");
+            ->route('lhp.show', $lhp->id)
+            ->with(
+                'success',
+                'Tindak lanjut berhasil diperbarui.'
+            );
     }
 
     public function destroy(TindakLanjut $tindakLanjut)

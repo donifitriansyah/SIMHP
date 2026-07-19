@@ -24,6 +24,13 @@ class Temuan extends Model
 
     ];
 
+    public function detailFinansial()
+    {
+        return $this->hasMany(
+            DetailTemuanFinansial::class
+        );
+    }
+
 
     public function lhp()
     {
@@ -31,6 +38,8 @@ class Temuan extends Model
             Lhp::class
         );
     }
+
+
 
 
 

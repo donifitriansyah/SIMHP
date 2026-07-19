@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DetailTemuanFinansial;
 use App\Models\Irban;
 use App\Models\Lhp;
 use App\Models\Pegawai;
@@ -263,110 +264,39 @@ class LaporanController extends Controller
             ]);
         }
 
-
         $jenis = $request->jenis;
 
+        $detail = DetailTemuanFinansial::with([
+            'temuan.lhp.auditee'
+        ])
+            ->where('jenis', 'pns')
+            ->whereHas('temuan.lhp', function ($q) use ($request, $jenis) {
 
-        if ($jenis == 'internal') {
-
-            // ============================
-            // INTERNAL
-            // ============================
-
-            $pegawai = PejabatAuditee::with([
-                'auditee',
-                'lhps.temuans.rekomendasis'
-            ])
-                ->whereHas('lhps', function ($query) use ($request) {
-
-                    $query->where(
-                        'instansi_pemeriksa',
-                        'Itkab'
-                    );
-
-
-                    if ($request->filled('tanggal_awal')) {
-
-                        $query->whereDate(
-                            'tanggal_lhp',
-                            '>=',
-                            $request->tanggal_awal
-                        );
-                    }
-
-
-                    if ($request->filled('tanggal_akhir')) {
-
-                        $query->whereDate(
-                            'tanggal_lhp',
-                            '<=',
-                            $request->tanggal_akhir
-                        );
-                    }
-                })
-                ->whereHas('lhps.temuans')
-                ->get();
-
-
-            return view(
-                'pages.laporan.pns-temuan',
-                compact(
-                    'pegawai',
-                    'jenis'
-                )
-            );
-        } else {
-
-
-            // ============================
-            // EKSTERNAL
-            // ============================
-
-            $lhps = Lhp::with([
-                'temuans.rekomendasis'
-            ])
-                ->whereIn(
-                    'instansi_pemeriksa',
-                    [
+                if ($jenis == 'internal') {
+                    $q->where('instansi_pemeriksa', 'Itkab');
+                } else {
+                    $q->whereIn('instansi_pemeriksa', [
                         'Itprov',
                         'BPK RI',
                         'BPKP'
-                    ]
-                )
-                ->whereHas('temuans');
+                    ]);
+                }
 
+                if ($request->filled('tanggal_awal')) {
+                    $q->whereDate('tanggal_lhp', '>=', $request->tanggal_awal);
+                }
 
-            if ($request->filled('tanggal_awal')) {
+                if ($request->filled('tanggal_akhir')) {
+                    $q->whereDate('tanggal_lhp', '<=', $request->tanggal_akhir);
+                }
+            })
+            ->get()
+            ->groupBy('nama_pihak');
 
-                $lhps->whereDate(
-                    'tanggal_lhp',
-                    '>=',
-                    $request->tanggal_awal
-                );
-            }
-
-
-            if ($request->filled('tanggal_akhir')) {
-
-                $lhps->whereDate(
-                    'tanggal_lhp',
-                    '<=',
-                    $request->tanggal_akhir
-                );
-            }
-
-
-            $lhps = $lhps->get();
-
-
-            return view(
-                'pages.laporan.pns-temuan',
-                compact(
-                    'lhps',
-                    'jenis'
-                )
-            );
-        }
+        return view(
+            'pages.laporan.pns-temuan',
+            compact('detail', 'jenis')
+        );
     }
 
     public function cetakPnsTemuan(Request $request)

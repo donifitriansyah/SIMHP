@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\DetailRekomendasiFinansial;
 use App\Models\TindakLanjut;
 use Illuminate\Database\Eloquent\Model;
 

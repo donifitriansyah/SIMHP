@@ -131,11 +131,33 @@
 
                         <div class="mb-3">
 
-                            <label class="form-label"> Upload Dokumen Tindak Lanjut </label>
+                            <label class="form-label fw-bold">
+                                Upload Dokumen Tindak Lanjut
+                            </label>
 
-                            <input type="file" name="dokumen[]" class="form-control" multiple>
+                            <div id="list-dokumen">
 
-                            <small class="text-muted"> Bisa upload lebih dari satu file (PDF, Word, Excel, JPG) </small>
+                                <div class="input-group mb-2 dokumen-item">
+
+                                    <input type="file" name="dokumen[]" class="form-control">
+
+                                    <button type="button" class="btn btn-danger hapus-dokumen">
+
+                                        <i class="bi bi-trash"></i>
+
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                            <button type="button" class="btn btn-success btn-sm" id="tambah-dokumen">
+
+                                <i class="bi bi-plus"></i>
+
+                                Tambah Dokumen
+
+                            </button>
 
                         </div>
 
@@ -167,6 +189,47 @@
     </div>
 
     <script>
+        const listDokumen = document.getElementById('list-dokumen');
+
+        document.getElementById('tambah-dokumen').addEventListener('click', function() {
+
+            listDokumen.insertAdjacentHTML('beforeend', `
+
+        <div class="input-group mb-2 dokumen-item">
+
+            <input
+                type="file"
+                name="dokumen[]"
+                class="form-control">
+
+            <button
+                type="button"
+                class="btn btn-danger hapus-dokumen">
+
+                <i class="bi bi-trash"></i>
+
+            </button>
+
+        </div>
+
+    `);
+
+        });
+
+        document.addEventListener('click', function(e) {
+
+            if (e.target.closest('.hapus-dokumen')) {
+
+                if (document.querySelectorAll('.dokumen-item').length > 1) {
+
+                    e.target.closest('.dokumen-item').remove();
+
+                }
+
+            }
+
+        });
+
         function formatRupiah(input) {
 
             input.addEventListener('input', function() {
@@ -198,6 +261,5 @@
         if (nilaiPajak) {
             formatRupiah(nilaiPajak);
         }
-        
     </script>
 @endsection

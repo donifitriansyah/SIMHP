@@ -104,15 +104,10 @@
                             <th>No</th>
                             <th>Nama PNS</th>
 
-                            @if ($jenis == 'internal')
-                                <th>Jabatan</th>
-                                <th>Instansi</th>
-                            @endif
-                             @if ($jenis == 'eksternal')
-                                <th>Instansi Pemeriksa</th>
-                            @endif
+                            <th>Nomor LHP</th>
 
                             <th>Jumlah Temuan</th>
+                            <th>Nilai Finansial</th>
 
                         </tr>
 
@@ -125,29 +120,34 @@
                         @if ($jenis == 'internal')
                             {{-- DATA PEJABAT AUDITEE --}}
 
-                            @foreach ($pegawai as $item)
+                            @foreach ($detail as $nama => $items)
                                 <tr>
 
-                                    <td>
-                                        {{ $loop->iteration }}
-                                    </td>
+                                    <td>{{ $loop->iteration }}</td>
+
+                                    <td>{{ $nama }}</td>
 
                                     <td>
-                                        {{ $item->nama }}
+                                        <ul class="mb-0 ps-3">
+
+                                            @foreach ($items->pluck('temuan.lhp')->unique('id') as $lhp)
+                                                <li>
+                                                    <a href="{{ route('lhp.show', $lhp->id) }}" target="_blank">
+
+                                                        {{ $lhp->nomor_lhp }}
+
+                                                    </a>
+                                                </li>
+                                            @endforeach
+
+                                        </ul>
+                                    </td>
+                                    <td>
+                                        {{ $items->count() }}
                                     </td>
 
-                                    <td>
-                                        {{ $item->jenis_jabatan }}
-                                    </td>
-
-                                    <td>
-                                        {{ $item->auditee->nama_dinas ?? '-' }}
-                                    </td>
-
-                                    <td>
-                                        {{ $item->lhps->sum(function ($lhp) {
-                                            return $lhp->temuans->count();
-                                        }) }}
+                                    <td class="text-end">
+                                        Rp {{ number_format($items->sum('nilai_temuan'), 0, ',', '.') }}
                                     </td>
 
                                 </tr>
@@ -167,24 +167,19 @@
                                     </td>
 
                                     <td>
+                                        <ul class="mb-0 ps-3">
 
-                                        @switch($lhp->instansi_pemeriksa)
-                                            @case('Itprov')
-                                                Inspektorat Provinsi
-                                            @break
+                                            @foreach ($items->pluck('temuan.lhp')->unique('id') as $lhp)
+                                                <li>
+                                                    <a href="{{ route('lhp.show', $lhp->id) }}" target="_blank">
 
-                                            @case('BPK RI')
-                                                Badan Pemeriksa Keuangan Republik Indonesia
-                                            @break
+                                                        {{ $lhp->nomor_lhp }}
 
-                                            @case('BPKP')
-                                                Badan Pengawasan Keuangan dan Pembangunan
-                                            @break
+                                                    </a>
+                                                </li>
+                                            @endforeach
 
-                                            @default
-                                                -
-                                        @endswitch
-
+                                        </ul>
                                     </td>
 
                                     <td>

@@ -143,6 +143,117 @@
 
                         </div>
 
+                        @php
+                            $jenis = $temuan->detailFinansial->first()->jenis ?? '';
+                        @endphp
+                        {{-- Jenis Detail Finansial --}}
+                        <div class="col-md-12 mb-3">
+
+                            <label class="form-label">
+                                Detail Temuan Finansial
+                            </label>
+
+                            <select name="jenis_finansial" id="jenis_finansial" class="form-select">
+
+                                <option value="">Tidak Ada</option>
+
+                                <option value="pns" {{ $jenis == 'pns' ? 'selected' : '' }}>
+                                    PNS
+                                </option>
+
+                                <option value="penyedia" {{ $jenis == 'penyedia' ? 'selected' : '' }}>
+                                    Penyedia
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        {{-- Detail Finansial --}}
+                        <div class="col-md-12" id="detail_finansial" style="display:none">
+
+
+                            <div class="card border">
+
+                                <div class="card-header bg-light">
+
+                                    <strong>
+                                        Detail Nilai Temuan
+                                    </strong>
+
+                                    <button type="button" class="btn btn-success btn-sm float-end" id="tambah_detail">
+
+                                        <i class="bi bi-plus"></i>
+                                        Tambah
+
+                                    </button>
+
+                                </div>
+
+
+                                <div class="card-body">
+
+
+                                    <div id="list_detail">
+
+                                        @foreach ($temuan->detailFinansial as $detail)
+                                            <div class="row mb-3 detail-row">
+
+                                                @if ($detail->jenis == 'pns')
+                                                    <div class="col-md-7">
+
+                                                        <label>Nama PNS</label>
+
+                                                        <input type="text" name="detail_finansial[nama_pihak][]"
+                                                            class="form-control" value="{{ $detail->nama_pihak }}">
+
+                                                    </div>
+                                                @else
+                                                    <div class="col-md-7">
+
+                                                        <label>Nama Penyedia</label>
+
+                                                        <input type="text" name="detail_finansial[nama_penyedia][]"
+                                                            class="form-control" value="{{ $detail->nama_penyedia }}">
+
+                                                    </div>
+                                                @endif
+
+                                                <div class="col-md-4">
+
+                                                    <label>Nilai Temuan</label>
+
+                                                    <input type="text" name="detail_finansial[nilai][]"
+                                                        class="form-control"
+                                                        value="{{ number_format($detail->nilai_temuan, 0, ',', '.') }}">
+
+                                                </div>
+
+                                                <div class="col-md-1 d-flex align-items-end">
+
+                                                    <button type="button" class="btn btn-danger hapus-detail">
+
+                                                        <i class="bi bi-trash"></i>
+
+                                                    </button>
+
+                                                </div>
+
+                                            </div>
+                                        @endforeach
+
+                                    </div>
+
+
+                                </div>
+
+
+                            </div>
+
+
+                        </div>
+
 
 
                     </div>
@@ -189,17 +300,266 @@
     <script>
         const input = document.getElementById('nilai_kerugian');
 
-        input.addEventListener('input', function() {
+        if (input) {
 
-            let value = this.value;
+            input.addEventListener('input', function() {
 
-            value = value.replace(/[^\d,]/g, '');
+                let value = this.value;
 
-            const parts = value.split(',');
+                value = value.replace(/[^\d]/g, '');
 
-            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                this.value = value.replace(
+                    /\B(?=(\d{3})+(?!\d))/g,
+                    '.'
+                );
 
-            this.value = parts.join(',');
+            });
+
+        }
+
+
+
+        document.addEventListener(
+            'input',
+            function(e) {
+
+                if (
+                    e.target.matches(
+                        'input[name="detail_finansial[nilai][]"]'
+                    )
+                ) {
+
+                    let value = e.target.value;
+
+                    value = value.replace(/[^\d]/g, '');
+
+                    e.target.value =
+                        value.replace(
+                            /\B(?=(\d{3})+(?!\d))/g,
+                            '.'
+                        );
+
+                }
+
+            }
+        );
+
+        let jenisFinansial = document.getElementById('jenis_finansial');
+
+        let detailBox = document.getElementById('detail_finansial');
+
+        let listDetail = document.getElementById('list_detail');
+
+        let tombolTambah = document.getElementById('tambah_detail');
+
+
+        if (jenisFinansial.value !== '') {
+
+            detailBox.style.display = 'block';
+
+        }
+        jenisFinansial.addEventListener('change', function() {
+
+
+            if (this.value) {
+
+                detailBox.style.display = 'block';
+
+                jenisFinansial.addEventListener('change', function() {
+
+                    detailBox.style.display = this.value ? 'block' : 'none';
+
+                });
+
+                tambahBaris();
+
+            } else {
+
+                detailBox.style.display = 'none';
+
+                jenisFinansial.addEventListener('change', function() {
+
+                    detailBox.style.display = this.value ? 'block' : 'none';
+
+                });
+
+            }
+
+
+        });
+
+
+
+
+        tombolTambah.addEventListener('click', function() {
+
+            tambahBaris();
+
+        });
+
+
+
+
+
+        function tambahBaris() {
+
+
+            let jenis = jenisFinansial.value;
+
+
+            let html = '';
+
+
+
+            if (jenis === 'pns') {
+
+
+                html = `
+
+        <div class="row mb-3 detail-row">
+
+
+            <div class="col-md-7">
+
+                <label>
+                    Nama PNS
+                </label>
+
+                <input type="text"
+                    name="detail_finansial[nama_pihak][]"
+                    class="form-control"
+                    placeholder="Nama PNS">
+
+            </div>
+
+
+
+            <div class="col-md-4">
+
+                <label>
+                    Nilai Temuan
+                </label>
+
+                <input type="text"
+                    name="detail_finansial[nilai][]"
+                    class="form-control"
+                    placeholder="Nilai">
+
+            </div>
+
+
+
+            <div class="col-md-1 d-flex align-items-end">
+
+                <button type="button"
+                    class="btn btn-danger hapus-detail">
+
+                    <i class="bi bi-trash"></i>
+
+                </button>
+
+            </div>
+
+
+        </div>
+
+        `;
+
+
+
+            } else if (jenis === 'penyedia') {
+
+
+                html = `
+
+        <div class="row mb-3 detail-row">
+
+
+            <div class="col-md-7">
+
+
+                <label>
+                    Nama Penyedia
+                </label>
+
+
+                <input type="text"
+                    name="detail_finansial[nama_penyedia][]"
+                    class="form-control"
+                    placeholder="Nama Penyedia">
+
+
+            </div>
+
+
+
+            <div class="col-md-4">
+
+
+                <label>
+                    Nilai Temuan
+                </label>
+
+
+                <input type="text"
+                    name="detail_finansial[nilai][]"
+                    class="form-control"
+                    placeholder="Nilai">
+
+
+            </div>
+
+
+
+            <div class="col-md-1 d-flex align-items-end">
+
+
+                <button type="button"
+                    class="btn btn-danger hapus-detail">
+
+                    <i class="bi bi-trash"></i>
+
+                </button>
+
+
+            </div>
+
+
+
+        </div>
+
+        `;
+
+
+            }
+
+
+            listDetail.insertAdjacentHTML(
+                'beforeend',
+                html
+            );
+
+
+
+        }
+
+
+
+
+
+        document.addEventListener('click', function(e) {
+
+
+            if (e.target.closest('.hapus-detail')) {
+
+
+                e.target
+                    .closest('.detail-row')
+                    .remove();
+
+
+            }
+
 
         });
     </script>
