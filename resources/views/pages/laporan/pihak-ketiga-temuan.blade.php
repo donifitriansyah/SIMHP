@@ -2,8 +2,6 @@
 
 
 @section('content')
-
-
     <div class="container-fluid py-4">
 
 
@@ -103,12 +101,12 @@
                     </div>
                     <div class="col-md-2 d-flex align-items-end">
                         <a href="{{ route('laporan.pihak.ketiga.temuan.cetak', request()->query()) }}" target="_blank"
-                        class="btn btn-danger">
+                            class="btn btn-danger">
 
-                        <i class="bi bi-file-earmark-pdf"></i>
-                        Cetak PDF
+                            <i class="bi bi-file-earmark-pdf"></i>
+                            Cetak PDF
 
-                    </a>
+                        </a>
                     </div>
 
 
@@ -116,156 +114,99 @@
 
                 </form>
 
-                <table class="table table-bordered table-striped" id="dataTable">
-
+                <table class="table table-bordered" id="dataTable">
 
                     <thead>
 
                         <tr>
 
-                            <th width="5%">
-                                No
-                            </th>
-
-                            <th>
-                                Nama Perusahaan
-                            </th>
-
-                            <th>
-                                Nama Pimpinan
-                            </th>
-
-                            <th>
-                                Paket Pekerjaan
-                            </th>
-
-                            <th>
-                                LHP
-                            </th>
-
-                            <th>
-                                Tanggal LHP
-                            </th>
-
-                            <th>
-                                Objek Pemeriksaan
-                            </th>
-
-                            <th>
-                                Jumlah Temuan
-                            </th>
+                            <th>No</th>
+                            <th>Nama Penyedia</th>
+                            <th>Nomor LHP</th>
+                            <th>Objek Pemeriksaan</th>
+                            <th>Jumlah Temuan</th>
+                            <th>Total Nilai Temuan</th>
 
                         </tr>
 
                     </thead>
 
 
-
                     <tbody>
 
-                        @forelse($pihakKetiga as $item)
+
+                        @php
+                            $groupPenyedia = $detail->groupBy('nama_penyedia');
+                        @endphp
+
+
+
+                        @foreach ($groupPenyedia as $nama => $items)
                             <tr>
+
 
                                 <td>
                                     {{ $loop->iteration }}
                                 </td>
 
 
+
                                 <td>
-                                    {{ $item->nama_perusahaan }}
+                                    {{ strtoupper($nama) }}
                                 </td>
 
 
+
                                 <td>
-                                    {{ $item->nama_pimpinan }}
+                                    @foreach ($items->pluck('temuan.lhp')->unique('id') as $lhp)
+                                        <li>
+                                            <a href="{{ route('lhp.show', $lhp->id) }}" target="_blank">
+
+                                                {{ $lhp->nomor_lhp }}
+
+                                            </a>
+                                        </li>
+                                    @endforeach
                                 </td>
 
 
-                                <td>
-                                    {{ $item->paket_pekerjaan }}
-                                </td>
-
 
                                 <td>
 
-                                    @foreach ($item->lhps as $lhp)
-                                        @if ($lhp->temuans->count() > 0)
-                                            <div class="mb-2">
+                                    @foreach ($items as $item)
+                                        {{ $item->temuan->lhp->objek_pemeriksaan }}
 
-                                                <a href="{{ route('lhp.show', $lhp->id) }}" class="text-primary fw-bold">
-
-                                                    {{ $lhp->nomor_lhp }}
-
-                                                </a>
-
-                                            </div>
-
-                                            @if (!$loop->last)
-                                                <hr>
-                                            @endif
+                                        @if (!$loop->last)
+                                            <br>
                                         @endif
                                     @endforeach
 
                                 </td>
 
-
-                                <td>
-
-                                    @foreach ($item->lhps as $lhp)
-                                        @if ($lhp->temuans->count() > 0)
-                                            <div class="mb-2">
-
-                                                {{ \Carbon\Carbon::parse($lhp->tanggal_lhp)->format('d-m-Y') }}
-
-                                            </div>
-
-
-                                            @if (!$loop->last)
-                                                <hr>
-                                            @endif
-                                        @endif
-                                    @endforeach
-
-                                </td>
-
-
-                                <td>
-
-                                    @foreach ($item->lhps as $lhp)
-                                        @if ($lhp->temuans->count() > 0)
-                                            <div class="mb-2">
-
-                                                {{ $lhp->objek_pemeriksaan }}
-
-                                            </div>
-
-
-                                            @if (!$loop->last)
-                                                <hr>
-                                            @endif
-                                        @endif
-                                    @endforeach
-
-                                </td>
 
 
                                 <td class="text-center">
 
-                                    {{ $item->lhps->sum(function ($lhp) {
-                                        return $lhp->temuans->count();
-                                    }) }}
+                                    {{ $items->count() }}
+
+                                </td>
+
+
+
+                                <td class="text-end">
+
+
+                                    Rp {{ number_format($items->sum('nilai_temuan'), 0, ',', '.') }}
+
 
                                 </td>
 
 
                             </tr>
+                        @endforeach
 
-
-                        @empty
-                        @endforelse
 
                     </tbody>
-
 
                 </table>
 
@@ -277,6 +218,4 @@
 
 
     </div>
-
-
 @endsection
