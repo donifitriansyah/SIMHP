@@ -148,10 +148,7 @@ Route::middleware("auth")->group(function () {
         [EditRequestController::class, 'complete']
     )->name('edit-requests.complete');
 
-    Route::get("/auditee/{auditee}/pejabat", [
-        LhpController::class,
-        "getPejabat",
-    ])->name("auditee.pejabat");
+
 
     Route::get("/matriks-tindak-lanjut", [
         MatriksTindakLanjutController::class,
@@ -170,6 +167,11 @@ Route::middleware("auth")->group(function () {
             "temuan.store"
         );
     });
+
+    Route::get("/auditee/{auditee}/pejabat", [
+        LhpController::class,
+        "getPejabat",
+    ])->name("auditee.pejabat");
 
 
     Route::prefix('edit-requests')
@@ -234,10 +236,6 @@ Route::middleware("auth")->group(function () {
             "lhp.filter"
         );
 
-        Route::get("/auditee/{auditee}/pejabat", [
-            LhpController::class,
-            "getPejabat",
-        ])->name("auditee.pejabat");
     });
 
     Route::resource("temuan", TemuanController::class)->except([

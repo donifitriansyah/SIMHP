@@ -153,16 +153,7 @@
 
                         @empty
 
-                        <tr>
-
-                            <td colspan="8"
-                                class="text-center">
-
-                                Belum ada permintaan edit.
-
-                            </td>
-
-                        </tr>
+                        
 
                         @endforelse
 

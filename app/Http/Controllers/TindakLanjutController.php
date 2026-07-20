@@ -155,7 +155,7 @@ class TindakLanjutController extends Controller
                 'aksi' => 'Tambah',
                 'modul' => 'Tindak Lanjut',
                 'referensi_id' => $tindakLanjut->id,
-                'deskripsi' => 'Mengedit Tindak Lanjut pada LHP ' . $tindakLanjut->lhp->nomor_lhp,
+                'deskripsi' => 'Mengedit Tindak Lanjut pada LHP ' . $tindakLanjut->rekomendasi->temuan->lhp->nomor_lhp,
             ]);
 
 
@@ -322,7 +322,7 @@ class TindakLanjutController extends Controller
                 'aksi' => 'Edit',
                 'modul' => 'Tindak Lanjut',
                 'referensi_id' => $tindakLanjut->id,
-                'deskripsi' => 'Mengedit Tindak Lanjut pada LHP ' . $tindakLanjut->lhp->nomor_lhp,
+                'deskripsi' => 'Mengedit Tindak Lanjut pada LHP ' . $tindakLanjut->rekomendasi->temuan->lhp->nomor_lhp,
             ]);
 
 

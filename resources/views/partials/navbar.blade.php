@@ -130,37 +130,22 @@
 
                     <ul class="dropdown-menu shadow border-0">
                         <li>
-
-                            <a class="dropdown-item {{ request()->routeIs('pemeriksaan.eksternal') ? 'active' : '' }} d-flex justify-content-between align-items-center"
-                                href="{{ route('pemeriksaan.eksternal') }}">
-
-
-                                <span>
-                                    Eksternal
-                                </span>
-
-
-
-                            </a>
-
-                        </li>
-                        <li>
-
                             <a class="dropdown-item {{ request()->routeIs('pemeriksaan.internal') ? 'active' : '' }} d-flex justify-content-between align-items-center"
                                 href="{{ route('pemeriksaan.internal') }}">
-
-
                                 <span>
                                     Internal
                                 </span>
-
-
-
-
-
                             </a>
-
                         </li>
+                        <li>
+                            <a class="dropdown-item {{ request()->routeIs('pemeriksaan.eksternal') ? 'active' : '' }} d-flex justify-content-between align-items-center"
+                                href="{{ route('pemeriksaan.eksternal') }}">
+                                <span>
+                                    Eksternal
+                                </span>
+                            </a>
+                        </li>
+
                     </ul>
 
 

@@ -81,9 +81,17 @@
                                         <span class="badge bg-danger">
                                             Super Admin
                                         </span>
-                                    @else
+                                    @elseif ($user->role == 'user_entry')
+                                        <span class="badge bg-success">
+                                            User Entry
+                                        </span>
+                                    @elseif ($user->role == 'user_view')
                                         <span class="badge bg-primary">
-                                            User
+                                            User View
+                                        </span>
+                                    @else
+                                        <span class="badge bg-secondary">
+                                            Tidak Diketahui
                                         </span>
                                     @endif
 
@@ -132,8 +140,6 @@
                             @include('pages.master-data.manajemen-users.modal-edit')
 
                         @empty
-
-
                         @endforelse
 
                     </tbody>
