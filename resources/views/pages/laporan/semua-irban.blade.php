@@ -204,6 +204,35 @@
                                     </tr>
                                 @else
                                     @foreach ($dataIrban['lhp'] as $item)
+                                        @php
+
+                                            $totalLhp++;
+
+                                            $totalTemuan += $item['temuan'];
+
+                                            $totalRekomendasi += $item['rekomendasi'];
+
+                                            $totalS += $item['selesai'];
+
+                                            $totalD += $item['dalam_proses'];
+
+                                            $totalB += $item['belum'];
+
+                                            $totalKerugian += $item['kerugian'];
+
+                                            $totalDisetor += $item['disetor'];
+
+                                            $totalSisa += $item['sisa'];
+
+                                            $totalPajak += $item['pajak'];
+
+                                            $totalPajakDisetor += $item['pajak_disetor'];
+
+                                            $totalPajakSisa += $item['pajak_sisa'];
+
+                                        @endphp
+
+
                                         <tr>
 
                                             <td>{{ $no++ }}</td>

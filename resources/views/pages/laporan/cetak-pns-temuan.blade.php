@@ -181,29 +181,37 @@
 
             <tr>
 
-                @if ($jenis == 'internal')
-            <tr>
-                <th>No</th>
-                <th>Nama PNS</th>
-                <th>Jabatan</th>
-                <th>Instansi</th>
-                <th>Objek Pemeriksaan</th>
-                <th>Jumlah Temuan</th>
-            </tr>
-        @else
-            <tr>
-                <th>No</th>
-                <th>Nama Pejabat</th>
-                <th>Instansi Pemeriksa</th>
-                <th>Nomor LHP</th>
-                <th>Objek Pemeriksaan</th>
-                <th>Jumlah Temuan</th>
-            </tr>
-            @endif
+                <th width="5%">
+                    No
+                </th>
+
+
+                <th>
+                    Nama PNS
+                </th>
+
+
+                <th>
+                    Nomor LHP
+                </th>
+
+
+                <th>
+                    Objek Pemeriksaan
+                </th>
+
+
+                <th>
+                    Jumlah Temuan
+                </th>
+
+
+                <th>
+                    Nilai Finansial
+                </th>
 
 
             </tr>
-
 
         </thead>
 
@@ -212,251 +220,73 @@
         <tbody>
 
 
-
-            @if ($jenis == 'internal')
-
-                {{-- ========================= --}}
-                {{-- CETAK INTERNAL --}}
-                {{-- ========================= --}}
-
-                @forelse($data as $item)
-                    <tr>
-
-                        <td class="text-center">
-                            {{ $loop->iteration }}
-                        </td>
-
-
-                        <td>
-                            {{ strtoupper($item->nama) }}
-                        </td>
-
-
-                        <td>
-                            {{ strtoupper($item->jenis_jabatan ?? '-') }}
-                        </td>
-
-
-                        <td>
-                            {{ $item->auditee->nama_dinas ?? '-' }}
-                        </td>
-
-
-                        <td>
-
-                            @foreach ($item->lhps as $lhp)
-                                @if ($lhp->temuans->count() > 0)
-                                    {{ $lhp->objek_pemeriksaan }}
-
-                                    @if (!$loop->last)
-                                        <br>
-                                    @endif
-                                @endif
-                            @endforeach
-
-                        </td>
-
-
-                        <td class="text-center">
-
-                            {{ $item->lhps->sum(function ($lhp) {
-                                return $lhp->temuans->count();
-                            }) }}
-
-                        </td>
-
-
-
-
-
-                    </tr>
-
-
-                @empty
-
-                    <tr>
-
-                        <td colspan="7" class="text-center">
-                            Tidak ada data PNS yang memiliki temuan.
-                        </td>
-
-                    </tr>
-                @endforelse
-            @else
-                {{-- ========================= --}}
-                {{-- CETAK EKSTERNAL --}}
-                {{-- ========================= --}}
-
-
-                @forelse($data as $item)
-                    <tr>
-
-
-                        <td class="text-center">
-
-                            {{ $loop->iteration }}
-
-                        </td>
-
-
-                        <td>
-
-                            {{ strtoupper($item->nama_pejabat_eksternal ?? '-') }}
-
-                        </td>
-
-
-                        <td>
-
-                            @switch($item->instansi_pemeriksa)
-                                @case('Itprov')
-                                    Inspektorat Provinsi
-                                @break
-
-                                @case('BPK RI')
-                                    Badan Pemeriksa Keuangan Republik Indonesia
-                                @break
-
-                                @case('BPKP')
-                                    Badan Pengawasan Keuangan dan Pembangunan
-                                @break
-
-                                @default
-                                    -
-                            @endswitch
-                        </td>
-
-
-                        <td>
-
-                            {{ $item->nomor_lhp }}
-
-                        </td>
-
-
-                        <td>
-
-                            {{ $item->objek_pemeriksaan }}
-
-                        </td>
-
-
-                        <td class="text-center">
-
-                            {{ $item->temuans->count() }}
-
-                        </td>
-
-
-
-
-
-                    </tr>
-
-
-                    @empty
-
-
-                        <tr>
-
-                            <td colspan="7" class="text-center">
-                                Tidak ada data pejabat eksternal yang memiliki temuan.
-                            </td>
-
-                        </tr>
-                    @endforelse
-
-
-                @endif
-
-
-
-            </tbody>
-
-
-
-        </table>
-
-
-
-
-
-        <div class="ttd">
-
-
-            <table>
+            @forelse($detail as $nama => $items)
 
 
                 <tr>
 
 
+                    <td align="center">
+
+                        {{ $loop->iteration }}
+
+                    </td>
+
+
+
+                    <td>
+
+                        {{ strtoupper($nama) }}
+
+                    </td>
+
+
+
                     <td>
 
 
-                        Mengetahui,
+                        @foreach ($items->pluck('temuan.lhp')->unique('id') as $lhp)
+                            {{ $lhp->nomor_lhp }}
 
-
-                        <br><br>
-
-
-                        INSPEKTUR KABUPATEN KETAPANG
-
-
-
-                        <div class="nama">
-
-                            {{ strtoupper($inspektur->nama ?? '........................') }}
-
-                        </div>
-
-
-                        {{ $inspektur->golongan ?? '' }}
-
-
-                        <br>
-
-
-                        NIP.
-                        {{ $inspektur->nip ?? '........................' }}
-
+                            @if (!$loop->last)
+                                <br>
+                            @endif
+                        @endforeach
 
 
                     </td>
 
 
 
-
                     <td>
 
 
-                        Ketapang,
+                        @foreach ($items->pluck('temuan.lhp')->unique('id') as $lhp)
+                            {{ $lhp->objek_pemeriksaan }}
 
-                        {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}
-
-
-                        <br><br>
-
-
-                        SEKRETARIS
+                            @if (!$loop->last)
+                                <br>
+                            @endif
+                        @endforeach
 
 
-
-                        <div class="nama">
-
-                            {{ strtoupper($sekretaris->nama ?? '........................') }}
-
-                        </div>
+                    </td>
 
 
-                        {{ $sekretaris->golongan ?? '' }}
+
+                    <td align="center">
+
+                        {{ $items->count() }}
 
 
-                        <br>
+                    </td>
 
 
-                        NIP.
-                        {{ $sekretaris->nip ?? '........................' }}
 
+                    <td align="right">
+
+
+                        Rp {{ number_format($items->sum('nilai_temuan'), 0, ',', '.') }}
 
 
                     </td>
@@ -466,25 +296,138 @@
                 </tr>
 
 
-            </table>
+
+            @empty
 
 
-        </div>
+                <tr>
+
+                    <td colspan="6" align="center">
+
+                        Tidak ada data temuan finansial PNS
+
+                    </td>
+
+                </tr>
+
+
+            @endforelse
+
+
+        </tbody>
+
+
+
+    </table>
 
 
 
 
 
-        <script>
-            window.onload = function() {
-
-                window.print();
-
-            }
-        </script>
+    <div class="ttd">
 
 
+        <table>
 
-    </body>
 
-    </html>
+            <tr>
+
+
+                <td>
+
+
+                    Mengetahui,
+
+
+                    <br><br>
+
+
+                    INSPEKTUR KABUPATEN KETAPANG
+
+
+
+                    <div class="nama">
+
+                        {{ strtoupper($inspektur->nama ?? '........................') }}
+
+                    </div>
+
+
+                    {{ $inspektur->golongan ?? '' }}
+
+
+                    <br>
+
+
+                    NIP.
+                    {{ $inspektur->nip ?? '........................' }}
+
+
+
+                </td>
+
+
+
+
+                <td>
+
+
+                    Ketapang,
+
+                    {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}
+
+
+                    <br><br>
+
+
+                    SEKRETARIS
+
+
+
+                    <div class="nama">
+
+                        {{ strtoupper($sekretaris->nama ?? '........................') }}
+
+                    </div>
+
+
+                    {{ $sekretaris->golongan ?? '' }}
+
+
+                    <br>
+
+
+                    NIP.
+                    {{ $sekretaris->nip ?? '........................' }}
+
+
+
+                </td>
+
+
+
+            </tr>
+
+
+        </table>
+
+
+    </div>
+
+
+
+
+
+    <script>
+        window.onload = function() {
+
+            window.print();
+
+        }
+    </script>
+
+
+
+</body>
+
+</html>

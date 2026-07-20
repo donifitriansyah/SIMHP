@@ -121,18 +121,15 @@
                 <th>No</th>
 
                 <th>No LHP</th>
-                <th>Nama Perusahaan</th>
 
-                <th>Pimpinan</th>
-
-                <th>Paket Pekerjaan</th>
-
+                <th>Nama Penyedia</th>
 
                 <th>Objek Pemeriksaan</th>
 
                 <th>Jumlah Temuan</th>
 
-                <th>Jumlah Rekomendasi</th>
+                <th>Nilai Temuan</th>
+
 
             </tr>
 
@@ -143,59 +140,37 @@
         <tbody>
 
 
-            @forelse($pihakKetiga as $item)
+            @php
+
+                $penyedia = $detail->groupBy('nama_penyedia');
+
+            @endphp
+
+
+
+            @forelse($penyedia as $nama => $items)
 
 
                 <tr>
 
 
-                    <td>
+                    <td align="center">
+
                         {{ $loop->iteration }}
-                    </td>
-
-                    <td>
-
-                        @foreach ($item->lhps as $lhp)
-                            @if ($lhp->temuans->count() > 0)
-                                {{ $lhp->nomor_lhp }}
-
-                                @if (!$loop->last)
-                                    <br>
-                                @endif
-                            @endif
-                        @endforeach
 
                     </td>
 
 
 
                     <td>
-                        {{ strtoupper($item->nama_perusahaan) }}
-                    </td>
 
 
-
-                    <td>
-                        {{ $item->nama_pimpinan }}
-                    </td>
+                        @foreach ($items as $item)
+                            {{ $item->temuan->lhp->nomor_lhp }}
 
 
-
-                    <td>
-                        {{ $item->paket_pekerjaan }}
-                    </td>
-
-
-
-                    <td>
-
-                        @foreach ($item->lhps as $lhp)
-                            @if ($lhp->temuans->count() > 0)
-                                {{ $lhp->objek_pemeriksaan }}
-
-                                @if (!$loop->last)
-                                    <br>
-                                @endif
+                            @if (!$loop->last)
+                                <br>
                             @endif
                         @endforeach
 
@@ -204,13 +179,25 @@
 
 
 
+                    <td>
 
-                    <td align="center">
+                        {{ strtoupper($nama) }}
+
+                    </td>
 
 
-                        {{ $item->lhps->sum(function ($lhp) {
-                            return $lhp->temuans->count();
-                        }) }}
+
+                    <td>
+
+
+                        @foreach ($items as $item)
+                            {{ $item->temuan->lhp->objek_pemeriksaan }}
+
+
+                            @if (!$loop->last)
+                                <br>
+                            @endif
+                        @endforeach
 
 
                     </td>
@@ -219,15 +206,20 @@
 
                     <td align="center">
 
+                        {{ $items->count() }}
 
-                        {{ $item->lhps->sum(function ($lhp) {
-                            return $lhp->temuans->sum(function ($temuan) {
-                                return $temuan->rekomendasis->count();
-                            });
-                        }) }}
+                    </td>
+
+
+
+                    <td align="right">
+
+
+                        Rp {{ number_format($items->sum('nilai_temuan'), 0, ',', '.') }}
 
 
                     </td>
+
 
 
                 </tr>
@@ -239,9 +231,9 @@
 
                 <tr>
 
-                    <td colspan="8" align="center">
+                    <td colspan="6" align="center">
 
-                        Tidak ada data
+                        Tidak ada data temuan pihak ketiga
 
                     </td>
 
