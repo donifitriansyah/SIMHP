@@ -41,9 +41,6 @@
 
         </div>
 
-
-
-
         <div class="col-md-3 mb-3">
 
             <div class="card dashboard-card border-0 shadow-sm h-100">
@@ -81,10 +78,6 @@
 
 
         </div>
-
-
-
-
 
         <div class="col-md-3 mb-3">
 
@@ -280,20 +273,16 @@
 
             </div>
             @auth
-                @if (auth()->user()->role == 'super_user')
+                @if (auth()->user()->canCreateLhp())
                     @if ($jenis == 'internal')
                         <a href="{{ route('lhp.internal.create') }}" class="btn btn-primary">
-
                             <i class="bi bi-plus-circle"></i>
                             Tambah LHP
-
                         </a>
                     @elseif($jenis == 'eksternal')
                         <a href="{{ route('lhp.eksternal.create') }}" class="btn btn-primary">
-
                             <i class="bi bi-plus-circle"></i>
                             Tambah LHP
-
                         </a>
                     @endif
                 @endif

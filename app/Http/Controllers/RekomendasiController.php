@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Temuan;
+use App\Models\ActivityLog;
+use App\Models\EditRequest;
 use App\Models\Rekomendasi;
+use App\Models\Temuan;
 use Illuminate\Http\Request;
 
 class RekomendasiController extends Controller
@@ -60,6 +62,14 @@ class RekomendasiController extends Controller
             $temuan->lhp->updateStatusProses();
             $temuan->lhp->updateStatusLhp();
 
+            ActivityLog::create([
+                'user_id' => auth()->id(),
+                'aksi' => 'Edit',
+                'modul' => 'Rekomendasi',
+                'referensi_id' => $temuan->id,
+                'deskripsi' => 'Mengedit Rekomendasi pada LHP ' . $temuan->lhp->nomor_lhp,
+            ]);
+
             return redirect()
                 ->route('lhp.show', $temuan->lhp_id)
                 ->with('success', 'Rekomendasi berhasil ditambahkan.');
@@ -79,15 +89,18 @@ class RekomendasiController extends Controller
      */
     public function edit(Rekomendasi $rekomendasi)
     {
+        $lhp = $rekomendasi->temuan->lhp;
+
+
+        if (!auth()->user()->canEditLhp($lhp)) {
+            abort(403);
+        }
         return view(
             "pages.pemeriksaan.rekomendasi.edit",
             compact("rekomendasi")
         );
     }
 
-    /**
-     * Update rekomendasi
-     */
     public function update(Request $request, Rekomendasi $rekomendasi)
     {
         $request->validate([
@@ -128,6 +141,21 @@ class RekomendasiController extends Controller
             $rekomendasi->temuan->lhp->updateStatusProses();
             $rekomendasi->temuan->lhp->updateStatusLhp();
 
+            EditRequest::where('lhp_id', $rekomendasi->temuan->lhp_id)
+                ->where('user_id', auth()->id())
+                ->where('status', 'approved')
+                ->update([
+                    'edit_rekomendasi' => true
+                ]);
+
+            ActivityLog::create([
+                'user_id' => auth()->id(),
+                'aksi' => 'Edit',
+                'modul' => 'Rekomendasi',
+                'referensi_id' => $rekomendasi->id,
+                'deskripsi' => 'Mengedit Rekomendasi pada LHP ' . $rekomendasi->lhp->nomor_lhp,
+            ]);
+
             return redirect()
                 ->route('lhp.show', $rekomendasi->temuan->lhp_id)
                 ->with('success', 'Rekomendasi berhasil diperbarui.');
@@ -142,9 +170,7 @@ class RekomendasiController extends Controller
         }
     }
 
-    /**
-     * Hapus rekomendasi
-     */
+
     public function destroy(Rekomendasi $rekomendasi)
     {
         $lhp = $rekomendasi->temuan->lhp;

@@ -246,4 +246,9 @@ class Lhp extends Model
             'status_proses' => $status
         ]);
     }
+
+    public function editRequests()
+    {
+        return $this->hasMany(EditRequest::class);
+    }
 }

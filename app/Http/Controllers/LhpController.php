@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
 use App\Models\Auditee;
+use App\Models\EditRequest;
 use App\Models\Irban;
 use App\Models\Lhp;
 use App\Models\PejabatAuditee;
@@ -203,8 +205,10 @@ class LhpController extends Controller
             'auditee',
             'temuans.rekomendasis.tindakLanjut.status'
         ]);
-
-
+        // User View hanya melihat LHP sesuai Irban
+        if (auth()->user()->isUserView()) {
+            $query->where('irban_id', auth()->user()->irban_id);
+        }
         // Filter Internal / Eksternal
         if ($jenis == 'internal') {
 
@@ -217,9 +221,6 @@ class LhpController extends Controller
                 'BPKP'
             ]);
         }
-
-
-
         if ($request->filled('keyword')) {
 
             $keyword = $request->keyword;
@@ -234,9 +235,6 @@ class LhpController extends Controller
                     });
             });
         }
-
-
-
         if ($request->filled('irban_id')) {
 
             $query->where(
@@ -244,9 +242,6 @@ class LhpController extends Controller
                 $request->irban_id
             );
         }
-
-
-
         if ($request->filled('status')) {
 
             $query->where(
@@ -254,9 +249,6 @@ class LhpController extends Controller
                 $request->status
             );
         }
-
-
-
         if ($request->filled('tanggal_awal')) {
 
             $query->whereDate(
@@ -265,9 +257,6 @@ class LhpController extends Controller
                 $request->tanggal_awal
             );
         }
-
-
-
         if ($request->filled('tanggal_akhir')) {
 
             $query->whereDate(
@@ -276,17 +265,11 @@ class LhpController extends Controller
                 $request->tanggal_akhir
             );
         }
-
-
-
         $lhps = $query
             ->withCount('temuans')
             ->latest()
             ->paginate(10)
             ->withQueryString();
-
-
-
         foreach ($lhps as $lhp) {
 
             $totalRekomendasi = 0;
@@ -318,7 +301,6 @@ class LhpController extends Controller
                 }
             }
 
-
             $lhp->totalRekomendasi = $totalRekomendasi;
 
             $lhp->totalSelesai = $totalSelesai;
@@ -330,31 +312,26 @@ class LhpController extends Controller
         }
 
 
-
-
+        // Statistik mengikuti menu yang sedang dibuka
         // Statistik mengikuti menu yang sedang dibuka
         $statistikQuery = Lhp::query();
 
-
         if ($jenis == 'internal') {
 
-            $statistikQuery->where(
-                'instansi_pemeriksa',
-                'Itkab'
-            );
+            $statistikQuery->where('instansi_pemeriksa', 'Itkab');
         } elseif ($jenis == 'eksternal') {
 
-            $statistikQuery->whereIn(
-                'instansi_pemeriksa',
-                [
-                    'Itprov',
-                    'BPK RI',
-                    'BPKP'
-                ]
-            );
+            $statistikQuery->whereIn('instansi_pemeriksa', [
+                'Itprov',
+                'BPK RI',
+                'BPKP'
+            ]);
         }
 
-
+        // Jika User View, hanya statistik Irban miliknya
+        if (auth()->user()->isUserView()) {
+            $statistikQuery->where('irban_id', auth()->user()->irban_id);
+        }
 
         $statistik = [
 
@@ -379,8 +356,13 @@ class LhpController extends Controller
         ];
 
 
+        if (auth()->user()->isUserView()) {
 
-        $irbans = Irban::orderBy('nama_irban')->get();
+            $irbans = Irban::where('id', auth()->user()->irban_id)->get();
+        } else {
+
+            $irbans = Irban::orderBy('nama_irban')->get();
+        }
 
 
 
@@ -585,6 +567,14 @@ class LhpController extends Controller
             }
         }
 
+        ActivityLog::create([
+            'user_id' => auth()->id(),
+            'aksi' => 'Tambah',
+            'modul' => 'LHP',
+            'referensi_id' => $lhp->id,
+            'deskripsi' => 'Menambahkan LHP ' . $lhp->nomor_lhp,
+        ]);
+
         return redirect()
             ->route(
                 $request->instansi_pemeriksa == 'Itkab'
@@ -600,27 +590,29 @@ class LhpController extends Controller
     public function show(Lhp $lhp)
     {
         $lhp->load([
-
             'irban',
             'auditee',
             'pejabatAuditee',
             'pihakKetiga',
             'temuans.rekomendasis.tindakLanjut',
             'dokumen'
-
         ]);
 
+        $editRequest = EditRequest::where('lhp_id', $lhp->id)
+            ->where('user_id', auth()->id())
+            ->latest()
+            ->first();
 
         $jenis = $lhp->instansi_pemeriksa == 'Itkab'
             ? 'internal'
             : 'eksternal';
 
-
         return view(
             'pages.pemeriksaan.lhp.show',
             compact(
                 'lhp',
-                'jenis'
+                'jenis',
+                'editRequest'
             )
         );
     }
@@ -662,6 +654,10 @@ class LhpController extends Controller
         $jenis = $lhp->instansi_pemeriksa == 'Itkab'
             ? 'internal'
             : 'eksternal';
+
+        if (!auth()->user()->canEditLhp($lhp)) {
+            abort(403);
+        }
 
 
         return view(
@@ -769,6 +765,14 @@ class LhpController extends Controller
             }
         }
 
+        ActivityLog::create([
+            'user_id' => auth()->id(),
+            'aksi' => 'Edit',
+            'modul' => 'LHP',
+            'referensi_id' => $lhp->id,
+            'deskripsi' => 'Mengedit LHP ' . $lhp->nomor_lhp,
+        ]);
+
         return redirect()
             ->route(
                 $lhp->instansi_pemeriksa == 'Itkab'
@@ -786,7 +790,7 @@ class LhpController extends Controller
 
         $lhp->delete();
 
-
+        
         return redirect()
             ->route(
                 $lhp->instansi_pemeriksa == 'Itkab'

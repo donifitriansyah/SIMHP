@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuditeeController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EditRequestController;
 use App\Http\Controllers\IrbanController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\LhpController;
@@ -29,6 +30,16 @@ Route::get('/', function () {
 Route::get("/dashboard", [DashboardController::class, "index"])
     ->middleware(["auth"])
     ->name("dashboard");
+
+Route::prefix("laporan-hasil-pemeriksaan/{lhp}")->group(function () {
+    Route::get("temuan/tambah-data", [TemuanController::class, "create"])->name(
+        "temuan.create"
+    );
+
+    Route::post("temuan", [TemuanController::class, "store"])->name(
+        "temuan.store"
+    );
+});
 
 Route::middleware("auth")->group(function () {
     Route::get("/profile", [ProfileController::class, "edit"])->name(
@@ -68,15 +79,7 @@ Route::middleware("auth")->group(function () {
 
     Route::resource("lhp", LhpController::class);
 
-    Route::prefix("laporan-hasil-pemeriksaan/{lhp}")->group(function () {
-        Route::get("temuan/tambah-data", [TemuanController::class, "create"])->name(
-            "temuan.create"
-        );
 
-        Route::post("temuan", [TemuanController::class, "store"])->name(
-            "temuan.store"
-        );
-    });
 
     Route::resource("temuan", TemuanController::class)->except([
         "index",
@@ -140,6 +143,11 @@ Route::middleware("auth")->group(function () {
         "laporan.cetak"
     );
 
+    Route::put(
+        '/edit-requests/{editRequest}/complete',
+        [EditRequestController::class, 'complete']
+    )->name('edit-requests.complete');
+
     Route::get("/auditee/{auditee}/pejabat", [
         LhpController::class,
         "getPejabat",
@@ -150,7 +158,33 @@ Route::middleware("auth")->group(function () {
         'index',
     ])->name("matriks.index");
 
+    Route::post('/edit-requests', [EditRequestController::class, 'store'])
+        ->name('edit-requests.store');
 
+    Route::prefix("laporan-hasil-pemeriksaan/{lhp}")->group(function () {
+        Route::get("temuan/create", [TemuanController::class, "create"])->name(
+            "temuan.create"
+        );
+
+        Route::post("temuan", [TemuanController::class, "store"])->name(
+            "temuan.store"
+        );
+    });
+
+
+    Route::prefix('edit-requests')
+        ->name('edit-requests.')
+        ->group(function () {
+
+            Route::get('/', [EditRequestController::class, 'index'])
+                ->name('index');
+
+            Route::put('/{editRequest}/approve', [EditRequestController::class, 'approve'])
+                ->name('approve');
+
+            Route::put('/{editRequest}/reject', [EditRequestController::class, 'reject'])
+                ->name('reject');
+        });
 
     // Akses Khusus Role Super User
     Route::middleware(['auth', 'role:super_user'])->group(function () {
@@ -184,57 +218,8 @@ Route::middleware("auth")->group(function () {
 
         // Route::resource("laporan-hasil-pemeriksaan", LhpController::class);
 
-        Route::prefix("laporan-hasil-pemeriksaan/{lhp}")->group(function () {
-            Route::get("temuan/create", [TemuanController::class, "create"])->name(
-                "temuan.create"
-            );
 
-            Route::post("temuan", [TemuanController::class, "store"])->name(
-                "temuan.store"
-            );
-        });
 
-        Route::resource("temuan", TemuanController::class)->except([
-            "index",
-            "create",
-            "store",
-        ]);
-
-        Route::prefix("temuan/{temuan}")->group(function () {
-            Route::get("rekomendasi/create", [
-                RekomendasiController::class,
-                "create",
-            ])->name("rekomendasi.create");
-
-            Route::post("rekomendasi", [
-                RekomendasiController::class,
-                "store",
-            ])->name("rekomendasi.store");
-        });
-
-        Route::resource("rekomendasi", RekomendasiController::class)->except([
-            "index",
-            "create",
-            "store",
-        ]);
-
-        Route::prefix("rekomendasi/{rekomendasi}")->group(function () {
-            Route::get("tindak-lanjut/create", [
-                TindakLanjutController::class,
-                "create",
-            ])->name("tindak-lanjut.create");
-
-            Route::post("tindak-lanjut", [
-                TindakLanjutController::class,
-                "store",
-            ])->name("tindak-lanjut.store");
-        });
-
-        Route::resource("tindak-lanjut", TindakLanjutController::class)->except([
-            "index",
-            "create",
-            "store",
-        ]);
 
         Route::post("/lhp/{lhp}/tetapkan-nihil", [
             LhpController::class,
@@ -249,12 +234,58 @@ Route::middleware("auth")->group(function () {
             "lhp.filter"
         );
 
-
         Route::get("/auditee/{auditee}/pejabat", [
             LhpController::class,
             "getPejabat",
         ])->name("auditee.pejabat");
     });
+
+    Route::resource("temuan", TemuanController::class)->except([
+        "index",
+        "create",
+        "store",
+    ]);
+
+    Route::prefix("temuan/{temuan}")->group(function () {
+        Route::get("rekomendasi/create", [
+            RekomendasiController::class,
+            "create",
+        ])->name("rekomendasi.create");
+
+        Route::post("rekomendasi", [
+            RekomendasiController::class,
+            "store",
+        ])->name("rekomendasi.store");
+    });
+
+    Route::resource("rekomendasi", RekomendasiController::class)->except([
+        "index",
+        "create",
+        "store",
+    ]);
+
+    Route::prefix("rekomendasi/{rekomendasi}")->group(function () {
+        Route::get("tindak-lanjut/create", [
+            TindakLanjutController::class,
+            "create",
+        ])->name("tindak-lanjut.create");
+
+        Route::post("tindak-lanjut", [
+            TindakLanjutController::class,
+            "store",
+        ])->name("tindak-lanjut.store");
+    });
+
+    Route::put(
+        '/edit-requests/{editRequest}/complete',
+        [EditRequestController::class, 'complete']
+    )->name('edit-requests.complete');
+
+    Route::resource("tindak-lanjut", TindakLanjutController::class)->except([
+        "index",
+        "create",
+        "store",
+    ]);
 
     Route::get("/lhp", [
         LhpController::class,

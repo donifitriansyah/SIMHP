@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Irban;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,8 +17,9 @@ class UserController extends Controller
     public function index()
     {
         $users = User::latest()->get();
+        $irbans = Irban::where('status', 1)->get();
 
-        return view('pages.master-data.manajemen-users.index', compact('users'));
+        return view('pages.master-data.manajemen-users.index', compact('users', 'irbans'));
     }
 
     /**
@@ -30,10 +32,19 @@ class UserController extends Controller
             'username'  => 'required|string|max:50|unique:users,username',
             'email'     => 'nullable|email|max:100|unique:users,email',
             'password'  => 'required|min:6',
-            'role'      => 'required|in:super_user,user_entry',
+            'role'      => 'required|in:super_user,user_entry,user_view',
+            'irban_id'  => 'nullable|exists:irban,id',
             'status'    => 'required|boolean',
         ]);
 
+        // User selain Super User wajib memilih Irban
+        if ($validated['role'] === 'user_view' && empty($validated['irban_id'])) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'irban_id' => 'Irban wajib dipilih untuk User View.'
+                ]);
+        }
         try {
 
             User::create([
@@ -42,6 +53,9 @@ class UserController extends Controller
                 'email'     => $validated['email'],
                 'password'  => Hash::make($validated['password']),
                 'role'      => $validated['role'],
+                'irban_id' => $validated['role'] === 'user_view'
+                    ? $validated['irban_id']
+                    : null,
                 'status'    => $validated['status'],
             ]);
 
@@ -49,6 +63,7 @@ class UserController extends Controller
                 ->route('users.index')
                 ->with('success', 'User berhasil ditambahkan.');
         } catch (\Exception $e) {
+
             Log::error('Gagal tambah user SIMHP: ' . $e->getMessage());
 
             return back()
@@ -67,9 +82,19 @@ class UserController extends Controller
             'username'  => 'required|string|max:50|unique:users,username,' . $user->id,
             'email'     => 'nullable|email|max:100|unique:users,email,' . $user->id,
             'password'  => 'nullable|min:6',
-            'role'      => 'required|in:super_user,user_entry',
+            'role'      => 'required|in:super_user,user_entry,user_view',
+            'irban_id'  => 'nullable|exists:irban,id',
             'status'    => 'required|boolean',
         ]);
+
+        // User selain Super User wajib memilih Irban
+        if ($validated['role'] === 'user_view' && empty($validated['irban_id'])) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'irban_id' => 'Irban wajib dipilih untuk User View.'
+                ]);
+        }
 
         try {
 
@@ -78,6 +103,9 @@ class UserController extends Controller
                 'username'  => $validated['username'],
                 'email'     => $validated['email'],
                 'role'      => $validated['role'],
+                'irban_id' => $validated['role'] === 'user_view'
+                    ? $validated['irban_id']
+                    : null,
                 'status'    => $validated['status'],
             ];
 
@@ -91,6 +119,8 @@ class UserController extends Controller
                 ->route('users.index')
                 ->with('success', 'User berhasil diperbarui.');
         } catch (\Exception $e) {
+
+            Log::error('Gagal update user SIMHP: ' . $e->getMessage());
 
             return back()
                 ->withInput()

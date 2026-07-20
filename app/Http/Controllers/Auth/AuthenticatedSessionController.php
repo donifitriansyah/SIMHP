@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\ActivityLog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -28,6 +29,15 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        $user = Auth::user();
+
+        ActivityLog::create([
+            'user_id' => $user->id,
+            'modul' => 'Login',
+            'aksi' => 'Login',
+            'deskripsi' => 'Login ke aplikasi SIMHP',
+        ]);
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 
@@ -36,6 +46,14 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        if ($user = Auth::user()) {
+            ActivityLog::create([
+                'user_id'    => $user->id,
+                'modul'      => 'Autentikasi',
+                'aksi'       => 'Logout',
+                'deskripsi'  => 'Logout dari aplikasi SIMHP',
+            ]);
+        }
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();

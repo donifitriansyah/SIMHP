@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
 use App\Models\DokumenTindakLanjut;
+use App\Models\EditRequest;
 use App\Models\Rekomendasi;
 use App\Models\StatusTindakLanjut;
 use App\Models\TindakLanjut;
@@ -148,6 +150,14 @@ class TindakLanjutController extends Controller
 
         $lhp->updateStatusLhp();
 
+        ActivityLog::create([
+                'user_id' => auth()->id(),
+                'aksi' => 'Tambah',
+                'modul' => 'Tindak Lanjut',
+                'referensi_id' => $tindakLanjut->id,
+                'deskripsi' => 'Mengedit Tindak Lanjut pada LHP ' . $tindakLanjut->lhp->nomor_lhp,
+            ]);
+
 
         return redirect()
             ->route("lhp.show", $rekomendasi->temuan->lhp_id)
@@ -160,6 +170,16 @@ class TindakLanjutController extends Controller
     public function edit(TindakLanjut $tindakLanjut)
     {
         $statuses = StatusTindakLanjut::all();
+
+        $lhp = $tindakLanjut
+            ->rekomendasi
+            ->temuan
+            ->lhp;
+
+
+        if (!auth()->user()->canEditLhp($lhp)) {
+            abort(403);
+        }
 
         return view(
             "pages.tindak-lanjut.edit",
@@ -289,6 +309,21 @@ class TindakLanjutController extends Controller
         $lhp->updateStatusProses();
 
         $lhp->updateStatusLhp();
+
+        EditRequest::where('lhp_id', $tindakLanjut->rekomendasi->temuan->lhp_id)
+            ->where('user_id', auth()->id())
+            ->where('status', 'approved')
+            ->update([
+                'edit_tindak_lanjut' => true
+            ]);
+
+        ActivityLog::create([
+                'user_id' => auth()->id(),
+                'aksi' => 'Edit',
+                'modul' => 'Tindak Lanjut',
+                'referensi_id' => $tindakLanjut->id,
+                'deskripsi' => 'Mengedit Tindak Lanjut pada LHP ' . $tindakLanjut->lhp->nomor_lhp,
+            ]);
 
 
         return redirect()

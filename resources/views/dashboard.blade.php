@@ -357,20 +357,17 @@
                     </div>
 
                 </div>
-
-
-                {{-- Aktivitas --}}
                 <div class="col-lg-8 mb-4">
 
                     <div class="card border-0 shadow-sm h-100">
 
                         <div class="card-header bg-white">
-                            <strong>Aktivitas Terbaru</strong>
+                            <strong>Aktivitas Pengguna</strong>
                         </div>
 
                         <div class="card-body p-0">
 
-                            <div style="max-height: 350px; overflow-y: auto;">
+                            <div style="max-height: 400px; overflow-y: auto;">
 
                                 <ul class="list-group list-group-flush">
 
@@ -380,23 +377,19 @@
                                             <div class="d-flex">
 
                                                 <div class="me-3">
-                                                    <i class="bi {{ $item['icon'] }} fs-4 text-primary"></i>
+                                                    <i class="bi bi-clock-history fs-4 text-primary"></i>
                                                 </div>
 
                                                 <div>
-
-                                                    <strong>
-                                                        {{ $item['judul'] }}
-                                                    </strong>
+                                                    <strong>{{ $item->user->name }}</strong>
 
                                                     <div>
-                                                        {{ $item['deskripsi'] }}
+                                                        {{ $item->deskripsi }}
                                                     </div>
 
                                                     <small class="text-muted">
-                                                        {{ $item['tanggal']->diffForHumans() }}
+                                                        {{ $item->created_at->diffForHumans() }}
                                                     </small>
-
                                                 </div>
 
                                             </div>
@@ -405,8 +398,8 @@
 
                                     @empty
 
-                                        <li class="list-group-item text-muted">
-                                            Belum ada aktivitas
+                                        <li class="list-group-item text-center text-muted">
+                                            Belum ada aktivitas.
                                         </li>
                                     @endforelse
 

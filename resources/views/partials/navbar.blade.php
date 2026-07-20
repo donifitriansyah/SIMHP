@@ -10,11 +10,11 @@
             <div>
 
                 <div class="fw-bold text-primary">
-                    SIMHP
+                    Inspektorat
                 </div>
 
                 <small class="text-muted">
-                    Inspektorat
+                    Kabupaten Ketapang
                 </small>
 
             </div>
@@ -97,36 +97,23 @@
                             </ul>
 
                         </li>
+                        <li class="nav-item">
+
+                            <a class="nav-link {{ request()->routeIs('edit-requests.index') ? 'active' : '' }}"
+                                href="{{ route('edit-requests.index') }}">
+
+                                <i class="bi bi-pencil me-1"></i>
+
+                                Edit Request
+
+                            </a>
+
+                        </li>
                     @endif
                 @endauth
 
-                <!-- Pemeriksaan -->
 
-                <li class="nav-item">
-
-                    <a class="nav-link {{ request()->routeIs('pemeriksaan.internal') ? 'active' : '' }}"
-                        href="{{ route('pemeriksaan.internal') }}">
-
-                        <i class="bi bi-folder2-open me-1"></i>
-
-                        LHP (Internal)
-
-                    </a>
-
-                </li>
-                <li class="nav-item">
-
-                    <a class="nav-link {{ request()->routeIs('pemeriksaan.eksternal') ? 'active' : '' }}"
-                        href="{{ route('pemeriksaan.eksternal') }}">
-
-                        <i class="bi bi-folder2-open me-1"></i>
-
-                        LHP (Eksternal)
-
-                    </a>
-
-                </li>
-                {{-- <li class="nav-item dropdown">
+                <li class="nav-item dropdown">
 
                     <a class="nav-link dropdown-toggle d-flex align-items-center" href="#"
                         data-bs-toggle="dropdown">
@@ -134,7 +121,7 @@
 
                         <i class="bi bi-folder2-open me-1"></i>
 
-                        Laporan Hasil Pemeriksaan
+                        LHP
 
 
                     </a>
@@ -144,7 +131,7 @@
                     <ul class="dropdown-menu shadow border-0">
                         <li>
 
-                            <a class="dropdown-item d-flex justify-content-between align-items-center"
+                            <a class="dropdown-item {{ request()->routeIs('pemeriksaan.eksternal') ? 'active' : '' }} d-flex justify-content-between align-items-center"
                                 href="{{ route('pemeriksaan.eksternal') }}">
 
 
@@ -159,7 +146,7 @@
                         </li>
                         <li>
 
-                            <a class="dropdown-item d-flex justify-content-between align-items-center"
+                            <a class="dropdown-item {{ request()->routeIs('pemeriksaan.internal') ? 'active' : '' }} d-flex justify-content-between align-items-center"
                                 href="{{ route('pemeriksaan.internal') }}">
 
 
@@ -177,86 +164,80 @@
                     </ul>
 
 
-                </li> --}}
-
-                <!-- Tindak Lanjut -->
-
-
+                </li>
 
                 <!-- Laporan -->
+                @auth
+                    @if (auth()->user()->role == 'super_user')
+                        <li class="nav-item dropdown">
 
-                <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
 
-                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                                <i class="bi bi-file-earmark-bar-graph me-1"></i>
 
-                        <i class="bi bi-file-earmark-bar-graph me-1"></i>
-
-                        Laporan
-
-                    </a>
-
-                    <ul class="dropdown-menu shadow border-0">
-
-                        <li>
-
-                            <a class="dropdown-item" href="{{ route('laporan.index') }}">
-
-                                Pemantauan Hasil Pemeriksaan
+                                Laporan
 
                             </a>
+
+                            <ul class="dropdown-menu shadow border-0">
+
+                                <li>
+
+                                    <a class="dropdown-item" href="{{ route('laporan.index') }}">
+
+                                        Pemantauan Hasil Pemeriksaan
+
+                                    </a>
+
+                                </li>
+                                <li>
+
+                                    <a class="dropdown-item" href="{{ route('laporan.irban') }}">
+
+                                        Laporan Per Irban
+
+                                    </a>
+
+                                </li>
+                                <li>
+
+                                    <a class="dropdown-item" href="{{ route('matriks.index') }}">
+
+                                        Matriks Tindak Lanjut
+
+                                    </a>
+
+                                </li>
+                                <li>
+
+                                    <a class="dropdown-item" href="{{ route('laporan.pns.temuan') }}">
+
+                                        Temuan (PNS)
+
+                                    </a>
+
+                                </li>
+
+                                <li>
+
+                                    <a class="dropdown-item" href="{{ route('laporan.pihak.ketiga.temuan') }}">
+
+                                        Temuan (Pihak Ketiga)
+
+                                    </a>
+
+                                </li>
+
+
+
+                            </ul>
 
                         </li>
-                        <li>
+                    @endif
+                @endauth
 
-                            <a class="dropdown-item" href="{{ route('laporan.irban') }}">
 
-                                Laporan Per Irban
 
-                            </a>
-
-                        </li>
-                        <li>
-
-                            <a class="dropdown-item" href="{{ route('matriks.index') }}">
-
-                                Matriks Tindak Lanjut
-
-                            </a>
-
-                        </li>
-                        <li>
-
-                            <a class="dropdown-item" href="{{ route('laporan.pns.temuan') }}">
-
-                                Temuan (PNS)
-
-                            </a>
-
-                        </li>
-
-                        <li>
-
-                            <a class="dropdown-item" href="{{ route('laporan.pihak.ketiga.temuan') }}">
-
-                                Temuan (Pihak Ketiga)
-
-                            </a>
-
-                        </li>
-
-                        {{-- <li>
-
-                            <a class="dropdown-item" href="#">
-
-                                Rekap Tindak Lanjut
-
-                            </a>
-
-                        </li> --}}
-
-                    </ul>
-
-                </li>
 
             </ul>
 

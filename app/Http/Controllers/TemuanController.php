@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
 use App\Models\DetailTemuanFinansial;
+use App\Models\EditRequest;
 use App\Models\Lhp;
 use App\Models\Temuan;
 use Illuminate\Http\Request;
@@ -105,6 +107,13 @@ class TemuanController extends Controller
             $lhp->updateStatusProses();
             $lhp->updateStatusLhp();
 
+            ActivityLog::create([
+                'user_id' => auth()->id(),
+                'aksi' => 'Tambah',
+                'modul' => 'Temuan',
+                'referensi_id' => $temuan->id,
+                'deskripsi' => 'Menambahkan Temuan pada LHP ' . $temuan->lhp->nomor_lhp,
+            ]);
 
             return redirect()
                 ->route('lhp.show', $lhp->id)
@@ -204,6 +213,21 @@ class TemuanController extends Controller
             $temuan->lhp->updateStatusLhp();
             $temuan->lhp->updateStatusProses();
 
+            EditRequest::where('lhp_id', $temuan->lhp_id)
+                ->where('user_id', auth()->id())
+                ->where('status', 'approved')
+                ->update([
+                    'edit_temuan' => true
+                ]);
+
+            ActivityLog::create([
+                'user_id' => auth()->id(),
+                'aksi' => 'Edit',
+                'modul' => 'Temuan',
+                'referensi_id' => $temuan->id,
+                'deskripsi' => 'Mengedit Temuan pada LHP ' . $temuan->lhp->nomor_lhp,
+            ]);
+
             return redirect()
                 ->route('lhp.show', $temuan->lhp_id)
                 ->with('success', 'Data temuan berhasil diperbarui.');
@@ -222,6 +246,10 @@ class TemuanController extends Controller
      */
     public function edit(Temuan $temuan)
     {
+        $lhp = $temuan->lhp;
+        if (!auth()->user()->canEditLhp($lhp)) {
+            abort(403);
+        }
         return view(
             'pages.pemeriksaan.temuan.edit',
             compact('temuan')

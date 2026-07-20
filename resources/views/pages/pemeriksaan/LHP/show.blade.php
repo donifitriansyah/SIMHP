@@ -22,19 +22,155 @@
                     Kembali
 
                 </a>
-                <a href="{{ route('lhp.cetak', $lhp->id) }}" target="_blank" class="btn btn-danger">
-                    <i class="bi bi-printer"></i>
-                    Cetak PDF
-                </a>
+
                 @auth
                     @if (auth()->user()->role == 'super_user')
+                        <a href="{{ route('lhp.cetak', $lhp->id) }}" target="_blank" class="btn btn-danger">
+                            <i class="bi bi-printer"></i>
+                            Cetak PDF
+                        </a>
                         <a href="{{ route('lhp.edit', $lhp->id) }}" class="btn btn-warning">
 
-                            <i class="bi bi-pencil"></i> Edit
+                            <i class="bi bi-pencil"></i> Edit LHP
 
                         </a>
                     @endif
                 @endauth
+                <div class="d-flex gap-2 mt-2">
+
+                    @auth
+
+                        {{-- Super User --}}
+                        @if (auth()->user()->isSuperUser())
+                            <a href="{{ route('lhp.edit', $lhp->id) }}" class="btn btn-warning">
+
+                                <i class="bi bi-pencil"></i>
+                                Edit LHP
+
+                            </a>
+
+
+                            {{-- User Entry --}}
+                        @elseif(auth()->user()->isUserEntry())
+                            @if ($editRequest && $editRequest->status == 'approved')
+                                <a href="{{ route('lhp.edit', $lhp->id) }}" class="btn btn-warning">
+
+                                    <i class="bi bi-pencil"></i>
+                                    Edit LHP
+
+                                </a>
+
+
+                                <form action="{{ route('edit-requests.complete', $editRequest->id) }}" method="POST"
+                                    class="d-inline">
+
+                                    @csrf
+                                    @method('PUT')
+
+                                    <button type="submit" class="btn btn-success"
+                                        onclick="return confirm('Selesaikan proses edit?')">
+
+                                        <i class="bi bi-check-circle"></i>
+                                        Selesai Edit
+
+                                    </button>
+
+                                </form>
+                            @elseif($editRequest && $editRequest->status == 'pending')
+                                <button class="btn btn-secondary" disabled>
+
+                                    <i class="bi bi-clock"></i>
+                                    Menunggu Persetujuan Admin
+
+                                </button>
+                            @else
+                                <button type="button" class="btn btn-warning" data-bs-toggle="modal"
+                                    data-bs-target="#requestEditModal{{ $lhp->id }}">
+
+                                    <i class="bi bi-pencil"></i>
+                                    Minta Akses Edit
+
+                                </button>
+                            @endif
+                        @endif
+
+                    @endauth
+
+                </div>
+
+
+                <div class="modal fade" id="requestEditModal{{ $lhp->id }}" tabindex="-1">
+
+                    <div class="modal-dialog">
+
+                        <form action="{{ route('edit-requests.store') }}" method="POST">
+
+                            @csrf
+
+                            <input type="hidden" name="lhp_id" value="{{ $lhp->id }}">
+
+                            <div class="modal-content">
+
+                                <div class="modal-header">
+
+                                    <h5 class="modal-title">
+
+                                        Permintaan Akses Edit
+
+                                    </h5>
+
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+
+                                </div>
+
+                                <div class="modal-body">
+
+                                    <div class="alert alert-warning">
+
+                                        Setelah LHP disimpan, data tidak dapat diedit kembali.
+                                        Jika terdapat kesalahan, silakan ajukan permintaan akses edit
+                                        kepada Administrator.
+
+                                    </div>
+
+                                    <div class="mb-3">
+
+                                        <label class="form-label">
+
+                                            Alasan Permintaan Edit <span class="text-danger">*</span>
+
+                                        </label>
+
+                                        <textarea name="alasan" class="form-control" rows="4" required
+                                            placeholder="Contoh: Salah memasukkan nilai temuan, salah memilih auditee, dll."></textarea>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="modal-footer">
+
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+
+                                        Batal
+
+                                    </button>
+
+                                    <button type="submit" class="btn btn-primary">
+
+                                        Kirim Permintaan
+
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                </div>
 
 
             </div>
@@ -307,11 +443,10 @@
 
                 <h5 class="mb-0 fw-bold"> <i class="bi bi-search"></i> Temuan Pemeriksaan </h5>
 
-                @if ($lhp->status_proses != 'nihil')
+                @if (!auth()->user()->isUserView() && $lhp->status_proses != 'nihil')
                     <a href="{{ route('temuan.create', $lhp->id) }}" class="btn btn-primary">
-
-                        <i class="bi bi-plus"></i> Tambah Temuan
-
+                        <i class="bi bi-plus"></i>
+                        Tambah Temuan
                     </a>
                 @endif
 
@@ -475,27 +610,35 @@
 
                                             </div>
                                             @auth
-                                                @if (auth()->user()->role == 'super_user')
+
+                                                @if (auth()->user()->canEditLhp($lhp))
                                                     <a href="{{ route('temuan.edit', $temuan->id) }}"
                                                         class="btn btn-warning btn-sm">
 
-                                                        <i class="bi bi-pencil"></i> Edit Temuan
+                                                        <i class="fas fa-edit"></i>
+                                                        Edit Temuan
 
                                                     </a>
+                                                @endif
 
+
+                                                @if (auth()->user()->role == 'super_user')
                                                     <form action="{{ route('temuan.destroy', $temuan->id) }}" method="POST"
                                                         class="d-inline" onsubmit="return confirm('Hapus temuan ini?')">
 
-                                                        @csrf @method('DELETE')
+                                                        @csrf
+                                                        @method('DELETE')
 
                                                         <button type="submit" class="btn btn-sm btn-danger">
 
-                                                            <i class="bi bi-trash"></i> Hapus
+                                                            <i class="bi bi-trash"></i>
+                                                            Hapus
 
                                                         </button>
 
                                                     </form>
                                                 @endif
+
                                             @endauth
 
 
@@ -516,16 +659,36 @@
                                         </h6>
 
                                         @auth
-                                            @if (auth()->user()->role == 'super_user')
-                                                <a href="{{ route('rekomendasi.create', $temuan->id) }}"
-                                                    class="btn btn-primary btn-sm">
 
-                                                    <i class="bi bi-plus"></i> Tambah
+                                            {{-- Tombol Edit Rekomendasi --}}
+                                            {{-- Edit rekomendasi --}}
+                                            @if (auth()->user()->canEditLhp($lhp))
+                                                @if ($temuan->rekomendasis->count() > 0)
+                                                    <a href="{{ route('rekomendasi.edit', $temuan->rekomendasis->first()->id) }}"
+                                                        class="btn btn-warning btn-sm">
 
-                                                </a>
+                                                        <i class="fas fa-edit"></i>
+                                                        Edit Rekomendasi
+
+                                                    </a>
+                                                @endif
                                             @endif
-                                        @endauth
 
+
+                                            {{-- Tombol Tambah Rekomendasi hanya jika belum ada --}}
+                                            @if (in_array(auth()->user()->role, ['super_user', 'user_entry']))
+                                                @if ($temuan->rekomendasis->count() == 0)
+                                                    <a href="{{ route('rekomendasi.create', $temuan->id) }}"
+                                                        class="btn btn-primary btn-sm">
+
+                                                        <i class="bi bi-plus"></i>
+                                                        Tambah Rekomendasi
+
+                                                    </a>
+                                                @endif
+                                            @endif
+
+                                        @endauth
 
 
                                     </div>
@@ -614,29 +777,30 @@
 
                                                 </div>
                                                 @auth
-                                                    @if (auth()->user()->role == 'super_user')
-                                                        <a href="{{ route('rekomendasi.edit', $rekomendasi->id) }}"
-                                                            class="btn btn-warning btn-sm">
 
-                                                            <i class="bi bi-pencil"></i>
+                                                    @if (in_array(auth()->user()->role, ['super_user', 'user_entry']))
+                                                        @php
+                                                            $tindakLanjutTerakhir = $rekomendasi->tindakLanjut
+                                                                ->sortByDesc('created_at')
+                                                                ->first();
+                                                        @endphp
 
-                                                            Edit
 
-                                                        </a>
-                                                        <form action="{{ route('rekomendasi.destroy', $rekomendasi->id) }}"
-                                                            method="POST" class="d-inline"
-                                                            onsubmit="return confirm('Hapus rekomendasi ini?')">
+                                                        @if (!$tindakLanjutTerakhir || $tindakLanjutTerakhir->status_id != 3)
+                                                            <a href="{{ route('tindak-lanjut.create', $rekomendasi->id) }}"
+                                                                class="btn btn-success btn-sm">
 
-                                                            @csrf @method('DELETE')
+                                                                <i class="bi bi-plus"></i>
+                                                                Tambah
 
-                                                            <button type="submit" class="btn btn-sm btn-danger">
-
-                                                                <i class="bi bi-trash"></i> Hapus
-
-                                                            </button>
-
-                                                        </form>
+                                                            </a>
+                                                        @else
+                                                            <span class="badge bg-success">
+                                                                Selesai
+                                                            </span>
+                                                        @endif
                                                     @endif
+
                                                 @endauth
 
 
@@ -778,33 +942,51 @@
 
                                                             </ul>
                                                             @auth
-                                                                @if (auth()->user()->role == 'super_user')
-                                                                    <a href="{{ route('tindak-lanjut.edit', $tl->id) }}"
-                                                                        class="btn btn-warning btn-sm">
 
-                                                                        <i class="bi bi-pencil"></i>
+                                                                @if (auth()->user()->canEditLhp($lhp))
+                                                                    @php
+                                                                        $tindakLanjutTerakhir = $rekomendasi->tindakLanjut
+                                                                            ->sortByDesc('created_at')
+                                                                            ->first();
+                                                                    @endphp
 
-                                                                        Edit
 
-                                                                    </a>
+                                                                    @if ($tindakLanjutTerakhir)
+                                                                        <a href="{{ route('tindak-lanjut.edit', $tindakLanjutTerakhir->id) }}"
+                                                                            class="btn btn-warning btn-sm">
 
-                                                                    <form
-                                                                        action="{{ route('tindak-lanjut.destroy', $tl->id) }}"
-                                                                        method="POST" class="d-inline">
+                                                                            <i class="fas fa-edit"></i>
+                                                                            Edit TL
 
-                                                                        @csrf @method('DELETE')
-
-                                                                        <button class="btn btn-danger btn-sm"
-                                                                            onclick="return confirm('Hapus tindak lanjut?')">
-
-                                                                            <i class="bi bi-trash"></i>
-
-                                                                            Hapus
-
-                                                                        </button>
-
-                                                                    </form>
+                                                                        </a>
+                                                                    @endif
                                                                 @endif
+
+
+
+                                                                @if (auth()->user()->role == 'super_user')
+                                                                    @php
+                                                                        $tindakLanjutTerakhir = $rekomendasi->tindakLanjut
+                                                                            ->sortByDesc('created_at')
+                                                                            ->first();
+                                                                    @endphp
+
+
+                                                                    @if (!$tindakLanjutTerakhir || $tindakLanjutTerakhir->status_id != 3)
+                                                                        <a href="{{ route('tindak-lanjut.create', $rekomendasi->id) }}"
+                                                                            class="btn btn-success btn-sm">
+
+                                                                            <i class="bi bi-plus"></i>
+                                                                            Tambah
+
+                                                                        </a>
+                                                                    @else
+                                                                        <span class="badge bg-success">
+                                                                            Selesai
+                                                                        </span>
+                                                                    @endif
+                                                                @endif
+
                                                             @endauth
 
 

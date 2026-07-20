@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Auditee;
+use App\Models\EditRequest;
 use App\Models\Irban;
 use App\Models\Lhp;
 use App\Models\PejabatAuditee;
@@ -628,6 +629,8 @@ class LhpController extends Controller
                 'Data LHP berhasil ditambahkan'
             );
     }
+
+    
 
     public function show(Lhp $lhp)
     {

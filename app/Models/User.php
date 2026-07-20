@@ -12,12 +12,14 @@ use Illuminate\Notifications\Notifiable;
 
 #[Fillable([
     'name',
-    'email',
     'username',
+    'email',
     'password',
     'role',
-    'status'
+    'irban_id',
+    'status',
 ])]
+
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -37,6 +39,24 @@ class User extends Authenticatable
             'status' => 'boolean',
         ];
     }
+
+    public function canInputPemeriksaan(): bool
+    {
+        return in_array($this->role, [
+            'super_user',
+            'user_entry'
+        ]);
+    }
+
+    public function canCreateLhp(): bool
+    {
+        return in_array($this->role, [
+            'super_user',
+            'user_entry'
+        ]);
+    }
+
+
     /**
      * Cek apakah user Super User
      */
@@ -45,13 +65,60 @@ class User extends Authenticatable
         return $this->role === 'super_user';
     }
 
-
-
     /**
      * Cek apakah user User Entry
      */
     public function isUserEntry(): bool
     {
         return $this->role === 'user_entry';
+    }
+
+    public function isUserView(): bool
+    {
+        return $this->role === 'user_view';
+    }
+
+    public function canEdit(): bool
+    {
+        return $this->isSuperUser();
+    }
+
+    public function canCreate(): bool
+    {
+        return $this->isSuperUser() || $this->isUserEntry();
+    }
+
+    public function canViewAll(): bool
+    {
+        return $this->isSuperUser();
+    }
+
+    public function irban()
+    {
+        return $this->belongsTo(Irban::class);
+    }
+    public function editRequests()
+    {
+        return $this->hasMany(EditRequest::class);
+    }
+    public function canEditLhp(Lhp $lhp): bool
+    {
+        // Super User bebas edit
+        if ($this->isSuperUser()) {
+            return true;
+        }
+
+
+        // User View tidak boleh edit
+        if ($this->isUserView()) {
+            return false;
+        }
+
+
+        // User Entry harus memiliki izin edit
+        return EditRequest::where('lhp_id', $lhp->id)
+            ->where('user_id', $this->id)
+            ->where('status', 'approved')
+            ->exists();
     }
 }

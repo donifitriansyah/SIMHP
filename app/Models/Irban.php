@@ -32,4 +32,9 @@ class Irban extends Model
     {
         return $this->hasMany(Pegawai::class);
     }
+
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
 }
