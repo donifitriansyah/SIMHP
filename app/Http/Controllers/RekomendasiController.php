@@ -4,12 +4,68 @@ namespace App\Http\Controllers;
 
 use App\Models\ActivityLog;
 use App\Models\EditRequest;
+use App\Models\Irban;
 use App\Models\Rekomendasi;
 use App\Models\Temuan;
 use Illuminate\Http\Request;
 
 class RekomendasiController extends Controller
 {
+    public function index(Request $request)
+    {
+        $jenis = $request->jenis ?? 'internal';
+
+        $user = auth()->user();
+
+        $query = Rekomendasi::with([
+            'temuan.lhp.irban',
+            'temuan.lhp.auditee'
+        ]);
+
+        $query->whereHas('temuan.lhp', function ($q) use ($jenis, $user) {
+
+            if ($jenis == 'internal') {
+                $q->where('instansi_pemeriksa', 'Itkab');
+            } else {
+                $q->whereIn('instansi_pemeriksa', [
+                    'Itprov',
+                    'BPK RI',
+                    'BPKP'
+                ]);
+            }
+
+            if ($user->isUserView()) {
+                $q->where('irban_id', $user->irban_id);
+            }
+        });
+
+        if ($request->filled('search')) {
+            $query->where('uraian_rekomendasi', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->filled('irban_id')) {
+
+            $query->whereHas('temuan.lhp', function ($q) use ($request) {
+
+                $q->where('irban_id', $request->irban_id);
+            });
+        }
+
+        $rekomendasis = $query
+            ->latest()
+            ->get();
+
+        $irbans = Irban::all();
+
+        return view(
+            'pages.pemeriksaan.rekomendasi.index',
+            compact(
+                'rekomendasis',
+                'jenis',
+                'irbans'
+            )
+        );
+    }
     /**
      * Form tambah rekomendasi
      */

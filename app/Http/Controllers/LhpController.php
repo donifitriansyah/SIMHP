@@ -268,8 +268,7 @@ class LhpController extends Controller
         $lhps = $query
             ->withCount('temuans')
             ->latest()
-            ->paginate(10)
-            ->withQueryString();
+            ->get();
         foreach ($lhps as $lhp) {
 
             $totalRekomendasi = 0;
@@ -377,6 +376,143 @@ class LhpController extends Controller
         );
     }
 
+    public function lengkap(Request $request)
+    {
+        $jenis = $request->jenis ?? 'internal';
+
+        $user = auth()->user();
+
+
+        $query = Lhp::with([
+            'irban',
+            'auditee',
+            'temuans.rekomendasis'
+        ])
+            ->where('status_lhp', 'lengkap');
+
+
+        // Filter internal / eksternal
+        if ($jenis == 'internal') {
+
+            $query->where(
+                'instansi_pemeriksa',
+                'Itkab'
+            );
+        } else {
+
+            $query->whereIn(
+                'instansi_pemeriksa',
+                [
+                    'Itprov',
+                    'BPK RI',
+                    'BPKP'
+                ]
+            );
+        }
+
+
+        // User View hanya melihat Irban sendiri
+        if ($user->isUserView()) {
+
+            $query->where(
+                'irban_id',
+                $user->irban_id
+            );
+        }
+
+
+        $lhps = $query
+            ->latest()
+            ->get();
+
+
+        return view(
+            'pages.pemeriksaan.lhp.lengkap',
+            compact(
+                'lhps',
+                'jenis'
+            )
+        );
+    }
+
+    public function belumLengkap(Request $request)
+    {
+        $jenis = $request->jenis ?? 'internal';
+
+        $user = auth()->user();
+
+
+        $query = Lhp::with([
+            'irban',
+            'auditee',
+            'temuans'
+        ])
+            ->where('status_lhp', 'tidak_lengkap');
+
+
+        // Filter Internal / Eksternal
+        if ($jenis == 'internal') {
+
+            $query->where(
+                'instansi_pemeriksa',
+                'Itkab'
+            );
+        } else {
+
+            $query->whereIn(
+                'instansi_pemeriksa',
+                [
+                    'Itprov',
+                    'BPK RI',
+                    'BPKP'
+                ]
+            );
+        }
+
+
+        // User View hanya melihat irban sendiri
+        if ($user->isUserView()) {
+
+            $query->where(
+                'irban_id',
+                $user->irban_id
+            );
+        }
+
+
+        // Search
+        if ($request->filled('search')) {
+
+            $query->where(function ($q) use ($request) {
+
+                $q->where(
+                    'nomor_lhp',
+                    'like',
+                    '%' . $request->search . '%'
+                )
+                    ->orWhere(
+                        'objek_pemeriksaan',
+                        'like',
+                        '%' . $request->search . '%'
+                    );
+            });
+        }
+
+
+        $lhps = $query
+            ->latest()
+            ->get();
+
+
+        return view(
+            'pages.pemeriksaan.lhp.belum-lengkap',
+            compact(
+                'lhps',
+                'jenis'
+            )
+        );
+    }
+
     public function filter($status)
     {
 
@@ -420,7 +556,7 @@ class LhpController extends Controller
         }
 
 
-        $lhps = $query->paginate(10);
+        $lhps = $query->get();
 
 
         return view(
@@ -486,7 +622,7 @@ class LhpController extends Controller
     {
         $request->validate([
 
-            'irban_id'             => 'required|exists:irban,id',
+            'irban_id'             => 'nullable|exists:irban,id',
             'nama_pejabat_eksternal' => 'nullable|string|max:255',
             'auditee_id'           => 'nullable|exists:auditee,id',
             'pejabat_auditee_id'   => 'nullable|exists:pejabat_auditee,id',
@@ -507,9 +643,19 @@ class LhpController extends Controller
 
         ]);
 
+        if (in_array($request->instansi_pemeriksa, ['Itkab', 'Itprov']) && empty($request->irban_id)) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'irban_id' => 'Irban wajib dipilih.'
+                ]);
+        }
+
         $lhp = Lhp::create([
 
-            'irban_id'             => $request->irban_id,
+            'irban_id' => in_array($request->instansi_pemeriksa, ['BPK RI', 'BPKP'])
+                ? null
+                : $request->irban_id,
 
             'auditee_id'           => $request->auditee_id,
 
@@ -790,7 +936,7 @@ class LhpController extends Controller
 
         $lhp->delete();
 
-        
+
         return redirect()
             ->route(
                 $lhp->instansi_pemeriksa == 'Itkab'

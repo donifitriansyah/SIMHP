@@ -46,17 +46,22 @@
 
                 </li>
 
-                <!-- Master -->
+                <!-- Master Data -->
                 @auth
-                    @if (auth()->user()->role == 'super_user')
+
+                    @if (in_array(auth()->user()->role, ['super_user', 'user_entry']))
                         <li class="nav-item dropdown">
 
                             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+
                                 <i class="bi bi-database me-1"></i>
                                 Master Data
+
                             </a>
 
+
                             <ul class="dropdown-menu shadow border-0">
+
 
                                 <li>
                                     <a class="dropdown-item" href="{{ route('profil-inspektorat.index') }}">
@@ -64,11 +69,6 @@
                                     </a>
                                 </li>
 
-                                <li>
-                                    <a class="dropdown-item" href="{{ route('users.index') }}">
-                                        Manajemen User
-                                    </a>
-                                </li>
 
                                 <li>
                                     <a class="dropdown-item" href="{{ route('irban.index') }}">
@@ -76,11 +76,13 @@
                                     </a>
                                 </li>
 
+
                                 <li>
                                     <a class="dropdown-item" href="{{ route('auditee.index') }}">
                                         Data Auditee
                                     </a>
                                 </li>
+
 
                                 <li>
                                     <a class="dropdown-item" href="{{ route('pihak-ketiga.index') }}">
@@ -88,83 +90,110 @@
                                     </a>
                                 </li>
 
+
                                 <li>
                                     <a class="dropdown-item" href="{{ route('pegawai.index') }}">
                                         Data Pegawai
                                     </a>
                                 </li>
 
+
+                                {{-- hanya super user --}}
+                                @if (auth()->user()->isSuperUser())
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('users.index') }}">
+                                            Manajemen User
+                                        </a>
+                                    </li>
+                                @endif
+
+
                             </ul>
 
                         </li>
-                        <li class="nav-item">
-
-                            <a class="nav-link {{ request()->routeIs('edit-requests.index') ? 'active' : '' }}"
-                                href="{{ route('edit-requests.index') }}">
-
-                                <i class="bi bi-pencil me-1"></i>
-
-                                Edit Request
-
-                            </a>
-
-                        </li>
                     @endif
+
                 @endauth
 
 
-                <li class="nav-item dropdown">
 
-                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#"
-                        data-bs-toggle="dropdown">
+                <!-- LHP Semua Role -->
 
-
-                        <i class="bi bi-folder2-open me-1"></i>
-
-                        LHP
-
-
-                    </a>
-
-
-
-                    <ul class="dropdown-menu shadow border-0">
-                        <li>
-                            <a class="dropdown-item {{ request()->routeIs('pemeriksaan.internal') ? 'active' : '' }} d-flex justify-content-between align-items-center"
-                                href="{{ route('pemeriksaan.internal') }}">
-                                <span>
-                                    Internal
-                                </span>
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item {{ request()->routeIs('pemeriksaan.eksternal') ? 'active' : '' }} d-flex justify-content-between align-items-center"
-                                href="{{ route('pemeriksaan.eksternal') }}">
-                                <span>
-                                    Eksternal
-                                </span>
-                            </a>
-                        </li>
-
-                    </ul>
-
-
-                </li>
-
-                <!-- Laporan -->
                 @auth
-                    @if (auth()->user()->role == 'super_user')
+
+                    <li class="nav-item dropdown">
+
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#"
+                            data-bs-toggle="dropdown">
+
+
+                            <i class="bi bi-folder2-open me-1"></i>
+
+                            LHP
+
+                        </a>
+
+
+
+                        <ul class="dropdown-menu shadow border-0">
+
+
+                            <li>
+
+                                <a class="dropdown-item
+                {{ request()->routeIs('pemeriksaan.internal') ? 'active' : '' }}"
+                                    href="{{ route('pemeriksaan.internal') }}">
+
+                                    Internal
+
+                                </a>
+
+                            </li>
+
+
+                            <li>
+
+                                <a class="dropdown-item
+                {{ request()->routeIs('pemeriksaan.eksternal') ? 'active' : '' }}"
+                                    href="{{ route('pemeriksaan.eksternal') }}">
+
+                                    Eksternal
+
+                                </a>
+
+                            </li>
+
+
+                        </ul>
+
+                    </li>
+
+                @endauth
+
+
+
+                <!-- Laporan hanya Super User -->
+
+                @auth
+
+                    @if (auth()->user()->isSuperUser())
                         <li class="nav-item dropdown">
 
+
                             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+
 
                                 <i class="bi bi-file-earmark-bar-graph me-1"></i>
 
                                 Laporan
 
+
                             </a>
 
+
+
                             <ul class="dropdown-menu shadow border-0">
+
 
                                 <li>
 
@@ -175,6 +204,8 @@
                                     </a>
 
                                 </li>
+
+
                                 <li>
 
                                     <a class="dropdown-item" href="{{ route('laporan.irban') }}">
@@ -184,6 +215,8 @@
                                     </a>
 
                                 </li>
+
+
                                 <li>
 
                                     <a class="dropdown-item" href="{{ route('matriks.index') }}">
@@ -193,6 +226,8 @@
                                     </a>
 
                                 </li>
+
+
                                 <li>
 
                                     <a class="dropdown-item" href="{{ route('laporan.pns.temuan') }}">
@@ -202,6 +237,7 @@
                                     </a>
 
                                 </li>
+
 
                                 <li>
 
@@ -214,11 +250,12 @@
                                 </li>
 
 
-
                             </ul>
+
 
                         </li>
                     @endif
+
                 @endauth
 
 

@@ -205,30 +205,21 @@
                     <div class="row">
 
 
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-6 mb-3" id="irban-group">
 
                             <label class="form-label">
                                 Irban
                             </label>
 
+                            <select name="irban_id" id="irban_id" class="form-select">
 
-                            <select name="irban_id" class="form-select" required>
-
-
-                                <option value="">
-                                    Pilih Irban
-                                </option>
-
+                                <option value="">Pilih Irban</option>
 
                                 @foreach ($irbans as $irban)
-                                    <option value="{{ $irban->id }}"
-                                        {{ old('irban_id') == $irban->id ? 'selected' : '' }}>
-
+                                    <option value="{{ $irban->id }}" @selected(old('irban_id') == $irban->id)>
                                         {{ $irban->nama_irban }}
-
                                     </option>
                                 @endforeach
-
 
                             </select>
 
@@ -432,6 +423,32 @@
     </div>
 
     <script>
+        const instansi = document.querySelector('select[name="instansi_pemeriksa"]');
+        const irbanGroup = document.getElementById('irban-group');
+        const irban = document.getElementById('irban_id');
+
+        function toggleIrban() {
+
+            if (!instansi) return;
+
+            if (instansi.value === 'BPK RI' || instansi.value === 'BPKP') {
+
+                irbanGroup.classList.add('d-none');
+                irban.removeAttribute('required');
+                irban.value = '';
+
+            } else {
+
+                irbanGroup.classList.remove('d-none');
+                irban.setAttribute('required', 'required');
+
+            }
+        }
+
+        if (instansi) {
+            toggleIrban();
+            instansi.addEventListener('change', toggleIrban);
+        }
         const input = document.getElementById('jumlah_dana_diawasi');
 
         input.addEventListener('input', function() {

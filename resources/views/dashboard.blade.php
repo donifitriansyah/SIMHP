@@ -37,28 +37,68 @@
         <div class="row g-4">
 
             <div class="col-lg-3 col-md-6">
+                <a href="{{ route($jenis == 'internal' ? 'pemeriksaan.internal' : 'pemeriksaan.eksternal') }}"
+                    class="text-decoration-none text-dark">
+                    <div class="card dashboard-card border-0">
 
-                <div class="card dashboard-card border-0">
+                        <div class="card-body">
 
-                    <div class="card-body">
+                            <div class="d-flex justify-content-between">
 
-                        <div class="d-flex justify-content-between">
+                                <div>
 
-                            <div>
+                                    <small class="text-muted">
+                                        Total LHP
+                                    </small>
 
-                                <small class="text-muted">
-                                    Total LHP
-                                </small>
+                                    <h2 class="fw-bold mt-2">
+                                        {{ $totalLhp }}
+                                    </h2>
 
-                                <h2 class="fw-bold mt-2">
-                                    {{ $totalLhp }}
-                                </h2>
+                                </div>
+
+                                <div class="dashboard-icon bg-primary">
+
+                                    <i class="bi bi-file-earmark-text"></i>
+
+                                </div>
 
                             </div>
 
-                            <div class="dashboard-icon bg-primary">
+                        </div>
 
-                                <i class="bi bi-file-earmark-text"></i>
+                    </div>
+                </a>
+
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <a href="{{ route('temuan.index', ['jenis' => $jenis]) }}" class="text-decoration-none text-dark">
+
+                    <div class="card dashboard-card border-0">
+
+                        <div class="card-body">
+
+                            <div class="d-flex justify-content-between">
+
+                                <div>
+
+                                    <small class="text-muted">
+                                        Temuan
+                                    </small>
+
+                                    <h2 class="fw-bold mt-2">
+
+                                        {{ $totalTemuan }}
+
+                                    </h2>
+
+                                </div>
+
+                                <div class="dashboard-icon bg-warning">
+
+                                    <i class="bi bi-search"></i>
+
+                                </div>
 
                             </div>
 
@@ -66,144 +106,113 @@
 
                     </div>
 
-                </div>
+                </a>
 
             </div>
 
             <div class="col-lg-3 col-md-6">
+                <a href="{{ route('rekomendasi.index', ['jenis' => $jenis]) }}" class="text-decoration-none text-dark">
 
-                <div class="card dashboard-card border-0">
+                    <div class="card dashboard-card border-0">
 
-                    <div class="card-body">
+                        <div class="card-body">
 
-                        <div class="d-flex justify-content-between">
+                            <div class="d-flex justify-content-between">
 
-                            <div>
+                                <div>
 
-                                <small class="text-muted">
-                                    Temuan
-                                </small>
+                                    <small class="text-muted">
+                                        Rekomendasi
+                                    </small>
 
-                                <h2 class="fw-bold mt-2">
+                                    <h2 class="fw-bold mt-2">
 
-                                    {{ $totalTemuan }}
+                                        {{ $totalRekomendasi }}
 
-                                </h2>
+                                    </h2>
 
-                            </div>
+                                </div>
 
-                            <div class="dashboard-icon bg-warning">
+                                <div class="dashboard-icon bg-success">
 
-                                <i class="bi bi-search"></i>
+                                    <i class="bi bi-check2-circle"></i>
+
+                                </div>
 
                             </div>
 
                         </div>
 
                     </div>
-
-                </div>
-
+                </a>
             </div>
 
             <div class="col-lg-3 col-md-6">
+                <a href="{{ route('tindak-lanjut.index', ['jenis' => $jenis]) }}" class="text-decoration-none text-dark">
 
-                <div class="card dashboard-card border-0">
+                    <div class="card dashboard-card border-0">
 
-                    <div class="card-body">
+                        <div class="card-body">
 
-                        <div class="d-flex justify-content-between">
+                            <div class="d-flex justify-content-between">
 
-                            <div>
+                                <div>
 
-                                <small class="text-muted">
-                                    Rekomendasi
-                                </small>
+                                    <small class="text-muted">
+                                        Tindak Lanjut
+                                    </small>
 
-                                <h2 class="fw-bold mt-2">
+                                    <h2 class="fw-bold mt-2">
 
-                                    {{ $totalRekomendasi }}
+                                        {{ $totalTindakLanjut }}
 
-                                </h2>
+                                    </h2>
 
-                            </div>
+                                </div>
 
-                            <div class="dashboard-icon bg-success">
+                                <div class="dashboard-icon bg-danger">
 
-                                <i class="bi bi-check2-circle"></i>
+                                    <i class="bi bi-clock-history"></i>
 
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            <div class="col-lg-3 col-md-6">
-
-                <div class="card dashboard-card border-0">
-
-                    <div class="card-body">
-
-                        <div class="d-flex justify-content-between">
-
-                            <div>
-
-                                <small class="text-muted">
-                                    Tindak Lanjut
-                                </small>
-
-                                <h2 class="fw-bold mt-2">
-
-                                    {{ $totalTindakLanjut }}
-
-                                </h2>
-
-                            </div>
-
-                            <div class="dashboard-icon bg-danger">
-
-                                <i class="bi bi-clock-history"></i>
+                                </div>
 
                             </div>
 
                         </div>
 
                     </div>
-
-                </div>
-
+                </a>
             </div>
 
             <div class="col-lg-3 col-md-6">
+                <a href="{{ route('lhp.lengkap', ['jenis' => $jenis]) }}" class="text-decoration-none text-dark">
 
-                <div class="card dashboard-card border-0">
+                    <div class="card dashboard-card border-0">
 
-                    <div class="card-body">
+                        <div class="card-body">
 
-                        <small class="text-muted">
-                            LHP Lengkap
-                        </small>
+                            <small class="text-muted">
+                                LHP Lengkap
+                            </small>
 
 
-                        <h2 class="fw-bold text-success mt-2">
+                            <h2 class="fw-bold text-success mt-2">
 
-                            {{ $lhpLengkap }}
+                                {{ $lhpLengkap }}
 
-                        </h2>
+                            </h2>
 
+
+                        </div>
 
                     </div>
-
-                </div>
+                </a>
 
             </div>
 
             <div class="col-lg-3 col-md-6">
-
+                <a href="{{ route('lhp.belum-lengkap',['jenis'=>$jenis]) }}"
+class="text-decoration-none text-dark">
                 <div class="card dashboard-card border-0">
 
                     <div class="card-body">
@@ -223,6 +232,7 @@
                     </div>
 
                 </div>
+            </a>
 
             </div>
 

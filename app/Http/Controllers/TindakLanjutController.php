@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ActivityLog;
 use App\Models\DokumenTindakLanjut;
 use App\Models\EditRequest;
+use App\Models\Irban;
 use App\Models\Rekomendasi;
 use App\Models\StatusTindakLanjut;
 use App\Models\TindakLanjut;
@@ -13,6 +14,78 @@ use Illuminate\Support\Facades\Storage;
 
 class TindakLanjutController extends Controller
 {
+    public function index(Request $request)
+    {
+        $jenis = $request->jenis ?? 'internal';
+
+        $user = auth()->user();
+
+        $query = TindakLanjut::with([
+            'rekomendasi.temuan.lhp.irban',
+            'rekomendasi.temuan.lhp.auditee',
+            'status',
+            'dokumen'
+        ]);
+
+
+        $query->whereHas('rekomendasi.temuan.lhp', function ($q) use ($jenis, $user) {
+
+
+            if ($jenis == 'internal') {
+
+                $q->where('instansi_pemeriksa', 'Itkab');
+            } else {
+
+                $q->whereIn('instansi_pemeriksa', [
+                    'Itprov',
+                    'BPK RI',
+                    'BPKP'
+                ]);
+            }
+
+
+            if ($user->isUserView()) {
+
+                $q->where('irban_id', $user->irban_id);
+            }
+        });
+
+
+
+        // Filter pencarian
+        if ($request->filled('search')) {
+
+            $query->where('narasi', 'like', '%' . $request->search . '%');
+        }
+
+
+        // Filter Irban
+        if ($request->filled('irban_id')) {
+
+            $query->whereHas('rekomendasi.temuan.lhp', function ($q) use ($request) {
+
+                $q->where('irban_id', $request->irban_id);
+            });
+        }
+
+
+        $tindakLanjuts = $query
+            ->latest()
+            ->get();
+
+
+        $irbans = Irban::all();
+
+
+        return view(
+            'pages.tindak-lanjut.index',
+            compact(
+                'tindakLanjuts',
+                'irbans',
+                'jenis'
+            )
+        );
+    }
     /**
      * Form tambah tindak lanjut
      */
@@ -151,12 +224,12 @@ class TindakLanjutController extends Controller
         $lhp->updateStatusLhp();
 
         ActivityLog::create([
-                'user_id' => auth()->id(),
-                'aksi' => 'Tambah',
-                'modul' => 'Tindak Lanjut',
-                'referensi_id' => $tindakLanjut->id,
-                'deskripsi' => 'Mengedit Tindak Lanjut pada LHP ' . $tindakLanjut->rekomendasi->temuan->lhp->nomor_lhp,
-            ]);
+            'user_id' => auth()->id(),
+            'aksi' => 'Tambah',
+            'modul' => 'Tindak Lanjut',
+            'referensi_id' => $tindakLanjut->id,
+            'deskripsi' => 'Mengedit Tindak Lanjut pada LHP ' . $tindakLanjut->rekomendasi->temuan->lhp->nomor_lhp,
+        ]);
 
 
         return redirect()
@@ -318,12 +391,12 @@ class TindakLanjutController extends Controller
             ]);
 
         ActivityLog::create([
-                'user_id' => auth()->id(),
-                'aksi' => 'Edit',
-                'modul' => 'Tindak Lanjut',
-                'referensi_id' => $tindakLanjut->id,
-                'deskripsi' => 'Mengedit Tindak Lanjut pada LHP ' . $tindakLanjut->rekomendasi->temuan->lhp->nomor_lhp,
-            ]);
+            'user_id' => auth()->id(),
+            'aksi' => 'Edit',
+            'modul' => 'Tindak Lanjut',
+            'referensi_id' => $tindakLanjut->id,
+            'deskripsi' => 'Mengedit Tindak Lanjut pada LHP ' . $tindakLanjut->rekomendasi->temuan->lhp->nomor_lhp,
+        ]);
 
 
         return redirect()

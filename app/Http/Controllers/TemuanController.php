@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ActivityLog;
 use App\Models\DetailTemuanFinansial;
 use App\Models\EditRequest;
+use App\Models\Irban;
 use App\Models\Lhp;
 use App\Models\Temuan;
 use Illuminate\Http\Request;
@@ -13,7 +14,61 @@ use Illuminate\Http\Request;
 class TemuanController extends Controller
 {
 
+    public function index(Request $request)
+    {
+        $jenis = $request->jenis ?? 'internal';
 
+        $user = auth()->user();
+
+        $query = Temuan::with([
+            'lhp.irban',
+            'lhp.auditee',
+            'rekomendasis'
+        ]);
+
+        $query->whereHas('lhp', function ($q) use ($jenis, $user) {
+
+            if ($jenis == 'internal') {
+                $q->where('instansi_pemeriksa', 'Itkab');
+            } else {
+                $q->whereIn('instansi_pemeriksa', [
+                    'Itprov',
+                    'BPK RI',
+                    'BPKP'
+                ]);
+            }
+
+            // User View hanya melihat irban miliknya
+            if ($user->isUserView()) {
+                $q->where('irban_id', $user->irban_id);
+            }
+        });
+
+        // Filter pencarian
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('uraian_temuan', 'like', '%' . $request->search . '%')
+                    ->orWhere('nama_pelaku', 'like', '%' . $request->search . '%');
+            });
+        }
+        if ($request->filled('irban_id')) {
+            $query->whereHas('lhp', function ($q) use ($request) {
+                $q->where('irban_id', $request->irban_id);
+            });
+        }
+
+        $irbans = Irban::all();
+
+        $temuans = $query
+            ->latest()
+            ->get();
+
+        return view('pages.pemeriksaan.temuan.index', compact(
+            'temuans',
+            'jenis',
+            'irbans'
+        ));
+    }
     /**
      * Menampilkan form tambah temuan
      */
