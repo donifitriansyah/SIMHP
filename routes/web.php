@@ -45,6 +45,7 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::middleware(['auth', 'role:super_user,user_entry'])->group(function () {
+       Route::get('/pemeriksaan/internal/create', [LhpController::class, 'create'])->defaults('jenis', 'internal')->name('lhp.internal.create');
     Route::resource('irban', IrbanController::class);
 
     Route::resource('auditee', AuditeeController::class);
@@ -133,7 +134,6 @@ Route::middleware(['auth', 'role:super_user'])->group(function () {
 
     Route::get("/matriks-tindak-lanjut", [MatriksTindakLanjutController::class, "index",])->name("matriks.index");
 
-    Route::get('/pemeriksaan/internal/create', [LhpController::class, 'create'])->defaults('jenis', 'internal')->name('lhp.internal.create');
 });
 
 
