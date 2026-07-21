@@ -1,0 +1,5 @@
+---
+deployment:
+tasks:
+- export DEPLOYPATH=/home/aprilaid/public_html/SIMHP/git
+- /bin/cp -r * $DEPLOYPATH
