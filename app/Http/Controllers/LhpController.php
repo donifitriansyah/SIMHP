@@ -74,129 +74,6 @@ class LhpController extends Controller
         );
     }
 
-    // public function index(Request $request)
-    // {
-    //     $query = Lhp::with([
-    //         'irban',
-    //         'auditee',
-    //         'temuans.rekomendasis.tindakLanjut.status'
-    //     ]);
-
-
-    //     if ($request->filled('keyword')) {
-
-    //         $keyword = $request->keyword;
-
-    //         $query->where(function ($q) use ($keyword) {
-
-    //             $q->where('nomor_lhp', 'like', "%{$keyword}%")
-    //                 ->orWhere('objek_pemeriksaan', 'like', "%{$keyword}%")
-    //                 ->orWhereHas('auditee', function ($a) use ($keyword) {
-
-    //                     $a->where('nama_dinas', 'like', "%{$keyword}%");
-    //                 });
-    //         });
-    //     }
-
-    //     if ($request->filled('irban_id')) {
-
-    //         $query->where('irban_id', $request->irban_id);
-    //     }
-
-
-
-    //     if ($request->filled('status')) {
-
-    //         $query->where('status_proses', $request->status);
-    //     }
-
-
-    //     if ($request->filled('tanggal_awal')) {
-
-    //         $query->whereDate(
-    //             'tanggal_lhp',
-    //             '>=',
-    //             $request->tanggal_awal
-    //         );
-    //     }
-
-    //     if ($request->filled('tanggal_akhir')) {
-
-    //         $query->whereDate(
-    //             'tanggal_lhp',
-    //             '<=',
-    //             $request->tanggal_akhir
-    //         );
-    //     }
-
-
-    //     $lhps = $query
-    //         ->withCount('temuans')
-    //         ->latest()
-    //         ->paginate(10)
-    //         ->withQueryString();
-
-
-    //     foreach ($lhps as $lhp) {
-
-    //         $totalRekomendasi = 0;
-    //         $totalSelesai = 0;
-
-    //         foreach ($lhp->temuans as $temuan) {
-
-    //             foreach ($temuan->rekomendasis as $rekomendasi) {
-
-    //                 $totalRekomendasi++;
-
-    //                 // Ambil tindak lanjut terakhir
-    //                 $tindakLanjutTerakhir = $rekomendasi->tindakLanjut
-    //                     ->sortByDesc('created_at')
-    //                     ->first();
-
-    //                 if (
-    //                     $tindakLanjutTerakhir &&
-    //                     $tindakLanjutTerakhir->status &&
-    //                     $tindakLanjutTerakhir->status->kode == 'S'
-    //                 ) {
-    //                     $totalSelesai++;
-    //                 }
-    //             }
-    //         }
-
-    //         $lhp->totalRekomendasi = $totalRekomendasi;
-    //         $lhp->totalSelesai = $totalSelesai;
-
-    //         $lhp->progress = $totalRekomendasi > 0
-    //             ? round(($totalSelesai / $totalRekomendasi) * 100)
-    //             : 0;
-    //     }
-
-
-    //     $statistik = [
-
-    //         'total' => Lhp::count(),
-
-    //         'nihil' => Lhp::where('status_proses', 'nihil')->count(),
-
-    //         'belum_proses' => Lhp::where('status_proses', 'belum_diproses')->count(),
-
-    //         'dalam_proses' => Lhp::where('status_proses', 'dalam_proses')->count(),
-
-    //         'selesai' => Lhp::where('status_proses', 'selesai')->count(),
-
-    //     ];
-
-    //     $irbans = Irban::orderBy('nama_irban')->get();
-
-    //     return view(
-    //         'pages.pemeriksaan.lhp.index',
-    //         compact(
-    //             'lhps',
-    //             'statistik',
-    //             'irbans'
-    //         )
-    //     );
-    // }
 
     public function index(Request $request, $jenis = null)
     {
@@ -310,8 +187,6 @@ class LhpController extends Controller
                 : 0;
         }
 
-
-        // Statistik mengikuti menu yang sedang dibuka
         // Statistik mengikuti menu yang sedang dibuka
         $statistikQuery = Lhp::query();
 
@@ -354,7 +229,6 @@ class LhpController extends Controller
 
         ];
 
-
         if (auth()->user()->isUserView()) {
 
             $irbans = Irban::where('id', auth()->user()->irban_id)->get();
@@ -362,8 +236,6 @@ class LhpController extends Controller
 
             $irbans = Irban::orderBy('nama_irban')->get();
         }
-
-
 
         return view(
             'pages.pemeriksaan.lhp.index',

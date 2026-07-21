@@ -170,6 +170,24 @@
 
                 @endauth
 
+                @auth
+
+                    @if (auth()->user()->isSuperUser())
+                        <li class="nav-item">
+
+                            <a class="nav-link {{ request()->routeIs('edit-requests.index') ? 'active' : '' }}"
+                                href="{{ route('edit-requests.index') }}">
+
+                                <i class="bi bi-pencil me-1"></i>
+
+                                Edit Request
+
+                            </a>
+
+                        </li>
+                    @endif
+
+                @endauth
 
 
                 <!-- Laporan hanya Super User -->

@@ -5,7 +5,7 @@
     <div class="container-fluid py-4">
 
 
-        <div class="d-flex justify-content-between mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
 
             <div>
                 <h4 class="fw-bold">
@@ -17,12 +17,9 @@
                 </p>
             </div>
 
-
-            <a href="{{ url()->previous() }}" class="btn btn-secondary">
-
+            <a href="{{ route('dashboard', ['jenis' => $jenis]) }}" class="btn btn-secondary">
                 <i class="bi bi-arrow-left"></i>
                 Kembali
-
             </a>
 
         </div>
