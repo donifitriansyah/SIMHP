@@ -120,9 +120,8 @@
 
                 <th>No</th>
 
-                <th>No LHP</th>
-
                 <th>Nama Penyedia</th>
+                <th>No LHP</th>
 
                 <th>Objek Pemeriksaan</th>
 
@@ -148,9 +147,11 @@
 
 
 
-            @forelse($penyedia as $nama => $items)
+            @forelse($detail as $pihakKetigaId => $items)
 
-
+                @php
+                    $penyedia = $items->first()->pihakKetiga;
+                @endphp
                 <tr>
 
 
@@ -160,11 +161,13 @@
 
                     </td>
 
-
-
                     <td>
 
+                        {{ strtoupper($penyedia->nama_perusahaan ?? '-') }}
 
+                    </td>
+
+                    <td>
                         @foreach ($items as $item)
                             {{ $item->temuan->lhp->nomor_lhp }}
 
@@ -173,16 +176,6 @@
                                 <br>
                             @endif
                         @endforeach
-
-
-                    </td>
-
-
-
-                    <td>
-
-                        {{ strtoupper($nama) }}
-
                     </td>
 
 

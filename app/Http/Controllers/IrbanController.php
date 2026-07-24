@@ -25,53 +25,45 @@ class IrbanController extends Controller
         );
     }
 
-
-
-    /**
-     * Simpan data Irban
-     */
     public function store(Request $request)
     {
         $request->validate([
+            'kode' => 'required|string|max:20|unique:irban,kode',
+            'nama_irban' => 'required|string|max:100',
 
-            'kode' => [
-                'required',
-                'unique:irban,kode'
-            ],
-
-            'nama_irban' => [
-                'required'
-            ],
-
-
-
+            'nama_penandatangan' => 'nullable|string|max:255',
+            'jabatan_penandatangan' => 'nullable|string|max:255',
+            'nip_penandatangan' => 'nullable|string|max:30',
         ]);
 
         try {
+
             DB::beginTransaction();
+
             Irban::create([
                 'kode' => $request->kode,
                 'nama_irban' => $request->nama_irban,
-                'status' => 1
+
+                'nama_penandatangan' => $request->nama_penandatangan,
+                'jabatan_penandatangan' => $request->jabatan_penandatangan,
+                'nip_penandatangan' => $request->nip_penandatangan,
+
+                'status' => 1,
             ]);
 
             DB::commit();
 
             return redirect()
                 ->route('irban.index')
-                ->with(
-                    'success',
-                    'Data Irban berhasil ditambahkan.'
-                );
+                ->with('success', 'Data Irban berhasil ditambahkan.');
         } catch (\Exception $e) {
+
             DB::rollBack();
-            Log::error(
-                'Gagal tambah Irban : ' . $e->getMessage()
-            );
+
+            Log::error('Gagal tambah Irban : ' . $e->getMessage());
+
             return back()
-
                 ->withInput()
-
                 ->with(
                     'error',
                     'Data Irban gagal ditambahkan. ' . $e->getMessage()
@@ -79,91 +71,48 @@ class IrbanController extends Controller
         }
     }
 
-    /**
-     * Update data Irban
-     */
     public function update(Request $request, Irban $irban)
     {
-
         $request->validate([
+            'kode' => 'required|string|max:20|unique:irban,kode,' . $irban->id,
 
-            'kode' => [
-                'required',
-                'string',
-                'max:20',
-                'unique:irban,kode,' . $irban->id
-            ],
+            'nama_irban' => 'required|string|max:100',
 
+            'nama_penandatangan' => 'nullable|string|max:255',
+            'jabatan_penandatangan' => 'nullable|string|max:255',
+            'nip_penandatangan' => 'nullable|string|max:30',
 
-            'nama_irban' => [
-                'required',
-                'string',
-                'max:100'
-            ],
-
-
-
-            'status' => [
-                'required',
-                'boolean'
-            ]
-
+            'status' => 'required|boolean',
         ]);
-
-
 
         try {
 
-
             $irban->update([
-
                 'kode' => $request->kode,
-
                 'nama_irban' => $request->nama_irban,
 
+                'nama_penandatangan' => $request->nama_penandatangan,
+                'jabatan_penandatangan' => $request->jabatan_penandatangan,
+                'nip_penandatangan' => $request->nip_penandatangan,
+
                 'status' => $request->status,
-
-
             ]);
 
-
-
             return redirect()
-
                 ->route('irban.index')
-
-                ->with(
-
-                    'success',
-
-                    'Data Irban berhasil diperbarui.'
-
-                );
+                ->with('success', 'Data Irban berhasil diperbarui.');
         } catch (\Exception $e) {
 
-
-            Log::error(
-
-                'Gagal update Irban : ' . $e->getMessage()
-
-            );
-
-
+            Log::error('Gagal update Irban : ' . $e->getMessage());
 
             return back()
-
                 ->withInput()
-
                 ->with(
-
                     'error',
-
                     'Data Irban gagal diperbarui. Silakan coba lagi.'
-
                 );
         }
     }
-
     /**
      * Hapus data Irban
      */

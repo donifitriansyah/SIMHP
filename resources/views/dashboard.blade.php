@@ -184,61 +184,79 @@
                 </a>
             </div>
 
-            <div class="col-lg-3 col-md-6">
-                <a href="{{ route('lhp.lengkap', ['jenis' => $jenis]) }}" class="text-decoration-none text-dark">
+            <div class="col-lg-4 col-md-6">
+                <a href="{{ route($jenis == 'internal' ? 'pemeriksaan.internal' : 'pemeriksaan.eksternal', ['status' => 'dalam_proses']) }}"
+                    class="text-decoration-none text-dark">
 
                     <div class="card dashboard-card border-0">
 
                         <div class="card-body">
 
                             <small class="text-muted">
-                                LHP Lengkap
+                                Dalam Proses
                             </small>
 
-
-                            <h2 class="fw-bold text-success mt-2">
-
-                                {{ $lhpLengkap }}
-
+                            <h2 class="fw-bold text-warning mt-2">
+                                {{ $statusLhp['dalam_proses'] }}
                             </h2>
-
 
                         </div>
 
                     </div>
-                </a>
 
+                </a>
             </div>
 
-            <div class="col-lg-3 col-md-6">
-                <a href="{{ route('lhp.belum-lengkap',['jenis'=>$jenis]) }}"
-class="text-decoration-none text-dark">
-                <div class="card dashboard-card border-0">
+            <div class="col-lg-4 col-md-6">
+                <a href="{{ route($jenis == 'internal' ? 'pemeriksaan.internal' : 'pemeriksaan.eksternal', ['status' => 'selesai']) }}"
+                    class="text-decoration-none text-dark">
 
-                    <div class="card-body">
+                    <div class="card dashboard-card border-0">
 
-                        <small class="text-muted">
-                            Belum Lengkap
-                        </small>
+                        <div class="card-body">
 
+                            <small class="text-muted">
+                                Selesai
+                            </small>
 
-                        <h2 class="fw-bold text-danger mt-2">
+                            <h2 class="fw-bold text-success mt-2">
+                                {{ $statusLhp['selesai'] }}
+                            </h2>
 
-                            {{ $lhpTidakLengkap }}
-
-                        </h2>
-
+                        </div>
 
                     </div>
 
-                </div>
-            </a>
+                </a>
+            </div>
 
+            <div class="col-lg-4 col-md-6">
+                <a href="{{ route($jenis == 'internal' ? 'pemeriksaan.internal' : 'pemeriksaan.eksternal', [
+                    'status' => 'belum_diproses',
+                ]) }}"
+                    class="text-decoration-none text-dark">
+
+                    <div class="card dashboard-card border-0">
+
+                        <div class="card-body">
+
+                            <small class="text-muted">
+                                Belum Ditindaklanjuti
+                            </small>
+
+                            <h2 class="fw-bold text-danger mt-2">
+                                {{ $statusLhp['belum_proses'] }}
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+                </a>
             </div>
 
             <!-- Total Kerugian -->
-
-            <div class="col-lg-3 col-md-6">
+            <div class="col-lg-4 col-md-6">
 
                 <div class="card dashboard-card border-0">
 
@@ -285,9 +303,7 @@ class="text-decoration-none text-dark">
 
 
             <!-- Sudah Dikembalikan -->
-
-
-            <div class="col-lg-3 col-md-6">
+            <div class="col-lg-4 col-md-6">
 
 
                 <div class="card dashboard-card border-0">
@@ -340,6 +356,44 @@ class="text-decoration-none text-dark">
 
                 </div>
 
+
+            </div>
+
+            <!-- Sisa Kerugian -->
+            <div class="col-lg-4 col-md-6">
+
+                <div class="card dashboard-card border-0">
+
+                    <div class="card-body">
+
+                        <div class="d-flex justify-content-between">
+
+                            <div>
+
+                                <small class="text-muted">
+                                    Sisa Kerugian
+                                </small>
+
+                                <h4 class="fw-bold mt-2 text-warning">
+
+                                    Rp
+                                    {{ number_format($sisaKerugian, 0, ',', '.') }}
+
+                                </h4>
+
+                            </div>
+
+                            <div class="dashboard-icon bg-warning">
+
+                                <i class="bi bi-exclamation-triangle"></i>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
 
             </div>
 

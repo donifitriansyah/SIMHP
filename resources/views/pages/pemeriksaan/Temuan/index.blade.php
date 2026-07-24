@@ -18,6 +18,7 @@
         </div>
 
         {{-- Filter --}}
+        @if (!auth()->user()->isUserView())
         <div class="card border-0 shadow-sm mb-4">
 
             <div class="card-body">
@@ -45,7 +46,7 @@
 
                         </div>
 
-                        <div class="col-md-3">
+                        {{-- <div class="col-md-3">
 
                             <label class="form-label">
                                 Jenis Pemeriksaan
@@ -63,7 +64,7 @@
 
                             </select>
 
-                        </div>
+                        </div> --}}
 
                         <div class="col-md-2 d-grid">
 
@@ -86,22 +87,14 @@
             </div>
 
         </div>
+        @endif
 
 
         {{-- Table --}}
         <div class="card border-0 shadow-sm">
 
-            <div class="card-header bg-white">
 
-                <strong>
-
-                    Daftar Temuan
-
-                </strong>
-
-            </div>
-
-            <div class="card-body p-0">
+            <div class="card-body">
 
                 <div class="table-responsive">
 
@@ -132,7 +125,7 @@
                                 </th>
 
                                 <th>
-                                    Uraian Temuan
+                                    Uraian Penyebab
                                 </th>
 
                                 <th>
@@ -217,7 +210,7 @@
 
                                         </a>
 
-                                        @if (auth()->user()->canEditLhp($temuan->lhp))
+                                        @if (auth()->user()->canEditTindakLanjut($temuan->lhp))
                                             <a href="{{ route('temuan.edit', $temuan->id) }}"
                                                 class="btn btn-warning btn-sm">
 

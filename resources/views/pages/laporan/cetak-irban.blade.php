@@ -15,7 +15,7 @@
 
         body {
             font-family: Arial, Helvetica, sans-serif;
-            font-size: 11px;
+            font-size: 8px;
         }
 
 
@@ -510,14 +510,14 @@
                         <br><br><br>
 
                         <div class="nama">
-                            {{ strtoupper($irbanPegawai->nama ?? '........................') }}
+                            {{ strtoupper($irbanPenandatangan->nama_penandatangan) }}
                         </div>
 
-                        {{ $irbanPegawai->golongan ?? '' }}
+                        {{ $irbanPenandatangan->jabatan_penandatangan }}
 
                         <br>
 
-                        NIP. {{ $irbanPegawai->nip ?? '........................' }}
+                        NIP. {{ $irbanPenandatangan->nip_penandatangan }}
 
                     </td>
                 @endif

@@ -30,19 +30,15 @@ class EditRequest extends Model
         return $this->belongsTo(Lhp::class);
     }
 
-    public function canEditLhp(Lhp $lhp): bool
+    public function canEditTindakLanjut(Lhp $lhp): bool
     {
         if ($this->isSuperUser()) {
-
             return true;
         }
 
-
         if ($this->isUserView()) {
-
             return false;
         }
-
 
         return EditRequest::where('lhp_id', $lhp->id)
             ->where('user_id', $this->id)

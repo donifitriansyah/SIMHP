@@ -42,7 +42,10 @@ class EditRequestController extends Controller
 
 
         if ($exists) {
-            return back()->with('error', 'Permintaan edit masih menunggu persetujuan admin.');
+            return back()->with(
+                'error',
+                'Permintaan akses edit Tindak Lanjut masih menunggu persetujuan admin.'
+            );
         }
 
         EditRequest::create([
@@ -52,7 +55,10 @@ class EditRequestController extends Controller
             'status' => 'pending',
         ]);
 
-        return back()->with('success', 'Permintaan edit berhasil dikirim.');
+        return back()->with(
+            'success',
+            'Permintaan akses edit Tindak Lanjut berhasil dikirim.'
+        );
     }
     public function approve(EditRequest $editRequest)
     {
@@ -62,8 +68,10 @@ class EditRequestController extends Controller
             'approved_at' => now(),
         ]);
 
-        return back()
-            ->with('success', 'Permintaan edit disetujui.');
+        return back()->with(
+            'success',
+            'Permintaan akses edit Tindak Lanjut disetujui.'
+        );
     }
 
 
@@ -79,7 +87,10 @@ class EditRequestController extends Controller
             'approved_at' => now(),
         ]);
 
-        return back()->with('success', 'Permintaan edit berhasil ditolak.');
+        return back()->with(
+            'success',
+            'Permintaan akses edit Tindak Lanjut ditolak.'
+        );
     }
 
     public function complete(EditRequest $editRequest)

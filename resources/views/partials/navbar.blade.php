@@ -98,6 +98,19 @@
                                 </li>
 
 
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('skpd.index') }}">
+                                        Data SKPD
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('penandatangan.index') }}">
+                                        Penandatangan Laporan
+                                    </a>
+                                </li>
+
+
                                 {{-- hanya super user --}}
                                 @if (auth()->user()->isSuperUser())
                                     <li>
@@ -163,6 +176,20 @@
 
                             </li>
 
+                            <li>
+
+                                <a class="dropdown-item
+                {{ request()->routeIs('register.lhp.index') ? 'active' : '' }}"
+                                    href="{{ route('register.lhp.index') }}">
+
+                                    Register LHP
+
+                                </a>
+
+                            </li>
+
+
+
 
                         </ul>
 
@@ -194,7 +221,7 @@
 
                 @auth
 
-                    @if (auth()->user()->isSuperUser())
+                    @if (in_array(auth()->user()->role, ['super_user', 'user_entry']))
                         <li class="nav-item dropdown">
 
 

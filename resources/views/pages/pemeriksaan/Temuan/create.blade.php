@@ -81,7 +81,7 @@
 
 
                             <label class="form-label">
-                                Uraian Temuan
+                                Uraian Penyebab
                             </label>
 
 
@@ -225,6 +225,8 @@
     </div>
 
     <script>
+        const pegawais = @json($pegawais);
+        const pihakKetigas = @json($pihakKetigas);
         const input = document.getElementById('nilai_kerugian');
 
         if (input) {
@@ -328,122 +330,123 @@
 
             if (jenis === 'pns') {
 
+                let optionPegawai = '<option value="">Pilih Pegawai</option>';
+
+                pegawais.forEach(function(item) {
+
+                    optionPegawai += `
+            <option value="${item.id}">
+                ${item.nama} - ${item.skpd ? item.skpd.nama_skpd : '-'}
+            </option>
+        `;
+
+                });
 
                 html = `
+    <div class="row mb-3 detail-row">
 
-        <div class="row mb-3 detail-row">
+        <div class="col-md-7">
 
+            <label>Pegawai</label>
 
-            <div class="col-md-7">
+            <select
+                name="detail_finansial[pegawai_id][]"
+                class="form-select"
+                required>
 
-                <label>
-                    Nama PNS
-                </label>
+                ${optionPegawai}
 
-                <input type="text"
-                    name="detail_finansial[nama_pihak][]"
-                    class="form-control"
-                    placeholder="Nama PNS">
-
-            </div>
-
-
-
-            <div class="col-md-4">
-
-                <label>
-                    Nilai Temuan
-                </label>
-
-                <input type="text"
-                    name="detail_finansial[nilai][]"
-                    class="form-control"
-                    placeholder="Nilai">
-
-            </div>
-
-
-
-            <div class="col-md-1 d-flex align-items-end">
-
-                <button type="button"
-                    class="btn btn-danger hapus-detail">
-
-                    <i class="bi bi-trash"></i>
-
-                </button>
-
-            </div>
-
+            </select>
 
         </div>
 
-        `;
+        <div class="col-md-4">
 
+            <label>Nilai Temuan</label>
 
+            <input
+                type="text"
+                name="detail_finansial[nilai][]"
+                class="form-control"
+                placeholder="Nilai">
 
+        </div>
+
+        <div class="col-md-1 d-flex align-items-end">
+
+            <button
+                type="button"
+                class="btn btn-danger hapus-detail">
+
+                <i class="bi bi-trash"></i>
+
+            </button>
+
+        </div>
+
+    </div>
+    `;
             } else if (jenis === 'penyedia') {
 
+    let optionPihak = '<option value="">Pilih Penyedia</option>';
 
-                html = `
+    pihakKetigas.forEach(function(item){
 
-        <div class="row mb-3 detail-row">
+        optionPihak += `
+            <option value="${item.id}">
+                ${item.nama_perusahaan}
+            </option>
+        `;
 
+    });
 
-            <div class="col-md-7">
+    html = `
 
+    <div class="row mb-3 detail-row">
 
-                <label>
-                    Nama Penyedia
-                </label>
+        <div class="col-md-7">
 
+            <label>Nama Penyedia</label>
 
-                <input type="text"
-                    name="detail_finansial[nama_penyedia][]"
-                    class="form-control"
-                    placeholder="Nama Penyedia">
+            <select
+                name="detail_finansial[pihak_ketiga_id][]"
+                class="form-select"
+                required>
 
+                ${optionPihak}
 
-            </div>
-
-
-
-            <div class="col-md-4">
-
-
-                <label>
-                    Nilai Temuan
-                </label>
-
-
-                <input type="text"
-                    name="detail_finansial[nilai][]"
-                    class="form-control"
-                    placeholder="Nilai">
-
-
-            </div>
-
-
-
-            <div class="col-md-1 d-flex align-items-end">
-
-
-                <button type="button"
-                    class="btn btn-danger hapus-detail">
-
-                    <i class="bi bi-trash"></i>
-
-                </button>
-
-
-            </div>
-
-
+            </select>
 
         </div>
 
-        `;
+        <div class="col-md-4">
+
+            <label>Nilai Temuan</label>
+
+            <input
+                type="text"
+                name="detail_finansial[nilai][]"
+                class="form-control"
+                placeholder="Nilai">
+
+        </div>
+
+        <div class="col-md-1 d-flex align-items-end">
+
+            <button
+                type="button"
+                class="btn btn-danger hapus-detail">
+
+                <i class="bi bi-trash"></i>
+
+            </button>
+
+        </div>
+
+    </div>
+
+    `;
+
 
 
             }

@@ -67,9 +67,10 @@
                                 Kode Irban
                             </th>
 
-                            <th>
-                                Nama Irban
-                            </th>
+                            <th>Nama Irban</th>
+                            <th>Nama Pejabat</th>
+                            <th>Golongan</th>
+                            <th>NIP</th>
 
 
                             <th width="120">
@@ -113,6 +114,10 @@
 
                                 </td>
 
+                                <td>{{ $irban->nama_penandatangan ?? '-' }}</td>
+                                <td>{{ $irban->jabatan_penandatangan ?? '-' }}</td>
+                                <td>{{ $irban->nip_penandatangan ?? '-' }}</td>
+
                                 <td>
 
 
@@ -155,9 +160,6 @@
 
 
                         @empty
-
-
-
                         @endforelse
 
 
@@ -183,5 +185,3 @@
 
 
 @endsection
-
-

@@ -12,7 +12,7 @@
 
             <h5 class="mb-0">
 
-                Permintaan Akses Edit
+                Permintaan Akses Edit Tindak Lanjut
 
             </h5>
 
@@ -153,7 +153,7 @@
 
                         @empty
 
-                        
+
 
                         @endforelse
 

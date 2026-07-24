@@ -103,6 +103,7 @@
 
                             <th>No</th>
                             <th>Nama PNS</th>
+                            <th>SKPD</th>
 
                             <th>Nomor LHP</th>
 
@@ -120,12 +121,20 @@
                         @if ($jenis == 'internal')
                             {{-- DATA PEJABAT AUDITEE --}}
 
-                            @foreach ($detail as $nama => $items)
+                            @foreach ($detail as $pegawaiId => $items)
+                                @php
+                                    $pegawai = $items->first()->pegawai;
+                                @endphp
                                 <tr>
 
                                     <td>{{ $loop->iteration }}</td>
 
-                                    <td>{{ $nama }}</td>
+                                    <td>
+                                        {{ $pegawai->nama }}
+                                    </td>
+                                    <td>
+                                        {{ $pegawai->skpd->nama_skpd ?? '-' }}
+                                    </td>
 
                                     <td>
                                         <ul class="mb-0 ps-3">
@@ -155,7 +164,10 @@
                         @else
                             {{-- DATA EKSTERNAL DARI LHP --}}
 
-                            @foreach ($lhps as $lhp)
+                            @foreach ($detail as $pegawaiId => $items)
+                                @php
+                                    $pegawai = $items->first()->pegawai;
+                                @endphp
                                 <tr>
 
                                     <td>
@@ -163,7 +175,10 @@
                                     </td>
 
                                     <td>
-                                        {{ $lhp->nama_pejabat_eksternal }}
+                                        {{ $pegawai->nama }}
+                                    </td>
+                                    <td>
+                                        {{ $pegawai->skpd->nama_skpd ?? '-' }}
                                     </td>
 
                                     <td>
@@ -184,6 +199,9 @@
 
                                     <td>
                                         {{ $lhp->temuans->count() }}
+                                    </td>
+                                    <td class="text-end">
+                                        Rp {{ number_format($items->sum('nilai_temuan'), 0, ',', '.') }}
                                     </td>
 
                                 </tr>

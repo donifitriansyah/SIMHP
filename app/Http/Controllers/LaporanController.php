@@ -14,49 +14,35 @@ class LaporanController extends Controller
 {
     public function cetakPihakKetigaTemuan(Request $request)
     {
-
         if (!$request->filled('jenis')) {
-
             $request->merge([
                 'jenis' => 'internal'
             ]);
         }
 
-
         $jenis = $request->jenis;
 
-
-
         $detail = DetailTemuanFinansial::with([
-            'temuan.lhp'
+            'pihakKetiga',
+            'temuan.lhp',
+            'temuan.lhp.irban'
         ])
             ->where('jenis', 'penyedia')
-
             ->whereHas('temuan.lhp', function ($query) use ($request, $jenis) {
-
 
                 if ($jenis == 'internal') {
 
-                    $query->where(
-                        'instansi_pemeriksa',
-                        'Itkab'
-                    );
-                } elseif ($jenis == 'eksternal') {
+                    $query->where('instansi_pemeriksa', 'Itkab');
+                } else {
 
-                    $query->whereIn(
-                        'instansi_pemeriksa',
-                        [
-                            'Itprov',
-                            'BPK RI',
-                            'BPKP'
-                        ]
-                    );
+                    $query->whereIn('instansi_pemeriksa', [
+                        'Itprov',
+                        'BPK RI',
+                        'BPKP'
+                    ]);
                 }
 
-
-
                 if ($request->filled('tanggal_awal')) {
-
                     $query->whereDate(
                         'tanggal_lhp',
                         '>=',
@@ -64,10 +50,7 @@ class LaporanController extends Controller
                     );
                 }
 
-
-
                 if ($request->filled('tanggal_akhir')) {
-
                     $query->whereDate(
                         'tanggal_lhp',
                         '<=',
@@ -75,23 +58,18 @@ class LaporanController extends Controller
                     );
                 }
             })
-            ->get();
-
-
+            ->get()
+            ->groupBy('pihak_ketiga_id');
 
         $inspektur = Pegawai::where(
             'jabatan',
             'Inspektur Kabupaten Ketapang'
         )->first();
 
-
-
         $sekretaris = Pegawai::where(
             'jabatan',
             'Sekretaris'
         )->first();
-
-
 
         return view(
             'pages.laporan.cetak-pihak-ketiga-temuan',
@@ -119,53 +97,34 @@ class LaporanController extends Controller
 
 
         $detail = DetailTemuanFinansial::with([
+            'pihakKetiga',
             'temuan.lhp'
         ])
             ->where('jenis', 'penyedia')
-
             ->whereHas('temuan.lhp', function ($query) use ($request, $jenis) {
-
 
                 if ($jenis == 'internal') {
 
-                    $query->where(
-                        'instansi_pemeriksa',
-                        'Itkab'
-                    );
-                } elseif ($jenis == 'eksternal') {
+                    $query->where('instansi_pemeriksa', 'Itkab');
+                } else {
 
-                    $query->whereIn(
-                        'instansi_pemeriksa',
-                        [
-                            'Itprov',
-                            'BPK RI',
-                            'BPKP'
-                        ]
-                    );
+                    $query->whereIn('instansi_pemeriksa', [
+                        'Itprov',
+                        'BPK RI',
+                        'BPKP'
+                    ]);
                 }
-
-
 
                 if ($request->filled('tanggal_awal')) {
-
-                    $query->whereDate(
-                        'tanggal_lhp',
-                        '>=',
-                        $request->tanggal_awal
-                    );
+                    $query->whereDate('tanggal_lhp', '>=', $request->tanggal_awal);
                 }
-
 
                 if ($request->filled('tanggal_akhir')) {
-
-                    $query->whereDate(
-                        'tanggal_lhp',
-                        '<=',
-                        $request->tanggal_akhir
-                    );
+                    $query->whereDate('tanggal_lhp', '<=', $request->tanggal_akhir);
                 }
             })
-            ->get();
+            ->get()
+            ->groupBy('pihak_ketiga_id');
 
 
 
@@ -192,6 +151,7 @@ class LaporanController extends Controller
         $jenis = $request->jenis;
 
         $detail = DetailTemuanFinansial::with([
+            'pegawai.skpd',
             'temuan.lhp.auditee'
         ])
             ->where('jenis', 'pns')
@@ -216,7 +176,7 @@ class LaporanController extends Controller
                 }
             })
             ->get()
-            ->groupBy('nama_pihak');
+            ->groupBy('pegawai_id');
 
         return view(
             'pages.laporan.pns-temuan',
@@ -226,49 +186,33 @@ class LaporanController extends Controller
 
     public function cetakPnsTemuan(Request $request)
     {
-
         if (!$request->filled('jenis')) {
-
             $request->merge([
                 'jenis' => 'internal'
             ]);
         }
 
-
         $jenis = $request->jenis;
 
-
-
         $detail = DetailTemuanFinansial::with([
+            'pegawai.skpd',
             'temuan.lhp.auditee',
             'temuan.lhp.irban'
         ])
             ->where('jenis', 'pns')
             ->whereHas('temuan.lhp', function ($query) use ($request, $jenis) {
 
-
                 if ($jenis == 'internal') {
-
-                    $query->where(
-                        'instansi_pemeriksa',
-                        'Itkab'
-                    );
+                    $query->where('instansi_pemeriksa', 'Itkab');
                 } else {
-
-                    $query->whereIn(
-                        'instansi_pemeriksa',
-                        [
-                            'Itprov',
-                            'BPK RI',
-                            'BPKP'
-                        ]
-                    );
+                    $query->whereIn('instansi_pemeriksa', [
+                        'Itprov',
+                        'BPK RI',
+                        'BPKP'
+                    ]);
                 }
 
-
-
                 if ($request->filled('tanggal_awal')) {
-
                     $query->whereDate(
                         'tanggal_lhp',
                         '>=',
@@ -276,10 +220,7 @@ class LaporanController extends Controller
                     );
                 }
 
-
-
                 if ($request->filled('tanggal_akhir')) {
-
                     $query->whereDate(
                         'tanggal_lhp',
                         '<=',
@@ -288,24 +229,17 @@ class LaporanController extends Controller
                 }
             })
             ->get()
-            ->groupBy('nama_pihak');
-
-
-
+            ->groupBy('pegawai_id');
 
         $inspektur = Pegawai::where(
             'jabatan',
             'Inspektur Kabupaten Ketapang'
         )->first();
 
-
-
         $sekretaris = Pegawai::where(
             'jabatan',
             'Sekretaris'
         )->first();
-
-
 
         return view(
             'pages.laporan.cetak-pns-temuan',
@@ -338,8 +272,10 @@ class LaporanController extends Controller
                 $this->getLaporanIrban($request)
             ];
 
-            $irbanPegawai = Pegawai::where('irban_id', $request->irban_id)
-                ->first();
+            // Ambil data penandatangan Irban
+            $irbanPenandatangan = Irban::find(
+                $request->irban_id
+            );
 
             return view(
                 'pages.laporan.cetak-irban',
@@ -347,7 +283,7 @@ class LaporanController extends Controller
                     'laporan',
                     'tahun',
                     'bulan',
-                    'irbanPegawai',
+                    'irbanPenandatangan',
                     'inspektur',
                     'sekretaris'
                 )

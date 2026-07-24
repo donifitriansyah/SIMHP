@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Pegawai;
 use App\Models\Irban;
+use App\Models\Pegawai;
+use App\Models\Skpd;
 use Illuminate\Http\Request;
 
 class PegawaiController extends Controller
@@ -13,15 +14,146 @@ class PegawaiController extends Controller
      */
     public function index()
     {
-        $pegawais = Pegawai::with('irban')
+        $pegawais = Pegawai::with('skpd')
             ->orderBy('nama')
             ->get();
 
-        $irbans = Irban::orderBy('nama_irban')->get();
+        $skpds = Skpd::orderBy('nama_skpd')->get();
 
-        $jabatanTerpakai = Pegawai::pluck('jabatan')->toArray();
+        return view(
+            'pages.master-data.pegawai.index',
+            compact(
+                'pegawais',
+                'skpds'
+            )
+        );
+    }
 
-        return view('pages.master-data.pegawai.index', compact('pegawais', 'irbans','jabatanTerpakai'));
+    public function downloadTemplate()
+    {
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="template_pegawai.csv"',
+        ];
+
+        $callback = function () {
+
+            $file = fopen('php://output', 'w');
+
+            fputcsv($file, [
+                'Nama',
+                'NIP',
+                'Jabatan',
+                'Golongan',
+                'SKPD'
+            ]);
+
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:csv,txt|max:5120'
+        ]);
+
+        $path = $request->file('file')->getRealPath();
+
+        $handle = fopen($path, 'r');
+
+        if (!$handle) {
+            return back()->with('error', 'File tidak dapat dibaca.');
+        }
+
+        // Lewati header
+        fgetcsv($handle);
+
+        $berhasil = 0;
+        $update = 0;
+        $gagal = 0;
+
+        $errors = [];
+
+        $baris = 2;
+
+        while (($row = fgetcsv($handle, 1000, ",")) !== false) {
+
+            if (count($row) < 5) {
+                $errors[] = "Baris {$baris}: Format kolom tidak sesuai.";
+                $gagal++;
+                $baris++;
+                continue;
+            }
+
+            $nama      = trim($row[0]);
+            $nip       = trim($row[1]);
+            $jabatan   = trim($row[2]);
+            $golongan  = trim($row[3]);
+            $namaSkpd  = trim($row[4]);
+
+            if ($nama == '' || $nip == '') {
+                $errors[] = "Baris {$baris}: Nama atau NIP kosong.";
+                $gagal++;
+                $baris++;
+                continue;
+            }
+
+            $skpd = Skpd::where('nama_skpd', $namaSkpd)->first();
+
+            if (!$skpd) {
+                $errors[] = "Baris {$baris}: SKPD '{$namaSkpd}' tidak ditemukan.";
+                $gagal++;
+                $baris++;
+                continue;
+            }
+
+            try {
+
+                $pegawai = Pegawai::where('nip', $nip)->first();
+
+                if ($pegawai) {
+
+                    $pegawai->update([
+                        'nama'      => $nama,
+                        'jabatan'   => $jabatan,
+                        'golongan'  => $golongan,
+                        'skpd_id'   => $skpd->id,
+                    ]);
+
+                    $update++;
+                } else {
+
+                    Pegawai::create([
+                        'nama'      => $nama,
+                        'nip'       => $nip,
+                        'jabatan'   => $jabatan,
+                        'golongan'  => $golongan,
+                        'skpd_id'   => $skpd->id,
+                    ]);
+
+                    $berhasil++;
+                }
+            } catch (\Exception $e) {
+
+                $errors[] = "Baris {$baris}: " . $e->getMessage();
+                $gagal++;
+            }
+
+            $baris++;
+        }
+
+        fclose($handle);
+
+        return redirect()
+            ->route('pegawai.index')
+            ->with([
+                'success' => "Import selesai. Data baru: {$berhasil}, Update: {$update}, Gagal: {$gagal}",
+                'import_errors' => $errors
+            ]);
     }
 
     /**
@@ -44,41 +176,21 @@ class PegawaiController extends Controller
             'nip'       => 'required|string|max:30|unique:pegawais,nip',
             'jabatan'   => 'required|string|max:150',
             'golongan'  => 'nullable|string|max:30',
-            'irban_id'  => 'nullable|exists:irban,id',
+            'skpd_id'   => 'nullable|exists:skpd,id',
         ], [
-            'nama.required' => 'Nama pegawai wajib diisi.',
-            'nip.required' => 'NIP wajib diisi.',
-            'nip.unique' => 'NIP sudah digunakan.',
-            'jabatan.required' => 'Jabatan wajib diisi.',
-            'irban_id.exists' => 'Irban tidak ditemukan.'
+            'nama.required'     => 'Nama pegawai wajib diisi.',
+            'nip.required'      => 'NIP wajib diisi.',
+            'nip.unique'        => 'NIP sudah digunakan.',
+            'jabatan.required'  => 'Jabatan wajib diisi.',
+            'skpd_id.exists'    => 'SKPD tidak ditemukan.',
         ]);
-
-        $jabatanUnik = [
-            'Inspektur Kabupaten Ketapang',
-            'Sekretaris',
-            'Inspektur Pembantu I',
-            'Inspektur Pembantu II',
-            'Inspektur Pembantu III',
-            'Inspektur Pembantu IV',
-        ];
-
-        if (in_array($request->jabatan, $jabatanUnik)) {
-
-            $ada = Pegawai::where('jabatan', $request->jabatan)->exists();
-
-            if ($ada) {
-                return back()
-                    ->withInput()
-                    ->with('error', 'Jabatan ' . $request->jabatan . ' sudah memiliki pegawai.');
-            }
-        }
 
         Pegawai::create([
             'nama'      => $request->nama,
             'nip'       => $request->nip,
             'jabatan'   => $request->jabatan,
             'golongan'  => $request->golongan,
-            'irban_id'  => $request->irban_id ?: null,
+            'skpd_id'   => $request->skpd_id,
         ]);
 
         return redirect()
@@ -93,43 +205,21 @@ class PegawaiController extends Controller
             'nip'       => 'required|string|max:30|unique:pegawais,nip,' . $pegawai->id,
             'jabatan'   => 'required|string|max:150',
             'golongan'  => 'nullable|string|max:30',
-            'irban_id'  => 'nullable|exists:irban,id',
+            'skpd_id'   => 'nullable|exists:skpd,id',
         ], [
             'nama.required'     => 'Nama pegawai wajib diisi.',
             'nip.required'      => 'NIP wajib diisi.',
             'nip.unique'        => 'NIP sudah digunakan.',
             'jabatan.required'  => 'Jabatan wajib diisi.',
-            'irban_id.exists'   => 'Irban tidak ditemukan.',
+            'skpd_id.exists'    => 'SKPD tidak ditemukan.',
         ]);
-
-        $jabatanUnik = [
-            'Inspektur Kabupaten Ketapang',
-            'Sekretaris',
-            'Inspektur Pembantu I',
-            'Inspektur Pembantu II',
-            'Inspektur Pembantu III',
-            'Inspektur Pembantu IV',
-        ];
-
-        if (in_array($request->jabatan, $jabatanUnik)) {
-
-            $ada = Pegawai::where('jabatan', $request->jabatan)
-                ->where('id', '!=', $pegawai->id)
-                ->exists();
-
-            if ($ada) {
-                return back()
-                    ->withInput()
-                    ->with('error', 'Jabatan ' . $request->jabatan . ' sudah memiliki pegawai.');
-            }
-        }
 
         $pegawai->update([
             'nama'      => $request->nama,
             'nip'       => $request->nip,
             'jabatan'   => $request->jabatan,
             'golongan'  => $request->golongan,
-            'irban_id'  => $request->irban_id ?: null,
+            'skpd_id'   => $request->skpd_id,
         ]);
 
         return redirect()

@@ -1,15 +1,9 @@
-<div class="modal fade"
-     id="editModal{{ $irban->id }}"
-     tabindex="-1"
-     aria-labelledby="editModalLabel"
-     aria-hidden="true">
+<div class="modal" id="editModal{{ $irban->id }}" tabindex="-1">
+
+    <div class="modal-dialog modal-lg">
 
 
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-
-
-        <form action="{{ route('irban.update', $irban->id) }}"
-              method="POST">
+        <form action="{{ route('irban.update', $irban->id) }}" method="POST">
 
 
             @csrf
@@ -31,9 +25,7 @@
                     </h5>
 
 
-                    <button type="button"
-                            class="btn-close"
-                            data-bs-dismiss="modal">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal">
                     </button>
 
 
@@ -57,17 +49,10 @@
                         </label>
 
 
-                        <input type="text"
-                               name="kode"
-                               class="form-control"
-                               value="{{ $irban->kode }}"
-                               required>
+                        <input type="text" name="kode" class="form-control" value="{{ $irban->kode }}" required>
 
 
                     </div>
-
-
-
 
                     {{-- Nama Irban --}}
 
@@ -81,13 +66,28 @@
                         </label>
 
 
-                        <input type="text"
-                               name="nama_irban"
-                               class="form-control"
-                               value="{{ $irban->nama_irban }}"
-                               required>
+                        <input type="text" name="nama_irban" class="form-control" value="{{ $irban->nama_irban }}"
+                            required>
 
 
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Nama Pejabat</label>
+                        <input type="text" name="nama_penandatangan" class="form-control"
+                            value="{{ old('nama_penandatangan', $irban->nama_penandatangan ?? '') }}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Golongan</label>
+                        <input type="text" name="jabatan_penandatangan" class="form-control"
+                            value="{{ old('jabatan_penandatangan', $irban->jabatan_penandatangan ?? '') }}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label>NIP</label>
+                        <input type="text" name="nip_penandatangan" class="form-control"
+                            value="{{ old('nip_penandatangan', $irban->nip_penandatangan ?? '') }}">
                     </div>
 
                     {{-- Status --}}
@@ -102,20 +102,17 @@
                         </label>
 
 
-                        <select name="status"
-                                class="form-select">
+                        <select name="status" class="form-select">
 
 
-                            <option value="1"
-                                {{ $irban->status == 1 ? 'selected' : '' }}>
+                            <option value="1" {{ $irban->status == 1 ? 'selected' : '' }}>
 
                                 Aktif
 
                             </option>
 
 
-                            <option value="0"
-                                {{ $irban->status == 0 ? 'selected' : '' }}>
+                            <option value="0" {{ $irban->status == 0 ? 'selected' : '' }}>
 
                                 Tidak Aktif
 
@@ -138,9 +135,7 @@
                 <div class="modal-footer">
 
 
-                    <button type="button"
-                            class="btn btn-secondary"
-                            data-bs-dismiss="modal">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
 
 
                         <i class="bi bi-x-circle me-1"></i>
@@ -152,8 +147,7 @@
 
 
 
-                    <button type="submit"
-                            class="btn btn-warning">
+                    <button type="submit" class="btn btn-warning">
 
 
                         <i class="bi bi-save me-1"></i>

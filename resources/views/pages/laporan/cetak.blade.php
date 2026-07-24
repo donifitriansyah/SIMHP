@@ -16,7 +16,7 @@
 
         body {
             font-family: Arial, Helvetica, sans-serif;
-            font-size: 11px;
+            font-size: 8px;
         }
 
         h4 {
@@ -65,13 +65,13 @@
 
         .info-laporan p {
             margin: 0;
-            font-size: 12px;
+            font-size: 8px;
         }
 
 
         .keterangan {
             margin-top: 20px;
-            font-size: 10px;
+            font-size: 8px;
         }
 
 
@@ -718,13 +718,13 @@
 
 
                     <div class="nama" style="margin-bottom: 5px">
-                        {{ strtoupper($inspektur?->nama ?? '........................') }}
+                        JUNAIDI FIRRAWAN, S.SOS.,M.E
                     </div>
                     <div class="">
-                        {{ $inspektur?->golongan ?? '-' }}
+                        Pembina Utama Muda
                     </div>
                     <div>
-                        NIP. {{ $inspektur?->nip ?? '........................' }}
+                        NIP. 1971 1023 199101 1 001
                     </div>
 
 
@@ -752,13 +752,13 @@
 
 
                     <div class="nama" style="margin-bottom: 5px">
-                        {{ $sekretaris?->nama ?? '........................' }}
+                        SYARIF MAHADI, S.AP.,M.E
                     </div>
                     <div class="">
-                        {{ $inspektur?->golongan ?? '-' }}
+                        Pembina Utama Muda
                     </div>
                     <div>
-                        NIP. {{ $sekretaris?->nip ?? '........................' }}
+                        NIP. 19691221 199111 1 001
                     </div>
 
                 </td>

@@ -59,19 +59,9 @@ class DashboardController extends Controller
             $filterLhp
         )->sum('nilai_pengembalian');
 
-        $lhpLengkap = (clone $lhpQuery)
-            ->where(
-                'status_lhp',
-                'lengkap'
-            )
-            ->count();
-
-        $lhpTidakLengkap = (clone $lhpQuery)
-            ->where(
-                'status_lhp',
-                'tidak_lengkap'
-            )
-            ->count();
+        $belumDitindaklanjuti = (clone $lhpQuery)
+    ->where('status_proses', 'belum_diproses')
+    ->count();
 
         $statusLhp = [
 
@@ -143,8 +133,6 @@ class DashboardController extends Controller
                 ];
             });
 
-        
-
         $dataKerugian = [
 
             'total' => $totalKerugian,
@@ -155,6 +143,8 @@ class DashboardController extends Controller
             $totalKerugian - $totalPengembalian
 
         ];
+
+        $sisaKerugian = $totalKerugian - $totalPengembalian;
 
         $aktivitas = ActivityLog::with('user')
             ->latest()
@@ -168,15 +158,15 @@ class DashboardController extends Controller
                 'totalTemuan',
                 'totalRekomendasi',
                 'totalTindakLanjut',
-                'lhpLengkap',
-                'lhpTidakLengkap',
                 'statusLhp',
                 'totalKerugian',
                 'totalPengembalian',
                 'aktivitas',
                 'temuanIrban',
                 'dataKerugian',
-                'jenis'
+                'jenis',
+                'belumDitindaklanjuti',
+                'sisaKerugian'
             )
         );
     }

@@ -9,15 +9,21 @@ use Illuminate\Database\Eloquent\Model;
 class DetailTemuanFinansial extends Model
 {
 
-    protected $table='detail_temuan_finansial';
+    protected $table = 'detail_temuan_finansial';
 
 
-    protected $fillable=[
+    protected $fillable = [
+
         'temuan_id',
+
         'jenis',
-        'nama_pihak',
-        'nama_penyedia',
-        'nilai_temuan'
+
+        'pegawai_id',
+
+        'pihak_ketiga_id',
+
+        'nilai_temuan',
+
     ];
 
 
@@ -29,4 +35,13 @@ class DetailTemuanFinansial extends Model
         );
     }
 
+    public function pegawai()
+    {
+        return $this->belongsTo(Pegawai::class);
+    }
+
+    public function pihakKetiga()
+    {
+        return $this->belongsTo(PihakKetiga::class);
+    }
 }

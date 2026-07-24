@@ -8,15 +8,19 @@ use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\LhpController;
 use App\Http\Controllers\MatriksTindakLanjutController;
 use App\Http\Controllers\PegawaiController;
+use App\Http\Controllers\PenandatanganLaporanController;
 use App\Http\Controllers\PihakKetigaController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProfilInspektoratController;
+use App\Http\Controllers\RegisterLhpController;
 use App\Http\Controllers\RekomendasiController;
+use App\Http\Controllers\SkpdController;
 use App\Http\Controllers\TemuanController;
 use App\Http\Controllers\TindakLanjutController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+
 
 Route::get('/', function () {
 
@@ -42,10 +46,57 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard/eksternal', [DashboardController::class, 'index'])
         ->defaults('jenis', 'eksternal')
         ->name('dashboard.eksternal');
+        Route::get(
+        '/register-lhp',
+        [RegisterLhpController::class, 'index']
+    )->name('register.lhp.index');
 });
 
 Route::middleware(['auth', 'role:super_user,user_entry'])->group(function () {
-       Route::get('/pemeriksaan/internal/create', [LhpController::class, 'create'])->defaults('jenis', 'internal')->name('lhp.internal.create');
+    Route::get('/laporan/pihak-ketiga-temuan', [LaporanController::class, 'pihakKetigaTemuan'])->name('laporan.pihak.ketiga.temuan');
+
+    Route::get('/laporan/irban', [LaporanController::class, 'irban'])->name('laporan.irban');
+
+    Route::get("/laporan-cetak", [LaporanController::class, "cetak"])->name("laporan.cetak");
+
+    Route::get('/laporan/pns-temuan', [LaporanController::class, 'pnsTemuan'])->name('laporan.pns.temuan');
+
+    Route::get('/laporan/pns-temuan/cetak', [LaporanController::class, 'cetakPnsTemuan'])->name('laporan.pns.temuan.cetak');
+
+    Route::get('/laporan/pihak-ketiga-temuan/cetak', [LaporanController::class, 'cetakPihakKetigaTemuan'])->name('laporan.pihak.ketiga.temuan.cetak');
+
+    Route::get('/laporan/irban/cetak', [LaporanController::class, 'cetakIrban'])->name('laporan.irban.cetak');
+
+    Route::get('/laporan/semua-irban/cetak', [LaporanController::class, 'cetakSemuaIrban'])->name('laporan.semua-irban.cetak');
+
+    Route::get("/laporan", [LaporanController::class, "index"])->name("laporan.index");
+
+    Route::get("/matriks-tindak-lanjut", [MatriksTindakLanjutController::class, "index",])->name("matriks.index");
+    Route::get('/pegawai/template', [PegawaiController::class, 'downloadTemplate'])
+        ->name('pegawai.template');
+
+    Route::post('/pegawai/import', [PegawaiController::class, 'import'])
+        ->name('pegawai.import');
+    Route::resource('penandatangan', PenandatanganLaporanController::class)
+        ->except(['show', 'create', 'edit']);
+    Route::get(
+        '/master-data/penandatangan',
+        [PenandatanganLaporanController::class, 'index']
+    )->name('penandatangan.index');
+
+    Route::put(
+        '/master-data/penandatangan/{penandatangan}',
+        [PenandatanganLaporanController::class, 'update']
+    )->name('penandatangan.update');
+
+    Route::get(
+        '/register-lhp/cetak',
+        [RegisterLhpController::class, 'cetak']
+    )->name('register.lhp.cetak');
+    Route::resource('skpd', SkpdController::class);
+
+    Route::get('/pemeriksaan/internal/create', [LhpController::class, 'create'])->defaults('jenis', 'internal')->name('lhp.internal.create');
+
     Route::resource('irban', IrbanController::class);
 
     Route::resource('auditee', AuditeeController::class);
@@ -99,9 +150,6 @@ Route::middleware(['auth', 'role:super_user,user_entry'])->group(function () {
 
 Route::middleware(['auth', 'role:super_user'])->group(function () {
 
-    // Edit Request
-    // Route::resource('edit-requests', EditRequestController::class);
-
     Route::prefix('edit-requests')->name('edit-requests.')
         ->group(function () {
             Route::get('/', [EditRequestController::class, 'index'])
@@ -113,26 +161,6 @@ Route::middleware(['auth', 'role:super_user'])->group(function () {
             Route::put('/{editRequest}/reject', [EditRequestController::class, 'reject'])
                 ->name('reject');
         });
-
-    Route::get('/laporan/pihak-ketiga-temuan', [LaporanController::class, 'pihakKetigaTemuan'])->name('laporan.pihak.ketiga.temuan');
-
-    Route::get('/laporan/irban', [LaporanController::class, 'irban'])->name('laporan.irban');
-
-    Route::get("/laporan-cetak", [LaporanController::class, "cetak"])->name("laporan.cetak");
-
-    Route::get('/laporan/pns-temuan', [LaporanController::class, 'pnsTemuan'])->name('laporan.pns.temuan');
-
-    Route::get('/laporan/pns-temuan/cetak', [LaporanController::class, 'cetakPnsTemuan'])->name('laporan.pns.temuan.cetak');
-
-    Route::get('/laporan/pihak-ketiga-temuan/cetak', [LaporanController::class, 'cetakPihakKetigaTemuan'])->name('laporan.pihak.ketiga.temuan.cetak');
-
-    Route::get('/laporan/irban/cetak', [LaporanController::class, 'cetakIrban'])->name('laporan.irban.cetak');
-
-    Route::get('/laporan/semua-irban/cetak', [LaporanController::class, 'cetakSemuaIrban'])->name('laporan.semua-irban.cetak');
-
-    Route::get("/laporan", [LaporanController::class, "index"])->name("laporan.index");
-
-    Route::get("/matriks-tindak-lanjut", [MatriksTindakLanjutController::class, "index",])->name("matriks.index");
 
 });
 

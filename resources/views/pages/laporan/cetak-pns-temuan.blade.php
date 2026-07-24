@@ -190,6 +190,10 @@
                     Nama PNS
                 </th>
 
+                <th>
+                    SKD
+                </th>
+
 
                 <th>
                     Nomor LHP
@@ -220,7 +224,10 @@
         <tbody>
 
 
-            @forelse($detail as $nama => $items)
+            @forelse($detail as $pegawaiId => $items)
+                @php
+                    $pegawai = $items->first()->pegawai;
+                @endphp
 
 
                 <tr>
@@ -235,9 +242,11 @@
 
 
                     <td>
-
-                        {{ strtoupper($nama) }}
-
+                        {{ $pegawai->nama ?? '-' }}
+                    </td>
+                    
+                    <td>
+                        {{ $pegawai->skpd->nama_skpd ?? '-' }}
                     </td>
 
 
@@ -348,19 +357,18 @@
 
                     <div class="nama">
 
-                        {{ strtoupper($inspektur->nama ?? '........................') }}
+                        JUNAIDI FIRRAWAN, S.SOS.,M.E
 
                     </div>
 
 
-                    {{ $inspektur->golongan ?? '' }}
+                    Pembina Utama Muda
 
 
                     <br>
 
 
-                    NIP.
-                    {{ $inspektur->nip ?? '........................' }}
+                    NIP. 1971 1023 199101 1 001
 
 
 
@@ -386,19 +394,18 @@
 
                     <div class="nama">
 
-                        {{ strtoupper($sekretaris->nama ?? '........................') }}
+                        SYARIF MAHADI, S.AP.,M.E
 
                     </div>
 
 
-                    {{ $sekretaris->golongan ?? '' }}
+                    Pembina
 
 
                     <br>
 
 
-                    NIP.
-                    {{ $sekretaris->nip ?? '........................' }}
+                    NIP. 19691221 199111 1 001
 
 
 

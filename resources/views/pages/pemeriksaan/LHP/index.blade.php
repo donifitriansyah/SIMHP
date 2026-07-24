@@ -161,26 +161,52 @@
 
                 <div class="row g-3">
 
-                    <div class="col-md-3">
+                    @if ($jenis == 'internal')
+                        <div class="col-md-3">
 
-                        <label class="form-label">Irban</label>
+                            <label class="form-label">Irban</label>
 
-                        <select name="irban_id" class="form-select">
+                            <select name="irban_id" class="form-select">
 
-                            <option value="">Semua Irban</option>
+                                <option value="">Semua Irban</option>
 
-                            @foreach ($irbans as $irban)
-                                <option value="{{ $irban->id }}"
-                                    {{ request('irban_id') == $irban->id ? 'selected' : '' }}>
+                                @foreach ($irbans as $irban)
+                                    <option value="{{ $irban->id }}"
+                                        {{ request('irban_id') == $irban->id ? 'selected' : '' }}>
 
-                                    {{ $irban->nama_irban }}
+                                        {{ $irban->nama_irban }}
 
+                                    </option>
+                                @endforeach
+
+                            </select>
+
+                        </div>
+                    @else
+                        <div class="col-md-3">
+
+                            <label class="form-label">Tim Eksternal</label>
+
+                            <select name="instansi_pemeriksa" class="form-select">
+
+                                <option value="">Semua Tim Eksternal</option>
+
+                                <option value="BPK RI" {{ request('instansi_pemeriksa') == 'BPK RI' ? 'selected' : '' }}>
+                                    BPK RI
                                 </option>
-                            @endforeach
 
-                        </select>
+                                <option value="BPKP" {{ request('instansi_pemeriksa') == 'BPKP' ? 'selected' : '' }}>
+                                    BPKP
+                                </option>
 
-                    </div>
+                                <option value="Itprov" {{ request('instansi_pemeriksa') == 'Itprov' ? 'selected' : '' }}>
+                                    Inspektorat Provinsi
+                                </option>
+
+                            </select>
+
+                        </div>
+                    @endif
 
                     <div class="col-md-3">
 

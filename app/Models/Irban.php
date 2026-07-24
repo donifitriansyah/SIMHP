@@ -16,6 +16,9 @@ class Irban extends Model
 
         'nama_irban',
         'kode',
+        'nama_penandatangan',
+        'jabatan_penandatangan',
+        'nip_penandatangan',
         'status'
 
     ];

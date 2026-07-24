@@ -1,6 +1,6 @@
-<div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
+<div class="modal" id="createModal" tabindex="-1">
 
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-dialog modal-lg">
 
 
         <form action="{{ route('irban.store') }}" method="POST">
@@ -21,10 +21,7 @@
                     </h5>
 
 
-                    <button type="button"
-                            class="btn-close"
-                            data-bs-dismiss="modal"
-                            aria-label="Close">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                     </button>
 
                 </div>
@@ -33,9 +30,7 @@
 
                 <div class="modal-body">
 
-
                     {{-- Kode Irban --}}
-
                     <div class="mb-3">
 
                         <label class="form-label">
@@ -43,29 +38,20 @@
                         </label>
 
 
-                        <input type="text"
-                               name="kode"
-                               class="form-control @error('kode') is-invalid @enderror"
-                               placeholder="Contoh : IRBAN-1"
-                               value="{{ old('kode') }}"
-                               required>
+                        <input type="text" name="kode" class="form-control @error('kode') is-invalid @enderror"
+                            placeholder="Contoh : IRBAN-1" value="{{ old('kode') }}" required>
 
 
                         @error('kode')
-
                             <div class="invalid-feedback">
                                 {{ $message }}
                             </div>
-
                         @enderror
 
 
                     </div>
 
-
-
                     {{-- Nama Irban --}}
-
                     <div class="mb-3">
 
                         <label class="form-label">
@@ -73,35 +59,45 @@
                         </label>
 
 
-                        <input type="text"
-                               name="nama_irban"
-                               class="form-control @error('nama_irban') is-invalid @enderror"
-                               placeholder="Contoh : Irban I"
-                               value="{{ old('nama_irban') }}"
-                               required>
+                        <input type="text" name="nama_irban"
+                            class="form-control @error('nama_irban') is-invalid @enderror"
+                            placeholder="Contoh : Irban I" value="{{ old('nama_irban') }}" required>
 
 
                         @error('nama_irban')
-
                             <div class="invalid-feedback">
                                 {{ $message }}
                             </div>
-
                         @enderror
 
 
                     </div>
 
+                    <div class="mb-3">
+                        <label>Nama Pejabat</label>
+                        <input type="text" name="nama_penandatangan" class="form-control"
+                            value="{{ old('nama_penandatangan', $irban->nama_penandatangan ?? '') }}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Golongan</label>
+                        <input type="text" name="jabatan_penandatangan" class="form-control"
+                            value="{{ old('jabatan_penandatangan', $irban->jabatan_penandatangan ?? '') }}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label>NIP</label>
+                        <input type="text" name="nip_penandatangan" class="form-control"
+                            value="{{ old('nip_penandatangan', $irban->nip_penandatangan ?? '') }}">
+                    </div>
 
                     {{-- Status --}}
-
                     <div class="mb-3">
                         <label class="form-label">
                             Status
                         </label>
 
-                        <select name="status"
-                                class="form-select">
+                        <select name="status" class="form-select">
                             <option value="1">
                                 Aktif
                             </option>
@@ -112,20 +108,19 @@
                         </select>
                     </div>
 
+
+
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button"
-                            class="btn btn-secondary"
-                            data-bs-dismiss="modal">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
 
                         <i class="bi bi-x-circle me-1"></i>
                         Batal
 
                     </button>
 
-                    <button type="submit"
-                            class="btn btn-primary">
+                    <button type="submit" class="btn btn-primary">
 
                         <i class="bi bi-save me-1"></i>
                         Simpan

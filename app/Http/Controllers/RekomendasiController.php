@@ -147,10 +147,6 @@ class RekomendasiController extends Controller
     {
         $lhp = $rekomendasi->temuan->lhp;
 
-
-        if (!auth()->user()->canEditLhp($lhp)) {
-            abort(403);
-        }
         return view(
             "pages.pemeriksaan.rekomendasi.edit",
             compact("rekomendasi")

@@ -13,11 +13,11 @@ class Pegawai extends Model
         'nip',
         'jabatan',
         'golongan',
-        'irban_id'
+        'skpd_id',
     ];
 
-    public function irban()
+    public function skpd()
     {
-        return $this->belongsTo(Irban::class);
+        return $this->belongsTo(Skpd::class);
     }
 }

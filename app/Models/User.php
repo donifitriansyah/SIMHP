@@ -93,6 +93,22 @@ class User extends Authenticatable
         return $this->isSuperUser();
     }
 
+    public function canEditTindakLanjut(Lhp $lhp): bool
+    {
+        if ($this->isSuperUser()) {
+            return true;
+        }
+
+        if ($this->isUserView()) {
+            return false;
+        }
+
+        return EditRequest::where('lhp_id', $lhp->id)
+            ->where('user_id', $this->id)
+            ->where('status', 'approved')
+            ->exists();
+    }
+
     public function irban()
     {
         return $this->belongsTo(Irban::class);
@@ -101,24 +117,5 @@ class User extends Authenticatable
     {
         return $this->hasMany(EditRequest::class);
     }
-    public function canEditLhp(Lhp $lhp): bool
-    {
-        // Super User bebas edit
-        if ($this->isSuperUser()) {
-            return true;
-        }
 
-
-        // User View tidak boleh edit
-        if ($this->isUserView()) {
-            return false;
-        }
-
-
-        // User Entry harus memiliki izin edit
-        return EditRequest::where('lhp_id', $lhp->id)
-            ->where('user_id', $this->id)
-            ->where('status', 'approved')
-            ->exists();
-    }
 }

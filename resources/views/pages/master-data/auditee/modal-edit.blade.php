@@ -44,7 +44,7 @@
 
                         <label>
 
-                            Nama Dinas
+                            Nama Instansi
 
                         </label>
 

@@ -9,6 +9,22 @@
             </div>
         @endif
 
+        @if (session('import_errors'))
+            <div class="alert alert-warning">
+
+                <strong>Beberapa data gagal diimport:</strong>
+
+                <ul class="mb-0">
+
+                    @foreach (session('import_errors') as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+
+                </ul>
+
+            </div>
+        @endif
+
         <div class="card shadow-sm border-0">
 
             <div class="card-header bg-white d-flex justify-content-between align-items-center">
@@ -17,12 +33,10 @@
                     Data Pegawai
                 </h5>
 
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambah">
-                    <i class="bi bi-plus-circle"></i>
-                    Tambah Pegawai
-                </button>
 
-                <div class="modal fade" id="modalTambah">
+
+                <!-- Modal Tambah -->
+                <div class="modal fade" id="modalTambah" tabindex="-1">
 
                     <div class="modal-dialog modal-lg">
 
@@ -34,9 +48,12 @@
 
                                 <div class="modal-header">
 
-                                    <h5>Tambah Pegawai</h5>
+                                    <h5 class="modal-title">
+                                        Tambah Pegawai
+                                    </h5>
 
-                                    <button class="btn-close" data-bs-dismiss="modal"></button>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal">
+                                    </button>
 
                                 </div>
 
@@ -46,7 +63,9 @@
 
                                         <div class="col-md-6 mb-3">
 
-                                            <label>Nama</label>
+                                            <label class="form-label">
+                                                Nama Pegawai
+                                            </label>
 
                                             <input type="text" name="nama" class="form-control" required>
 
@@ -54,66 +73,53 @@
 
                                         <div class="col-md-6 mb-3">
 
-                                            <label>NIP</label>
+                                            <label class="form-label">
+                                                NIP
+                                            </label>
 
                                             <input type="text" name="nip" class="form-control" required>
 
                                         </div>
 
-                                        <div class="mb-3">
-                                            <label class="form-label">Jabatan</label>
+                                        <div class="col-md-6 mb-3">
 
-                                            <select name="jabatan" class="form-select" required>
+                                            <label class="form-label">
+                                                Jabatan
+                                            </label>
 
-                                                <option value="">Pilih Jabatan</option>
-
-                                                @php
-                                                    $jabatans = [
-                                                        'Inspektur Kabupaten Ketapang',
-                                                        'Sekretaris',
-                                                        'Inspektur Pembantu I',
-                                                        'Inspektur Pembantu II',
-                                                        'Inspektur Pembantu III',
-                                                        'Inspektur Pembantu IV',
-                                                    ];
-                                                @endphp
-
-                                                @foreach ($jabatans as $jabatan)
-                                                    <option value="{{ $jabatan }}"
-                                                        {{ in_array($jabatan, $jabatanTerpakai) ? 'disabled' : '' }}>
-
-                                                        {{ $jabatan }}
-
-                                                        {{ in_array($jabatan, $jabatanTerpakai) ? '(Sudah Dipakai)' : '' }}
-
-                                                    </option>
-                                                @endforeach
-
-                                            </select>
+                                            <input type="text" name="jabatan" class="form-control"
+                                                placeholder="Masukkan jabatan" required>
 
                                         </div>
 
                                         <div class="col-md-6 mb-3">
 
-                                            <label>Golongan</label>
+                                            <label class="form-label">
+                                                Golongan
+                                            </label>
 
-                                            <input type="text" name="golongan" class="form-control">
+                                            <input type="text" name="golongan" class="form-control"
+                                                placeholder="Contoh : IV/a">
 
                                         </div>
 
-                                        <div class="col-md-12">
+                                        <div class="col-md-12 mb-3">
 
-                                            <label>Irban</label>
+                                            <label class="form-label">
+                                                Satuan Kerja Perangkat Daerah (SKPD)
+                                            </label>
 
-                                            <select name="irban_id" class="form-select">
+                                            <select name="skpd_id" class="form-select">
 
                                                 <option value="">
-                                                    -
+                                                    -- Pilih SKPD --
                                                 </option>
 
-                                                @foreach ($irbans as $irban)
-                                                    <option value="{{ $irban->id }}">
-                                                        {{ $irban->nama_irban }}
+                                                @foreach ($skpds as $skpd)
+                                                    <option value="{{ $skpd->id }}">
+
+                                                        {{ $skpd->nama_skpd }}
+
                                                     </option>
                                                 @endforeach
 
@@ -127,17 +133,112 @@
 
                                 <div class="modal-footer">
 
-                                    <button class="btn btn-secondary" data-bs-dismiss="modal">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
 
                                         Batal
 
                                     </button>
 
-                                    <button class="btn btn-primary">
+                                    <button type="submit" class="btn btn-primary">
+
+                                        <i class="bi bi-save"></i>
 
                                         Simpan
 
                                     </button>
+
+                                </div>
+
+                            </form>
+
+                        </div>
+
+                    </div>
+
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambah">
+                        <i class="bi bi-plus-circle"></i>
+                        Tambah Pegawai
+                    </button>
+
+                    <a href="{{ route('pegawai.template') }}" class="btn btn-success">
+                        <i class="bi bi-download"></i>
+                        Download Template CSV
+                    </a>
+
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#importPegawai">
+                        <i class="bi bi-upload"></i>
+                        Import CSV
+                    </button>
+
+                    <div class="modal fade" id="importPegawai">
+
+                        <div class="modal-dialog">
+
+                            <form action="{{ route('pegawai.import') }}" method="POST" enctype="multipart/form-data">
+
+                                @csrf
+
+                                <div class="modal-content">
+
+                                    <div class="modal-header bg-primary text-white">
+
+                                        <h5 class="modal-title">
+                                            Import Data Pegawai
+                                        </h5>
+
+                                        <button class="btn-close" data-bs-dismiss="modal">
+                                        </button>
+
+                                    </div>
+
+                                    <div class="modal-body">
+
+                                        <div class="alert alert-info">
+
+                                            <strong>Petunjuk :</strong>
+
+                                            <ol class="mb-0">
+
+                                                <li>Download template CSV.</li>
+
+                                                <li>Isi data menggunakan Microsoft Excel.</li>
+
+                                                <li>Pilih <b>Save As → CSV UTF-8 (*.csv)</b>.</li>
+
+                                                <li>Upload file tersebut.</li>
+
+                                            </ol>
+
+                                        </div>
+
+                                        <div class="mb-3">
+
+                                            <label>File CSV</label>
+
+                                            <input type="file" name="file" class="form-control" accept=".csv"
+                                                required>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="modal-footer">
+
+                                        <button class="btn btn-secondary" data-bs-dismiss="modal">
+                                            Batal
+                                        </button>
+
+                                        <button class="btn btn-primary">
+
+                                            <i class="bi bi-upload"></i>
+
+                                            Import
+
+                                        </button>
+
+                                    </div>
 
                                 </div>
 
@@ -155,7 +256,7 @@
 
                 <div class="table-responsive">
 
-                    <table class="table table-bordered table-hover align-middle">
+                    <table class="table table-bordered table-hover align-middle" id="dataTable">
 
                         <thead class="table-light text-center">
 
@@ -165,7 +266,7 @@
                                 <th>NIP</th>
                                 <th>Jabatan</th>
                                 <th>Golongan</th>
-                                <th>Irban</th>
+                                <th>Satuan Kerja Perangkat Daerah</th>
                                 <th width="140">Aksi</th>
                             </tr>
 
@@ -189,7 +290,7 @@
                                     <td>{{ $pegawai->golongan ?? '-' }}</td>
 
                                     <td>
-                                        {{ $pegawai->irban->nama_irban ?? '-' }}
+                                        {{ $pegawai->skpd->nama_skpd ?? '-' }}
                                     </td>
 
                                     <td class="text-center">
@@ -235,11 +336,13 @@
                                                 <div class="modal-header">
 
                                                     <h5 class="modal-title" id="editPegawaiLabel{{ $pegawai->id }}">
+
                                                         Edit Pegawai
+
                                                     </h5>
 
-                                                    <button type="button" class="btn-close"
-                                                        data-bs-dismiss="modal"></button>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal">
+                                                    </button>
 
                                                 </div>
 
@@ -269,41 +372,14 @@
 
                                                         </div>
 
-                                                        <div class="mb-3">
-                                                            <label class="form-label">Jabatan</label>
+                                                        <div class="col-md-6 mb-3">
 
-                                                            <select name="jabatan" class="form-select" required>
+                                                            <label class="form-label">
+                                                                Jabatan
+                                                            </label>
 
-                                                                @php
-                                                                    $jabatans = [
-                                                                        'Inspektur Kabupaten Ketapang',
-                                                                        'Sekretaris',
-                                                                        'Inspektur Pembantu I',
-                                                                        'Inspektur Pembantu II',
-                                                                        'Inspektur Pembantu III',
-                                                                        'Inspektur Pembantu IV',
-                                                                    ];
-                                                                @endphp
-
-                                                                @foreach ($jabatans as $jabatan)
-                                                                    @php
-                                                                        $disabled =
-                                                                            in_array($jabatan, $jabatanTerpakai) &&
-                                                                            $pegawai->jabatan != $jabatan;
-                                                                    @endphp
-
-                                                                    <option value="{{ $jabatan }}"
-                                                                        {{ $pegawai->jabatan == $jabatan ? 'selected' : '' }}
-                                                                        {{ $disabled ? 'disabled' : '' }}>
-
-                                                                        {{ $jabatan }}
-
-                                                                        {{ $disabled ? '(Sudah Dipakai)' : '' }}
-
-                                                                    </option>
-                                                                @endforeach
-
-                                                            </select>
+                                                            <input type="text" name="jabatan" class="form-control"
+                                                                value="{{ $pegawai->jabatan }}" required>
 
                                                         </div>
 
@@ -321,20 +397,20 @@
                                                         <div class="col-md-12 mb-3">
 
                                                             <label class="form-label">
-                                                                Irban
+                                                                Satuan Kerja Perangkat Daerah (SKPD)
                                                             </label>
 
-                                                            <select name="irban_id" class="form-select">
+                                                            <select name="skpd_id" class="form-select">
 
                                                                 <option value="">
-                                                                    -
+                                                                    -- Pilih SKPD --
                                                                 </option>
 
-                                                                @foreach ($irbans as $irban)
-                                                                    <option value="{{ $irban->id }}"
-                                                                        {{ $pegawai->irban_id == $irban->id ? 'selected' : '' }}>
+                                                                @foreach ($skpds as $skpd)
+                                                                    <option value="{{ $skpd->id }}"
+                                                                        {{ $pegawai->skpd_id == $skpd->id ? 'selected' : '' }}>
 
-                                                                        {{ $irban->nama_irban }}
+                                                                        {{ $skpd->nama_skpd }}
 
                                                                     </option>
                                                                 @endforeach
@@ -359,6 +435,7 @@
                                                     <button type="submit" class="btn btn-primary">
 
                                                         <i class="bi bi-check-circle"></i>
+
                                                         Update
 
                                                     </button>

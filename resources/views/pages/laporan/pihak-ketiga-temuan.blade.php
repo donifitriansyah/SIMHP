@@ -135,13 +135,10 @@
                     <tbody>
 
 
-                        @php
-                            $groupPenyedia = $detail->groupBy('nama_penyedia');
-                        @endphp
-
-
-
-                        @foreach ($groupPenyedia as $nama => $items)
+                        @foreach ($detail as $pihakKetigaId => $items)
+                            @php
+                                $penyedia = $items->first()->pihakKetiga;
+                            @endphp
                             <tr>
 
 
@@ -152,7 +149,7 @@
 
 
                                 <td>
-                                    {{ strtoupper($nama) }}
+                                    {{ strtoupper($penyedia->nama_perusahaan ?? '-' ) }}
                                 </td>
 
 

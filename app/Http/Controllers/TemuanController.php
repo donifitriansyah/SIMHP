@@ -7,6 +7,8 @@ use App\Models\DetailTemuanFinansial;
 use App\Models\EditRequest;
 use App\Models\Irban;
 use App\Models\Lhp;
+use App\Models\Pegawai;
+use App\Models\PihakKetiga;
 use App\Models\Temuan;
 use Illuminate\Http\Request;
 
@@ -74,10 +76,15 @@ class TemuanController extends Controller
      */
     public function create(Lhp $lhp)
     {
+        $pegawais = Pegawai::with('skpd')
+            ->orderBy('nama')
+            ->get();
 
+        $pihakKetigas = PihakKetiga::orderBy('nama_perusahaan')
+            ->get();
         return view(
             'pages.pemeriksaan.temuan.create',
-            compact('lhp')
+            compact('lhp', 'pegawais', 'pihakKetigas')
         );
     }
 
@@ -92,8 +99,10 @@ class TemuanController extends Controller
             'uraian_temuan'  => 'required|string',
             'administrasi'   => 'nullable|string',
             'nilai_kerugian' => 'nullable|string',
-            'nama_pelaku'    => 'nullable|string|max:255',
+            'nama_pelaku' => 'nullable|string|max:255',
             'jenis_finansial' => 'nullable|in:pns,penyedia',
+            'detail_finansial.pegawai_id.*' => 'nullable|exists:pegawai,id',
+            'detail_finansial.pihak_ketiga_id.*' => 'nullable|exists:pihak_ketiga,id',
             'detail_finansial.nilai.*' => 'nullable',
         ]);
 
@@ -139,20 +148,21 @@ class TemuanController extends Controller
 
                         'temuan_id' => $temuan->id,
 
-                        'jenis_pihak' =>
-                        $request->jenis_finansial,
+                        'jenis' => $request->jenis_finansial,
 
-
-                        'nama_pihak' =>
+                        'pegawai_id' =>
                         $request->jenis_finansial == 'pns'
-                            ? $request->detail_finansial['nama_pihak'][$index]
-                            : $request->detail_finansial['nama_penyedia'][$index],
+                            ? $request->detail_finansial['pegawai_id'][$index]
+                            : null,
 
+                        'pihak_ketiga_id' =>
+                        $request->jenis_finansial == 'penyedia'
+                            ? $request->detail_finansial['pihak_ketiga_id'][$index]
+                            : null,
 
-                        'nilai_temuan' =>
-                        str_replace(
-                            ['.', ' ,'],
-                            ['', ''],
+                        'nilai_temuan' => str_replace(
+                            ['.', ','],
+                            ['', '.'],
                             $nilai
                         ),
 
@@ -184,11 +194,16 @@ class TemuanController extends Controller
     public function update(Request $request, Temuan $temuan)
     {
         $request->validate([
-            'uraian_temuan'  => 'required|string',
-            'administrasi'   => 'nullable|string',
-            'nilai_kerugian' => 'nullable|string',
-            'nama_pelaku'    => 'nullable|string|max:255',
-            'jenis_finansial' => 'nullable|in:pns,penyedia',
+            'uraian_temuan'      => 'required|string',
+            'administrasi'       => 'nullable|string',
+            'nilai_kerugian'     => 'nullable|string',
+            'nama_pelaku'        => 'nullable|string|max:255',
+
+            'jenis_finansial'    => 'nullable|in:pns,penyedia',
+
+            'detail_finansial.pegawai_id.*'      => 'nullable|exists:pegawais,id',
+            'detail_finansial.pihak_ketiga_id.*' => 'nullable|exists:pihak_ketiga,id',
+            'detail_finansial.nilai.*'           => 'nullable',
         ]);
 
         try {
@@ -196,7 +211,6 @@ class TemuanController extends Controller
             $nilaiKerugian = null;
 
             if ($request->filled('nilai_kerugian')) {
-
                 $nilaiKerugian = str_replace(
                     ['.', ','],
                     ['', '.'],
@@ -217,49 +231,47 @@ class TemuanController extends Controller
         |--------------------------------------------------------------------------
         */
 
-            // Hapus seluruh detail lama
             $temuan->detailFinansial()->delete();
 
             if ($request->filled('jenis_finansial')) {
 
                 $jenis = $request->jenis_finansial;
-
                 $nilaiList = $request->detail_finansial['nilai'] ?? [];
 
                 if ($jenis == 'pns') {
 
-                    $namaList = $request->detail_finansial['nama_pihak'] ?? [];
+                    $pegawaiList = $request->detail_finansial['pegawai_id'] ?? [];
 
-                    foreach ($namaList as $index => $nama) {
+                    foreach ($pegawaiList as $index => $pegawaiId) {
 
-                        if (empty($nama)) {
+                        if (empty($pegawaiId)) {
                             continue;
                         }
 
                         $temuan->detailFinansial()->create([
-                            'jenis' => 'pns',
-                            'nama_pihak' => $nama,
-                            'nama_penyedia' => null,
-                            'nilai_temuan' => str_replace('.', '', $nilaiList[$index] ?? 0),
+                            'jenis'            => 'pns',
+                            'pegawai_id'       => $pegawaiId,
+                            'pihak_ketiga_id'  => null,
+                            'nilai_temuan'     => str_replace('.', '', $nilaiList[$index] ?? 0),
                         ]);
                     }
                 }
 
                 if ($jenis == 'penyedia') {
 
-                    $namaList = $request->detail_finansial['nama_penyedia'] ?? [];
+                    $pihakKetigaList = $request->detail_finansial['pihak_ketiga_id'] ?? [];
 
-                    foreach ($namaList as $index => $nama) {
+                    foreach ($pihakKetigaList as $index => $pihakKetigaId) {
 
-                        if (empty($nama)) {
+                        if (empty($pihakKetigaId)) {
                             continue;
                         }
 
                         $temuan->detailFinansial()->create([
-                            'jenis' => 'penyedia',
-                            'nama_pihak' => null,
-                            'nama_penyedia' => $nama,
-                            'nilai_temuan' => str_replace('.', '', $nilaiList[$index] ?? 0),
+                            'jenis'            => 'penyedia',
+                            'pegawai_id'       => null,
+                            'pihak_ketiga_id'  => $pihakKetigaId,
+                            'nilai_temuan'     => str_replace('.', '', $nilaiList[$index] ?? 0),
                         ]);
                     }
                 }
@@ -276,11 +288,11 @@ class TemuanController extends Controller
                 ]);
 
             ActivityLog::create([
-                'user_id' => auth()->id(),
-                'aksi' => 'Edit',
-                'modul' => 'Temuan',
+                'user_id'      => auth()->id(),
+                'aksi'         => 'Edit',
+                'modul'        => 'Temuan',
                 'referensi_id' => $temuan->id,
-                'deskripsi' => 'Mengedit Temuan pada LHP ' . $temuan->lhp->nomor_lhp,
+                'deskripsi'    => 'Mengedit Temuan pada LHP ' . $temuan->lhp->nomor_lhp,
             ]);
 
             return redirect()
@@ -302,12 +314,16 @@ class TemuanController extends Controller
     public function edit(Temuan $temuan)
     {
         $lhp = $temuan->lhp;
-        if (!auth()->user()->canEditLhp($lhp)) {
-            abort(403);
-        }
+        $pegawais = Pegawai::with('skpd')->orderBy('nama')->get();
+        $pihakKetigas = PihakKetiga::orderBy('nama_perusahaan')->get();
+        
         return view(
             'pages.pemeriksaan.temuan.edit',
-            compact('temuan')
+            compact(
+                'temuan',
+                'pegawais',
+                'pihakKetigas'
+            )
         );
     }
 

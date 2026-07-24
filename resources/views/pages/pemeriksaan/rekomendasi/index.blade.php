@@ -23,6 +23,7 @@
         </div>
 
         {{-- Filter --}}
+        @if (!auth()->user()->isUserView())
         <div class="card border-0 shadow-sm mb-4">
 
             <div class="card-body">
@@ -33,7 +34,7 @@
 
                     <div class="row">
 
-                        @if (!auth()->user()->isUserView())
+
                             <div class="col-md-4">
 
                                 <label class="form-label">
@@ -58,7 +59,7 @@
                                 </select>
 
                             </div>
-                        @endif
+
 
                         <div class="col-md-2 d-flex align-items-end">
 
@@ -89,6 +90,7 @@
             </div>
 
         </div>
+        @endif
 
         {{-- Table --}}
         <div class="card border-0 shadow-sm">
@@ -188,7 +190,7 @@
                                         @auth
 
                                             {{-- Edit --}}
-                                            @if (auth()->user()->canEditLhp($rekomendasi->temuan->lhp))
+                                            @if (auth()->user()->canEditTindakLanjut($rekomendasi->temuan->lhp))
                                                 <a href="{{ route('rekomendasi.edit', $rekomendasi->id) }}"
                                                     class="btn btn-warning btn-sm mb-1">
 

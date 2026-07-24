@@ -354,7 +354,7 @@
 
 
                             <label class="text-muted">
-                                Uraian Temuan
+                                Uraian Penyebab
                             </label>
 
 
@@ -491,7 +491,7 @@
                             <div class="col-md-12 mb-2">
 
                                 <label class="text-muted">
-                                    Uraian Penyebab
+                                    Uraian Rekomendasi
                                 </label>
 
 

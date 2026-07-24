@@ -250,7 +250,7 @@ class TindakLanjutController extends Controller
             ->lhp;
 
 
-        if (!auth()->user()->canEditLhp($lhp)) {
+        if (!auth()->user()->canEditTindakLanjut($lhp)) {
             abort(403);
         }
 
@@ -383,11 +383,12 @@ class TindakLanjutController extends Controller
 
         $lhp->updateStatusLhp();
 
-        EditRequest::where('lhp_id', $tindakLanjut->rekomendasi->temuan->lhp_id)
+        EditRequest::where('lhp_id', $lhp->id)
             ->where('user_id', auth()->id())
             ->where('status', 'approved')
             ->update([
-                'edit_tindak_lanjut' => true
+                'status' => 'completed',
+                'edit_tindak_lanjut' => true,
             ]);
 
         ActivityLog::create([

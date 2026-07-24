@@ -15,77 +15,35 @@
             </div>
 
             <div>
-
-                <a href="{{ url()->previous() }}" class="btn btn-secondary">
-
-                    <i class="bi bi-arrow-left"></i>
-                    Kembali
-
-                </a>
-
-                @auth
-                    @if (auth()->user()->isSuperUser())
-                        <a href="{{ route('lhp.cetak', $lhp->id) }}" target="_blank" class="btn btn-danger">
-
-                            <i class="bi bi-printer"></i>
-                            Cetak PDF
-
-                        </a>
-                    @endif
-                @endauth
-
                 <div class="d-flex gap-2 mt-2">
+                    <a href="{{ url()->previous() }}" class="btn btn-secondary">
+
+                        <i class="bi bi-arrow-left"></i>
+                        Kembali
+
+                    </a>
 
                     @auth
-
-                        {{-- Super User --}}
                         @if (auth()->user()->isSuperUser())
+                            <a href="{{ route('lhp.cetak', $lhp->id) }}" target="_blank" class="btn btn-danger">
+
+                                <i class="bi bi-printer"></i>
+                                Cetak PDF
+
+                            </a>
+                        @endif
+                    @endauth
+
+
+
+                    @auth
+                        @if (auth()->user()->isSuperUser() || auth()->user()->isUserEntry())
                             <a href="{{ route('lhp.edit', $lhp->id) }}" class="btn btn-warning">
 
                                 <i class="bi bi-pencil"></i>
                                 Edit LHP
 
                             </a>
-
-                            {{-- User Entry --}}
-                        @elseif(auth()->user()->isUserEntry())
-                            @if ($editRequest && $editRequest->status == 'approved')
-                                <a href="{{ route('lhp.edit', $lhp->id) }}" class="btn btn-warning">
-
-                                    <i class="bi bi-pencil"></i>
-                                    Edit LHP
-
-                                </a>
-
-                                <form action="{{ route('edit-requests.complete', $editRequest->id) }}" method="POST"
-                                    class="d-inline">
-
-                                    @csrf
-                                    @method('PUT')
-
-                                    <button type="submit" class="btn btn-success"
-                                        onclick="return confirm('Selesaikan proses edit?')">
-
-                                        <i class="bi bi-check-circle"></i>
-                                        Selesai Edit
-
-                                    </button>
-
-                                </form>
-                            @elseif($editRequest && $editRequest->status == 'pending')
-                                <button class="btn btn-secondary" disabled>
-                                    <i class="bi bi-clock"></i>
-                                    Menunggu Persetujuan Admin
-                                </button>
-                            @else
-                                <button type="button" class="btn btn-warning" data-bs-toggle="modal"
-                                    data-bs-target="#requestEditModal{{ $lhp->id }}">
-
-                                    <i class="bi bi-pencil"></i>
-                                    Minta Akses Edit
-
-                                </button>
-                            @endif
                         @endif
 
                     @endauth
@@ -109,7 +67,7 @@
 
                                     <h5 class="modal-title">
 
-                                        Permintaan Akses Edit
+                                        Permintaan Akses Edit Tindak Lanjut
 
                                     </h5>
 
@@ -121,9 +79,10 @@
 
                                     <div class="alert alert-warning">
 
-                                        Setelah LHP disimpan, data tidak dapat diedit kembali.
-                                        Jika terdapat kesalahan, silakan ajukan permintaan akses edit
-                                        kepada Administrator.
+                                        Data Tindak Lanjut hanya dapat diubah setelah memperoleh
+                                        persetujuan dari Administrator.
+
+                                        Silakan isi alasan permintaan edit di bawah ini.
 
                                     </div>
 
@@ -136,7 +95,7 @@
                                         </label>
 
                                         <textarea name="alasan" class="form-control" rows="4" required
-                                            placeholder="Contoh: Salah memasukkan nilai temuan, salah memilih auditee, dll."></textarea>
+                                            placeholder="Contoh: Perlu memperbaiki dokumen tindak lanjut, status tindak lanjut, nilai pengembalian, dll."></textarea>
 
                                     </div>
 
@@ -497,7 +456,7 @@
 
                                                 <div class="col-md-12">
 
-                                                    <label class="text-muted"> Uraian Temuan </label>
+                                                    <label class="text-muted"> Uraian Penyebab </label>
 
                                                     <p> {{ $temuan->uraian_temuan }} </p>
 
@@ -562,7 +521,7 @@
                                                                         </td>
 
                                                                         <td>
-                                                                            {{ $detail->jenis == 'pns' ? $detail->nama_pihak : $detail->nama_penyedia }}
+                                                                            {{ $detail->jenis == 'pns' ? $detail->pegawai?->nama ?? '-' : $detail->pihakKetiga?->nama_perusahaan ?? '-' }}
                                                                         </td>
 
                                                                         <td class="text-end">
@@ -605,7 +564,7 @@
                                             </div>
                                             @auth
 
-                                                @if (auth()->user()->canEditLhp($lhp))
+                                                @if (in_array(auth()->user()->role, ['super_user', 'user_entry']))
                                                     <a href="{{ route('temuan.edit', $temuan->id) }}"
                                                         class="btn btn-warning btn-sm">
 
@@ -615,23 +574,6 @@
                                                     </a>
                                                 @endif
 
-
-                                                @if (auth()->user()->role == 'super_user')
-                                                    <form action="{{ route('temuan.destroy', $temuan->id) }}" method="POST"
-                                                        class="d-inline" onsubmit="return confirm('Hapus temuan ini?')">
-
-                                                        @csrf
-                                                        @method('DELETE')
-
-                                                        <button type="submit" class="btn btn-sm btn-danger">
-
-                                                            <i class="bi bi-trash"></i>
-                                                            Hapus
-
-                                                        </button>
-
-                                                    </form>
-                                                @endif
 
                                             @endauth
 
@@ -690,7 +632,7 @@
 
                                                     <label class="text-muted">
 
-                                                        Uraian Penyebab
+                                                        Uraian Rekomendasi
 
                                                     </label>
 
@@ -756,19 +698,16 @@
                                                 </div>
                                                 @auth
 
-                                                    {{-- Edit Rekomendasi --}}
-                                                    @if (auth()->user()->canEditLhp($lhp))
-                                                        @if ($temuan->rekomendasis->count() > 0)
-                                                            <a href="{{ route('rekomendasi.edit', $temuan->rekomendasis->first()->id) }}"
-                                                                class="btn btn-warning btn-sm">
 
-                                                                <i class="fas fa-edit"></i>
-                                                                Edit Rekomendasi
+                                                    @if (in_array(auth()->user()->role, ['super_user', 'user_entry']))
+                                                        <a href="{{ route('rekomendasi.edit', $temuan->rekomendasis->first()->id) }}"
+                                                            class="btn btn-warning btn-sm">
 
-                                                            </a>
-                                                        @endif
+                                                            <i class="fas fa-edit"></i>
+                                                            Edit Rekomendasi
+
+                                                        </a>
                                                     @endif
-
                                                     {{-- Hapus hanya Super User --}}
                                                     @if (auth()->user()->isSuperUser())
                                                         @if ($temuan->rekomendasis->count() > 0)
@@ -929,12 +868,19 @@
                                                                 @endforelse
 
                                                             </ul>
+                                                            @php
+                                                                $editRequest = \App\Models\EditRequest::where(
+                                                                    'lhp_id',
+                                                                    $lhp->id,
+                                                                )
+                                                                    ->where('user_id', auth()->id())
+                                                                    ->latest()
+                                                                    ->first();
+                                                            @endphp
                                                             @auth
 
-
-
-                                                                {{-- Edit --}}
-                                                                @if (auth()->user()->canEditLhp($lhp))
+                                                                {{-- SUPER USER --}}
+                                                                @if (auth()->user()->isSuperUser())
                                                                     <a href="{{ route('tindak-lanjut.edit', $tl->id) }}"
                                                                         class="btn btn-warning btn-sm">
 
@@ -942,7 +888,40 @@
                                                                         Edit TL
 
                                                                     </a>
+
+                                                                    {{-- USER ENTRY --}}
+                                                                @elseif(auth()->user()->isUserEntry())
+                                                                    @if ($editRequest && $editRequest->status == 'approved')
+                                                                        <a href="{{ route('tindak-lanjut.edit', $tl->id) }}"
+                                                                            class="btn btn-warning btn-sm">
+
+                                                                            <i class="fas fa-edit"></i>
+                                                                            Edit TL
+
+                                                                        </a>
+                                                                    @elseif($editRequest && $editRequest->status == 'pending')
+                                                                        <button class="btn btn-secondary btn-sm" disabled>
+
+                                                                            <i class="bi bi-clock"></i>
+
+                                                                            Menunggu Persetujuan
+
+                                                                        </button>
+                                                                    @else
+                                                                        <button type="button" class="btn btn-primary btn-sm"
+                                                                            data-bs-toggle="modal"
+                                                                            data-bs-target="#requestEditModal{{ $lhp->id }}">
+
+                                                                            <i class="bi bi-pencil-square"></i>
+
+                                                                            Minta Akses Edit
+
+                                                                        </button>
+                                                                    @endif
                                                                 @endif
+
+                                                            @endauth
+                                                            @auth
 
                                                                 {{-- Hapus hanya Super User --}}
                                                                 @if (auth()->user()->isSuperUser())
