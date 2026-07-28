@@ -24,7 +24,7 @@
                     </a>
 
                     @auth
-                        @if (auth()->user()->isSuperUser())
+                        @if (auth()->user()->isSuperUser()|| auth()->user()->isUserEntry())
                             <a href="{{ route('lhp.cetak', $lhp->id) }}" target="_blank" class="btn btn-danger">
 
                                 <i class="bi bi-printer"></i>
@@ -516,13 +516,9 @@
 
                                                                         <td>{{ $loop->iteration }}</td>
 
-                                                                        <td>
-                                                                            {{ $detail->jenis == 'pns' ? 'PNS' : 'Penyedia' }}
-                                                                        </td>
+                                                                        <td>{{ $detail->jenis_label }}</td>
 
-                                                                        <td>
-                                                                            {{ $detail->jenis == 'pns' ? $detail->pegawai?->nama ?? '-' : $detail->pihakKetiga?->nama_perusahaan ?? '-' }}
-                                                                        </td>
+                                                                        <td>{{ $detail->nama_pihak }}</td>
 
                                                                         <td class="text-end">
                                                                             Rp
@@ -573,6 +569,23 @@
 
                                                     </a>
                                                 @endif
+                                                @if (auth()->user()->isSuperUser())
+                                                    <form action="{{ route('temuan.destroy', $temuan->id) }}" method="POST"
+                                                        class="d-inline"
+                                                        onsubmit="return confirm('Yakin ingin menghapus temuan ini?')">
+
+                                                        @csrf
+                                                        @method('DELETE')
+
+                                                        <button type="submit" class="btn btn-danger btn-sm">
+
+                                                            <i class="bi bi-trash"></i>
+                                                            Hapus Temuan
+
+                                                        </button>
+
+                                                    </form>
+                                                @endif
 
 
                                             @endauth
@@ -595,17 +608,15 @@
                                         </h6>
 
                                         @auth
-                                            {{-- Tombol Tambah Rekomendasi hanya jika belum ada --}}
+
                                             @if (in_array(auth()->user()->role, ['super_user', 'user_entry']))
-                                                @if ($temuan->rekomendasis->count() == 0)
-                                                    <a href="{{ route('rekomendasi.create', $temuan->id) }}"
-                                                        class="btn btn-primary btn-sm">
+                                                <a href="{{ route('rekomendasi.create', $temuan->id) }}"
+                                                    class="btn btn-primary btn-sm">
 
-                                                        <i class="bi bi-plus"></i>
-                                                        Tambah Rekomendasi
+                                                    <i class="bi bi-plus"></i>
+                                                    Tambah Rekomendasi
 
-                                                    </a>
-                                                @endif
+                                                </a>
                                             @endif
 
                                         @endauth
@@ -646,21 +657,6 @@
 
                                                 <div class="row">
 
-                                                    <div class="col-md-6">
-
-                                                        <label class="text-muted">
-
-                                                            Uraian Administrasi
-
-                                                        </label>
-
-                                                        <p>
-
-                                                            {{ $rekomendasi->administrasi ?? '-' }}
-
-                                                        </p>
-
-                                                    </div>
 
                                                     <div class="col-md-12">
 

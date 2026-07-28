@@ -17,7 +17,6 @@ class Rekomendasi extends Model
 
         'temuan_id',
         'uraian_rekomendasi',
-        'administrasi',
         'nilai_finansial',
         'nilai_pajak'
 

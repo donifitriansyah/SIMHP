@@ -233,7 +233,7 @@
                 <br>
 
 
-                Inspektur Kabupaten Ketapang
+                INSPEKTUR KABUPATEN KETAPANG
 
 
                 <br><br><br><br>

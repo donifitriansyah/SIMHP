@@ -144,7 +144,7 @@
                         </div>
 
                         @php
-                            $jenis = $temuan->detailFinansial->first()->jenis ?? '';
+                            $jenis = old('jenis_finansial', $temuan->detailFinansial->first()?->jenis);
                         @endphp
                         {{-- Jenis Detail Finansial --}}
                         <div class="col-md-12 mb-3">
@@ -161,15 +161,21 @@
                                     PNS
                                 </option>
 
+                                <option value="perangkat_desa" {{ $jenis == 'perangkat_desa' ? 'selected' : '' }}>
+                                    Perangkat Desa
+                                </option>
+
                                 <option value="penyedia" {{ $jenis == 'penyedia' ? 'selected' : '' }}>
                                     Penyedia
+                                </option>
+
+                                <option value="pihak_lain" {{ $jenis == 'pihak_lain' ? 'selected' : '' }}>
+                                    Pihak Lain
                                 </option>
 
                             </select>
 
                         </div>
-
-
                         {{-- Detail Finansial --}}
                         <div class="col-md-12" id="detail_finansial" style="display:none">
 
@@ -197,7 +203,7 @@
 
                                     <div id="list_detail">
 
-                                        @foreach ($temuan->detailFinansial as $detail)
+                                        @foreach ($temuan->detailFinansial->where('jenis', $jenis) as $detail)
                                             <div class="row mb-3 detail-row">
 
                                                 @if ($detail->jenis == 'pns')
@@ -214,6 +220,7 @@
                                                                     {{ $detail->pegawai_id == $pegawai->id ? 'selected' : '' }}>
 
                                                                     {{ $pegawai->nama }}
+
                                                                     @if ($pegawai->skpd)
                                                                         - {{ $pegawai->skpd->nama_skpd }}
                                                                     @endif
@@ -224,21 +231,71 @@
                                                         </select>
 
                                                     </div>
-                                                @else
+                                                @elseif ($detail->jenis == 'perangkat_desa')
                                                     <div class="col-md-7">
 
-                                                        <label>Pihak Ketiga</label>
+                                                        <label>Perangkat Desa</label>
+
+                                                        <select name="detail_finansial[perangkat_desa_id][]"
+                                                            class="form-select">
+
+                                                            <option value="">
+                                                                Pilih Perangkat Desa
+                                                            </option>
+
+                                                            @foreach ($perangkatDesas as $desa)
+                                                                <option value="{{ $desa->id }}"
+                                                                    {{ $detail->perangkat_desa_id == $desa->id ? 'selected' : '' }}>
+
+                                                                    {{ $desa->nama }}
+
+                                                                </option>
+                                                            @endforeach
+
+                                                        </select>
+
+                                                    </div>
+                                                @elseif ($detail->jenis == 'penyedia')
+                                                    <div class="col-md-7">
+
+                                                        <label>Penyedia</label>
 
                                                         <select name="detail_finansial[pihak_ketiga_id][]"
                                                             class="form-select">
 
-                                                            <option value="">Pilih Penyedia</option>
+                                                            <option value="">
+                                                                Pilih Penyedia
+                                                            </option>
 
                                                             @foreach ($pihakKetigas as $pihak)
                                                                 <option value="{{ $pihak->id }}"
                                                                     {{ $detail->pihak_ketiga_id == $pihak->id ? 'selected' : '' }}>
 
                                                                     {{ $pihak->nama_perusahaan }}
+
+                                                                </option>
+                                                            @endforeach
+
+                                                        </select>
+
+                                                    </div>
+                                                @elseif ($detail->jenis == 'pihak_lain')
+                                                    <div class="col-md-7">
+
+                                                        <label>Pihak Lain</label>
+
+                                                        <select name="detail_finansial[pihak_lain_id][]"
+                                                            class="form-select">
+
+                                                            <option value="">
+                                                                Pilih Pihak Lain
+                                                            </option>
+
+                                                            @foreach ($pihakLains as $pihak)
+                                                                <option value="{{ $pihak->id }}"
+                                                                    {{ $detail->pihak_lain_id == $pihak->id ? 'selected' : '' }}>
+
+                                                                    {{ $pihak->nama }}
 
                                                                 </option>
                                                             @endforeach
@@ -328,6 +385,8 @@
     <script>
         const pegawais = @json($pegawais);
         const pihakKetigas = @json($pihakKetigas);
+        const perangkatDesas = @json($perangkatDesas);
+        const pihakLains = @json($pihakLains);
         const input = document.getElementById('nilai_kerugian');
 
         if (input) {
@@ -383,26 +442,37 @@
         let tombolTambah = document.getElementById('tambah_detail');
 
 
-        if (jenisFinansial.value !== '') {
+        document.addEventListener('DOMContentLoaded', function() {
 
-            detailBox.style.display = 'block';
+            if (jenisFinansial.value !== '') {
 
-        }
-        jenisFinansial.addEventListener('change', function() {
+                detailBox.style.display = 'block';
 
-            detailBox.style.display = this.value ? 'block' : 'none';
-
-            if (this.value) {
-                listDetail.innerHTML = '';
-                tambahBaris();
-            } else {
-                listDetail.innerHTML = '';
             }
 
         });
+        tombolTambah.addEventListener('click', function() {
+
+    tambahBaris();
+
+});
+        jenisFinansial.addEventListener('change', function() {
+
+            detailBox.style.display = this.value ?
+                'block' :
+                'none';
 
 
+            listDetail.innerHTML = '';
 
+
+            if (this.value) {
+
+                tambahBaris();
+
+            }
+
+        });
 
         tombolTambah.addEventListener('click', function() {
 
@@ -410,19 +480,11 @@
 
         });
 
-
-
-
-
         function tambahBaris() {
-
 
             let jenis = jenisFinansial.value;
 
-
             let html = '';
-
-
 
             if (jenis === 'pns') {
 
@@ -431,117 +493,243 @@
                 pegawais.forEach(function(item) {
 
                     optionPegawai += `
-            <option value="${item.id}">
-                ${item.nama} ${item.skpd ? '- ' + item.skpd.nama_skpd : ''}
-            </option>
-        `;
+                <option value="${item.id}">
+                    ${item.nama}
+                    ${item.skpd ? '- '+item.skpd.nama_skpd : ''}
+                </option>
+            `;
 
                 });
 
+
                 html = `
+        <div class="row mb-3 detail-row">
 
-    <div class="row mb-3 detail-row">
+            <div class="col-md-7">
+                <label>Pegawai</label>
 
-        <div class="col-md-7">
+                <select
+                    name="detail_finansial[pegawai_id][]"
+                    class="form-select">
 
-            <label>Pegawai</label>
+                    ${optionPegawai}
 
-            <select
-                name="detail_finansial[pegawai_id][]"
-                class="form-select"
-                required>
+                </select>
 
-                ${optionPegawai}
+            </div>
 
-            </select>
+
+            <div class="col-md-4">
+
+                <label>Nilai Temuan</label>
+
+                <input
+                    type="text"
+                    name="detail_finansial[nilai][]"
+                    class="form-control">
+
+            </div>
+
+
+            <div class="col-md-1 d-flex align-items-end">
+
+                <button type="button"
+                    class="btn btn-danger hapus-detail">
+                    <i class="bi bi-trash"></i>
+                </button>
+
+            </div>
 
         </div>
+        `;
 
-        <div class="col-md-4">
+            } else if (jenis === 'perangkat_desa') {
 
-            <label>Nilai Temuan</label>
 
-            <input
+                let optionDesa = '<option value="">Pilih Perangkat Desa</option>';
+
+
+                perangkatDesas.forEach(function(item) {
+
+                    optionDesa += `
+                <option value="${item.id}">
+                    ${item.nama}
+                </option>
+            `;
+
+                });
+
+
+
+                html = `
+        <div class="row mb-3 detail-row">
+
+            <div class="col-md-7">
+
+                <label>Perangkat Desa</label>
+
+                <select
+                    name="detail_finansial[perangkat_desa_id][]"
+                    class="form-select">
+
+                    ${optionDesa}
+
+                </select>
+
+            </div>
+
+
+            <div class="col-md-4">
+
+                <label>Nilai Temuan</label>
+
+                <input
                 type="text"
                 name="detail_finansial[nilai][]"
-                class="form-control"
-                placeholder="Nilai">
+                class="form-control">
 
-        </div>
+            </div>
 
-        <div class="col-md-1 d-flex align-items-end">
 
-            <button
-                type="button"
+            <div class="col-md-1 d-flex align-items-end">
+
+                <button type="button"
                 class="btn btn-danger hapus-detail">
 
                 <i class="bi bi-trash"></i>
 
-            </button>
+                </button>
+
+            </div>
+
 
         </div>
+        `;
 
-    </div>
-    `;
+
             } else if (jenis === 'penyedia') {
 
+
                 let optionPihak = '<option value="">Pilih Penyedia</option>';
+
 
                 pihakKetigas.forEach(function(item) {
 
                     optionPihak += `
-            <option value="${item.id}">
-                ${item.nama_perusahaan}
-            </option>
-        `;
+                <option value="${item.id}">
+                    ${item.nama_perusahaan}
+                </option>
+            `;
 
                 });
 
+
                 html = `
+        <div class="row mb-3 detail-row">
 
-    <div class="row mb-3 detail-row">
+            <div class="col-md-7">
 
-        <div class="col-md-7">
+                <label>Penyedia</label>
 
-            <label>Penyedia</label>
-
-            <select
+                <select
                 name="detail_finansial[pihak_ketiga_id][]"
-                class="form-select"
-                required>
+                class="form-select">
 
-                ${optionPihak}
+                    ${optionPihak}
 
-            </select>
+                </select>
 
-        </div>
+            </div>
 
-        <div class="col-md-4">
 
-            <label>Nilai Temuan</label>
+            <div class="col-md-4">
 
-            <input
+                <label>Nilai Temuan</label>
+
+                <input
                 type="text"
                 name="detail_finansial[nilai][]"
-                class="form-control"
-                placeholder="Nilai">
+                class="form-control">
 
-        </div>
+            </div>
 
-        <div class="col-md-1 d-flex align-items-end">
 
-            <button
-                type="button"
+            <div class="col-md-1 d-flex align-items-end">
+
+                <button type="button"
                 class="btn btn-danger hapus-detail">
 
                 <i class="bi bi-trash"></i>
 
-            </button>
+                </button>
+
+            </div>
 
         </div>
+        `;
 
-    </div>
-    `;
+
+            } else if (jenis === 'pihak_lain') {
+
+
+                let optionLain = '<option value="">Pilih Pihak Lain</option>';
+
+
+                pihakLains.forEach(function(item) {
+
+                    optionLain += `
+                <option value="${item.id}">
+                    ${item.nama}
+                </option>
+            `;
+
+                });
+
+
+                html = `
+        <div class="row mb-3 detail-row">
+
+            <div class="col-md-7">
+
+                <label>Pihak Lain</label>
+
+                <select
+                name="detail_finansial[pihak_lain_id][]"
+                class="form-select">
+
+                    ${optionLain}
+
+                </select>
+
+            </div>
+
+
+            <div class="col-md-4">
+
+                <label>Nilai Temuan</label>
+
+                <input
+                type="text"
+                name="detail_finansial[nilai][]"
+                class="form-control">
+
+            </div>
+
+
+            <div class="col-md-1 d-flex align-items-end">
+
+                <button type="button"
+                class="btn btn-danger hapus-detail">
+
+                <i class="bi bi-trash"></i>
+
+                </button>
+
+            </div>
+
+        </div>
+        `;
+
             }
 
 
@@ -550,13 +738,7 @@
                 html
             );
 
-
-
         }
-
-
-
-
 
         document.addEventListener('click', function(e) {
 

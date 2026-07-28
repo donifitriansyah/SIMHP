@@ -1,39 +1,46 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    public function up()
+    public function up(): void
     {
-        Schema::table('lhp', function (Blueprint $table) {
+        DB::statement("
+    ALTER TABLE lhp
+    MODIFY COLUMN status_proses
+    ENUM(
+        'tt',
+        'belum_ditindaklanjuti',
+        'dalam_proses',
+        'selesai'
+    )
+    DEFAULT 'belum_ditindaklanjuti'
+");
 
-            $table->enum('status_proses', [
 
-                'nihil',
-                'belum_diproses',
-                'dalam_proses',
-                'selesai'
-
-            ])
-                ->default('belum_diproses')
-                ->after('status_lhp');
-        });
+        // ubah data lama jika sudah ada
+        DB::table('lhp')
+            ->where('status_proses', 'nihil')
+            ->update([
+                'status_proses' => 'tt'
+            ]);
     }
 
 
-
-    public function down()
+    public function down(): void
     {
-        Schema::table('lhp', function (Blueprint $table) {
-
-            $table->dropColumn('status_proses');
-        });
+        DB::statement("
+    ALTER TABLE lhp
+    MODIFY COLUMN status_proses
+    ENUM(
+        'tt',
+        'belum_ditindaklanjuti',
+        'dalam_proses',
+        'selesai'
+    )
+    DEFAULT 'belum_ditindaklanjuti'
+");
     }
-    
 };

@@ -199,20 +199,36 @@ class LhpController extends Controller
 
             'total' => (clone $statistikQuery)->count(),
 
-            'nihil' => (clone $statistikQuery)
-                ->where('status_proses', 'nihil')
+
+            'belum_ditindaklanjuti' => (clone $statistikQuery)
+                ->where(
+                    'status_proses',
+                    'belum_ditindaklanjuti'
+                )
                 ->count(),
 
-            'belum_proses' => (clone $statistikQuery)
-                ->where('status_proses', 'belum_diproses')
-                ->count(),
 
             'dalam_proses' => (clone $statistikQuery)
-                ->where('status_proses', 'dalam_proses')
+                ->where(
+                    'status_proses',
+                    'dalam_proses'
+                )
                 ->count(),
 
+
             'selesai' => (clone $statistikQuery)
-                ->where('status_proses', 'selesai')
+                ->where(
+                    'status_proses',
+                    'selesai'
+                )
+                ->count(),
+
+
+            'tt' => (clone $statistikQuery)
+                ->where(
+                    'status_proses',
+                    'tt'
+                )
                 ->count(),
 
         ];
@@ -233,6 +249,30 @@ class LhpController extends Controller
                 'irbans',
                 'jenis'
             )
+        );
+    }
+
+    public function tetapkanTT(Lhp $lhp)
+    {
+        $lhp->update([
+            'status_proses' => 'tt'
+        ]);
+
+
+        ActivityLog::create([
+            'user_id' => auth()->id(),
+            'aksi' => 'Edit',
+            'modul' => 'LHP',
+            'referensi_id' => $lhp->id,
+            'deskripsi' =>
+            'Menetapkan LHP ' . $lhp->nomor_lhp .
+                ' sebagai Tidak Dapat Ditindaklanjuti'
+        ]);
+
+
+        return back()->with(
+            'success',
+            'LHP berhasil ditetapkan sebagai Tidak Dapat Ditindaklanjuti.'
         );
     }
 
@@ -384,9 +424,9 @@ class LhpController extends Controller
 
         switch ($status) {
 
-            case 'nihil':
+            case 'tt':
 
-                $query->where('status_proses', 'nihil');
+                $query->where('status_proses', 'tt');
 
                 break;
 
@@ -551,7 +591,7 @@ class LhpController extends Controller
 
             'status_lhp'           => 'tidak_lengkap',
 
-            'status_proses'        => 'belum_diproses',
+            'status_proses' => 'belum_ditindaklanjuti',
 
         ]);
 
@@ -601,7 +641,11 @@ class LhpController extends Controller
             'pejabatAuditee',
             'pihakKetiga',
             'temuans.rekomendasis.tindakLanjut',
-            'dokumen'
+            'dokumen',
+            'temuans.detailFinansial.pegawai',
+            'temuans.detailFinansial.perangkatDesa',
+            'temuans.detailFinansial.pihakKetiga',
+            'temuans.detailFinansial.pihakLain',
         ]);
 
         $editRequest = EditRequest::where('lhp_id', $lhp->id)
@@ -630,8 +674,20 @@ class LhpController extends Controller
             'auditee',
             'pejabatAuditee',
             'pihakKetiga',
+
+            // Temuan
+            'temuans.detailFinansial.pegawai',
+            'temuans.detailFinansial.perangkatDesa',
+            'temuans.detailFinansial.pihakKetiga',
+            'temuans.detailFinansial.pihakLain',
+
+            // Banyak Rekomendasi
+            'temuans.rekomendasis',
+
+            // Banyak Tindak Lanjut
             'temuans.rekomendasis.tindakLanjut.status',
             'temuans.rekomendasis.tindakLanjut.dokumen',
+
             'dokumen'
         ]);
 

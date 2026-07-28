@@ -370,7 +370,6 @@
 
                     <select name="jenis_pemeriksaan" class="form-select" required>
 
-
                         <option value="">
                             Pilih Jenis Pemeriksaan
                         </option>
@@ -386,8 +385,23 @@
                         </option>
 
 
-                        <option value="Kasus">
-                            Kasus
+                        <option value="KASUS">
+                            KASUS
+                        </option>
+
+
+                        <option value="KINERJA">
+                            KINERJA
+                        </option>
+
+
+                        <option value="KETAATAN">
+                            KETAATAN
+                        </option>
+
+
+                        <option value="SPI">
+                            SPI
                         </option>
 
 

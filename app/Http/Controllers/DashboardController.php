@@ -60,40 +60,26 @@ class DashboardController extends Controller
         )->sum('nilai_pengembalian');
 
         $belumDitindaklanjuti = (clone $lhpQuery)
-    ->where('status_proses', 'belum_diproses')
-    ->count();
+            ->where('status_proses', 'belum_ditindaklanjuti')
+            ->count();
+
 
         $statusLhp = [
 
-            'selesai' => (clone $lhpQuery)
-                ->where(
-                    'status_proses',
-                    'selesai'
-                )
+            'belum_ditindaklanjuti' => (clone $lhpQuery)
+                ->where('status_proses', 'belum_ditindaklanjuti')
                 ->count(),
-
 
             'dalam_proses' => (clone $lhpQuery)
-                ->where(
-                    'status_proses',
-                    'dalam_proses'
-                )
+                ->where('status_proses', 'dalam_proses')
                 ->count(),
 
-
-            'belum_proses' => (clone $lhpQuery)
-                ->where(
-                    'status_proses',
-                    'belum_diproses'
-                )
+            'selesai' => (clone $lhpQuery)
+                ->where('status_proses', 'selesai')
                 ->count(),
 
-
-            'nihil' => (clone $lhpQuery)
-                ->where(
-                    'status_proses',
-                    'nihil'
-                )
+            'tt' => (clone $lhpQuery)
+                ->where('status_proses', 'tt')
                 ->count(),
 
         ];

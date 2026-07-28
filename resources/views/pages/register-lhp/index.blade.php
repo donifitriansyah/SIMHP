@@ -191,10 +191,6 @@
                                 </th>
 
                                 <th>
-                                    Objek Pemeriksaan
-                                </th>
-
-                                <th>
                                     Dana Diperiksa
                                 </th>
 
@@ -203,7 +199,7 @@
                                 </th>
 
                                 <th>
-                                    Temuan
+                                    Objek Pemeriksaan
                                 </th>
 
                                 <th>
@@ -297,13 +293,6 @@
 
 
 
-                                    <td>
-
-                                        {{ $lhp->objek_pemeriksaan }}
-
-                                    </td>
-
-
 
                                     <td class="text-end">
 
@@ -325,13 +314,9 @@
                                     <td>
 
 
-                                        @foreach ($lhp->temuans as $temuan)
-                                            <div class="mb-2">
 
-                                                {{ $temuan->uraian_temuan }}
+                                        {{ $lhp->objek_pemeriksaan }}
 
-                                            </div>
-                                        @endforeach
 
 
                                     </td>

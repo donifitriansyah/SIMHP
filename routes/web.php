@@ -9,7 +9,9 @@ use App\Http\Controllers\LhpController;
 use App\Http\Controllers\MatriksTindakLanjutController;
 use App\Http\Controllers\PegawaiController;
 use App\Http\Controllers\PenandatanganLaporanController;
+use App\Http\Controllers\PerangkatDesaController;
 use App\Http\Controllers\PihakKetigaController;
+use App\Http\Controllers\PihakLainController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProfilInspektoratController;
 use App\Http\Controllers\RegisterLhpController;
@@ -20,6 +22,8 @@ use App\Http\Controllers\TindakLanjutController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+
+
 
 
 Route::get('/', function () {
@@ -46,13 +50,40 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard/eksternal', [DashboardController::class, 'index'])
         ->defaults('jenis', 'eksternal')
         ->name('dashboard.eksternal');
-        Route::get(
+    Route::get(
         '/register-lhp',
         [RegisterLhpController::class, 'index']
     )->name('register.lhp.index');
 });
 
 Route::middleware(['auth', 'role:super_user,user_entry'])->group(function () {
+    Route::post(
+        '/lhp/{lhp}/tetapkan-tt',
+        [LhpController::class, 'tetapkanTT']
+    )
+        ->name('lhp.tetapkan-tt');
+    Route::prefix('pihak-lain')->name('pihak-lain.')->group(function () {
+
+        Route::get('/', [PihakLainController::class, 'index'])->name('index');
+
+        Route::post('/', [PihakLainController::class, 'store'])->name('store');
+
+        Route::put('/{pihakLain}', [PihakLainController::class, 'update'])->name('update');
+
+        Route::delete('/{pihakLain}', [PihakLainController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::prefix('perangkat-desa')->name('perangkat-desa.')->group(function () {
+
+        Route::get('/', [PerangkatDesaController::class, 'index'])->name('index');
+
+        Route::post('/', [PerangkatDesaController::class, 'store'])->name('store');
+
+        Route::put('/{perangkatDesa}', [PerangkatDesaController::class, 'update'])->name('update');
+
+        Route::delete('/{perangkatDesa}', [PerangkatDesaController::class, 'destroy'])->name('destroy');
+    });
+
     Route::get('/laporan/pihak-ketiga-temuan', [LaporanController::class, 'pihakKetigaTemuan'])->name('laporan.pihak.ketiga.temuan');
 
     Route::get('/laporan/irban', [LaporanController::class, 'irban'])->name('laporan.irban');
@@ -77,17 +108,11 @@ Route::middleware(['auth', 'role:super_user,user_entry'])->group(function () {
 
     Route::post('/pegawai/import', [PegawaiController::class, 'import'])
         ->name('pegawai.import');
+
     Route::resource('penandatangan', PenandatanganLaporanController::class)
         ->except(['show', 'create', 'edit']);
-    Route::get(
-        '/master-data/penandatangan',
-        [PenandatanganLaporanController::class, 'index']
-    )->name('penandatangan.index');
 
-    Route::put(
-        '/master-data/penandatangan/{penandatangan}',
-        [PenandatanganLaporanController::class, 'update']
-    )->name('penandatangan.update');
+
 
     Route::get(
         '/register-lhp/cetak',
@@ -161,7 +186,6 @@ Route::middleware(['auth', 'role:super_user'])->group(function () {
             Route::put('/{editRequest}/reject', [EditRequestController::class, 'reject'])
                 ->name('reject');
         });
-
 });
 
 

@@ -394,18 +394,25 @@
                     <select name="jenis_pemeriksaan" class="form-select" required>
 
 
-                        <option value="pkpt" {{ $lhp->jenis_pemeriksaan == 'pkpt' ? 'selected' : '' }}>
+                        <option value="PKPT" {{ $lhp->jenis_pemeriksaan == 'PKPT' ? 'selected' : '' }}>
                             PKPT
                         </option>
 
 
-                        <option value="pdtt" {{ $lhp->jenis_pemeriksaan == 'pdtt' ? 'selected' : '' }}>
+                        <option value="PDTT" {{ $lhp->jenis_pemeriksaan == 'PDTT' ? 'selected' : '' }}>
                             PDTT
                         </option>
 
 
-                        <option value="kasus" {{ $lhp->jenis_pemeriksaan == 'kasus' ? 'selected' : '' }}>
+                        <option value="KASUS" {{ $lhp->jenis_pemeriksaan == 'KASUS' ? 'selected' : '' }}>
                             Kasus
+                        </option>
+
+                        <option value="KINERJA" {{ $lhp->jenis_pemeriksaan == 'KINERJA' ? 'selected' : '' }}>
+                            Kinerja
+                        </option>
+                        <option value="KETAATAN" {{ $lhp->jenis_pemeriksaan == 'KETAATAN' ? 'selected' : '' }}>
+                            Ketaatan
                         </option>
 
 

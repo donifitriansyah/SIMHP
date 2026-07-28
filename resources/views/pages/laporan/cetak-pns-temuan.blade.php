@@ -244,7 +244,7 @@
                     <td>
                         {{ $pegawai->nama ?? '-' }}
                     </td>
-                    
+
                     <td>
                         {{ $pegawai->skpd->nama_skpd ?? '-' }}
                     </td>
@@ -357,18 +357,18 @@
 
                     <div class="nama">
 
-                        JUNAIDI FIRRAWAN, S.SOS.,M.E
+                        {{ strtoupper($inspektur->nama ?? '........................') }}
 
                     </div>
 
 
-                    Pembina Utama Muda
+                    {{ $inspektur->golongan ?? '' }}
 
 
                     <br>
 
 
-                    NIP. 1971 1023 199101 1 001
+                    NIP. {{ $inspektur->nip ?? '........................' }}
 
 
 
@@ -394,18 +394,18 @@
 
                     <div class="nama">
 
-                        SYARIF MAHADI, S.AP.,M.E
+                         {{ strtoupper($sekretaris->nama ?? '........................') }}
 
                     </div>
 
 
-                    Pembina
+                    {{ $sekretaris->golongan ?? '' }}
 
 
                     <br>
 
 
-                    NIP. 19691221 199111 1 001
+                    NIP. {{ $sekretaris->nip ?? '........................' }}
 
 
 

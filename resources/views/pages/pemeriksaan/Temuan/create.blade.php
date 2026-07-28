@@ -131,17 +131,15 @@
 
                             <select name="jenis_finansial" id="jenis_finansial" class="form-select">
 
-                                <option value="">
-                                    Tidak Ada
-                                </option>
+                                <option value="">Tidak Ada</option>
 
-                                <option value="pns">
-                                    PNS
-                                </option>
+                                <option value="pns">PNS</option>
 
-                                <option value="penyedia">
-                                    Penyedia
-                                </option>
+                                <option value="perangkat_desa">Perangkat Desa</option>
+
+                                <option value="penyedia">Penyedia</option>
+
+                                <option value="pihak_lain">Pihak Lain</option>
 
                             </select>
 
@@ -226,7 +224,9 @@
 
     <script>
         const pegawais = @json($pegawais);
+        const perangkatDesas = @json($perangkatDesas);
         const pihakKetigas = @json($pihakKetigas);
+        const pihakLains = @json($pihakLains);
         const input = document.getElementById('nilai_kerugian');
 
         if (input) {
@@ -386,21 +386,138 @@
 
     </div>
     `;
+  } else if (jenis === 'perangkat_desa') {
+
+                    let option = '<option value="">Pilih Perangkat Desa</option>';
+
+                    perangkatDesas.forEach(function(item) {
+
+                        option += `
+            <option value="${item.id}">
+                ${item.nama} - ${item.jabatan}
+            </option>
+        `;
+
+                    });
+
+                    html = `
+
+    <div class="row mb-3 detail-row">
+
+        <div class="col-md-7">
+
+            <label>Perangkat Desa</label>
+
+            <select
+                name="detail_finansial[perangkat_desa_id][]"
+                class="form-select"
+                required>
+
+                ${option}
+
+            </select>
+
+        </div>
+
+        <div class="col-md-4">
+
+            <label>Nilai Temuan</label>
+
+            <input
+                type="text"
+                name="detail_finansial[nilai][]"
+                class="form-control">
+
+        </div>
+
+        <div class="col-md-1 d-flex align-items-end">
+
+            <button
+                type="button"
+                class="btn btn-danger hapus-detail">
+
+                <i class="bi bi-trash"></i>
+
+            </button>
+
+        </div>
+
+    </div>
+    `;
+                } else if (jenis === 'pihak_lain') {
+
+                    let option = '<option value="">Pilih Pihak Lain</option>';
+
+                    pihakLains.forEach(function(item) {
+
+                        option += `
+            <option value="${item.id}">
+                ${item.nama}
+            </option>
+        `;
+
+                    });
+
+                    html = `
+
+    <div class="row mb-3 detail-row">
+
+        <div class="col-md-7">
+
+            <label>Pihak Lain</label>
+
+            <select
+                name="detail_finansial[pihak_lain_id][]"
+                class="form-select"
+                required>
+
+                ${option}
+
+            </select>
+
+        </div>
+
+        <div class="col-md-4">
+
+            <label>Nilai Temuan</label>
+
+            <input
+                type="text"
+                name="detail_finansial[nilai][]"
+                class="form-control">
+
+        </div>
+
+        <div class="col-md-1 d-flex align-items-end">
+
+            <button
+                type="button"
+                class="btn btn-danger hapus-detail">
+
+                <i class="bi bi-trash"></i>
+
+            </button>
+
+        </div>
+
+    </div>
+    `;
+
             } else if (jenis === 'penyedia') {
 
-    let optionPihak = '<option value="">Pilih Penyedia</option>';
+                let optionPihak = '<option value="">Pilih Penyedia</option>';
 
-    pihakKetigas.forEach(function(item){
+                pihakKetigas.forEach(function(item) {
 
-        optionPihak += `
+                    optionPihak += `
             <option value="${item.id}">
                 ${item.nama_perusahaan}
             </option>
         `;
 
-    });
+                });
 
-    html = `
+                html = `
 
     <div class="row mb-3 detail-row">
 

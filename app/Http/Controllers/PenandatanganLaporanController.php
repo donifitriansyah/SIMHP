@@ -53,45 +53,19 @@ class PenandatanganLaporanController extends Controller
             ->with('success', 'Data berhasil ditambahkan.');
     }
 
-    public function update(Request $request, PenandatanganLaporan $penandatanganLaporan)
+    public function update(Request $request, PenandatanganLaporan $penandatangan)
     {
-        $request->validate([
+        $validated = $request->validate([
             'nama' => 'required|string|max:255',
             'golongan' => 'required|string|max:50',
             'nip' => 'required|string|max:30',
+            'status' => 'required|boolean',
         ]);
 
-
-        $cek = PenandatanganLaporan::where('jabatan', $request->jabatan)
-            ->where('id', '!=', $penandatanganLaporan->id)
-            ->exists();
-
-
-        if ($cek) {
-
-            return back()
-                ->withInput()
-                ->with(
-                    'error',
-                    $request->jabatan . ' sudah digunakan.'
-                );
-        }
-
-
-        $penandatanganLaporan->update([
-
-            'nama'     => $request->nama,
-            'golongan' => $request->golongan,
-            'nip'      => $request->nip,
-
-        ]);
-
+        $penandatangan->update($validated);
 
         return redirect()
             ->route('penandatangan.index')
-            ->with(
-                'success',
-                'Data berhasil diperbarui.'
-            );
+            ->with('success', 'Data berhasil diperbarui.');
     }
 }

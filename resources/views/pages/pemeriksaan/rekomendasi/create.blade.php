@@ -90,33 +90,6 @@
                         </div>
 
 
-
-
-
-
-
-                        {{-- Administrasi --}}
-
-                        <div class="col-md-6 mb-3">
-
-
-                            <label class="form-label">
-                                Rekomendasi Administrasi
-                            </label>
-
-
-                            <textarea name="administrasi" class="form-control" rows="4" placeholder="Masukkan rekomendasi administrasi">{{ old('administrasi') }}</textarea>
-
-
-                        </div>
-
-
-
-
-
-
-
-
                         {{-- Nilai Finansial --}}
 
                         <div class="col-md-6 mb-3">

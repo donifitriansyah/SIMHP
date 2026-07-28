@@ -718,13 +718,13 @@
 
 
                     <div class="nama" style="margin-bottom: 5px">
-                        JUNAIDI FIRRAWAN, S.SOS.,M.E
+                        {{ strtoupper($inspektur->nama ?? '........................') }}
                     </div>
                     <div class="">
-                        Pembina Utama Muda
+                        {{ $inspektur->golongan ?? '' }}
                     </div>
                     <div>
-                        NIP. 1971 1023 199101 1 001
+                        NIP. {{ $inspektur->nip ?? '........................' }}
                     </div>
 
 
@@ -752,13 +752,13 @@
 
 
                     <div class="nama" style="margin-bottom: 5px">
-                        SYARIF MAHADI, S.AP.,M.E
+                        {{ strtoupper($sekretaris->nama ?? '........................') }}
                     </div>
                     <div class="">
-                        Pembina Utama Muda
+                        {{ $sekretaris->golongan ?? '' }}
                     </div>
                     <div>
-                        NIP. 19691221 199111 1 001
+                        NIP. {{ $sekretaris->nip ?? '........................' }}
                     </div>
 
                 </td>

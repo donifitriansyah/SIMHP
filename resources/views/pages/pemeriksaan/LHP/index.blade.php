@@ -5,7 +5,7 @@
     <div class="row mb-4">
 
 
-        <div class="col-md-3 mb-3">
+        <div class="col-md-2 mb-3">
 
             <div class="card dashboard-card border-0 shadow-sm h-100">
 
@@ -41,7 +41,7 @@
 
         </div>
 
-        <div class="col-md-3 mb-3">
+        <div class="col-md-4 mb-3">
 
             <div class="card dashboard-card border-0 shadow-sm h-100">
 
@@ -52,17 +52,17 @@
 
                         <div>
                             <small class="text-muted">
-                                Nihil
+                                Tidak Dapat Ditindaklanjuti
                             </small>
 
 
                             <h3 class="fw-bold mb-0">
-                                {{ $statistik['nihil'] }}
+                                {{ $statistik['tt'] }}
                             </h3>
                         </div>
                         <div class="dashboard-icon bg-info">
 
-                            <i class="bi bi-check-circle fs-4"></i>
+                            <i class="bi bi-x-circle fs-4"></i>
 
                         </div>
                     </div>
@@ -79,7 +79,7 @@
 
         </div>
 
-        <div class="col-md-3 mb-3">
+        <div class="col-md-2 mb-3">
 
             <div class="card dashboard-card border-0 shadow-sm h-100">
 
@@ -114,7 +114,7 @@
             </div>
 
         </div>
-        <div class="col-md-3 mb-3">
+        <div class="col-md-2 mb-3">
 
             <div class="card dashboard-card border-0 shadow-sm h-100">
 
@@ -143,6 +143,42 @@
 
 
 
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-2 mb-3">
+
+            <div class="card dashboard-card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between">
+
+                        <div>
+
+                            <small class="text-muted">
+                                Belum Ditindaklanjuti
+                            </small>
+
+                            <h3 class="fw-bold mb-0">
+                                {{ $statistik['belum_ditindaklanjuti'] }}
+                            </h3>
+
+                        </div>
+
+
+                        <div class="dashboard-icon bg-danger">
+
+                            <i class="bi bi-hourglass fs-4"></i>
+
+                        </div>
+
+
+                    </div>
 
                 </div>
 
@@ -228,8 +264,8 @@
                                 Selesai
                             </option>
 
-                            <option value="nihil" {{ request('status') == 'nihil' ? 'selected' : '' }}>
-                                Nihil
+                            <option value="tt" {{ request('status') == 'tt' ? 'selected' : '' }}>
+                                Tidak Dapat Ditindaklanjuti
                             </option>
 
                         </select>
@@ -549,9 +585,9 @@
                                 <td>
 
 
-                                    @if ($l->status_proses == 'nihil')
+                                    @if ($l->status_proses == 'tt')
                                         <span class="badge bg-info">
-                                            Nihil
+                                            Tidak Dapat Ditindaklanjuti
                                         </span>
                                     @elseif($l->status_proses == 'belum_diproses')
                                         <span class="badge bg-secondary">
@@ -610,23 +646,20 @@
 
                                         @auth
                                             @if (auth()->user()->role == 'super_user')
-                                                @if ($l->status_proses == 'belum_diproses')
-                                                    <form action="{{ route('lhp.tetapkan-nihil', $l->id) }}" method="POST"
+                                                @if ($l->status_proses == 'belum_ditindaklanjuti')
+                                                    <form action="{{ route('lhp.tetapkan-tt', $l->id) }}" method="POST"
                                                         class="d-inline"
-                                                        onsubmit="return confirm('Tetapkan LHP ini sebagai Nihil?')">
-
+                                                        onsubmit="return confirm('Tetapkan LHP ini sebagai Tidak Dapat Ditindaklanjuti?')">
 
                                                         @csrf
 
+                                                        <button class="btn btn-sm btn-secondary">
 
-                                                        <button class="btn btn-sm btn-info">
+                                                            <i class="bi bi-x-circle"></i>
 
-                                                            <i class="bi bi-check-circle"></i>
-
-                                                            Nihil
+                                                            Tidakdapat Ditindak Lanjuti
 
                                                         </button>
-
 
                                                     </form>
                                                 @endif

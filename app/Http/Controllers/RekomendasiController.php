@@ -81,7 +81,6 @@ class RekomendasiController extends Controller
     {
         $request->validate([
             'uraian_rekomendasi' => 'required|string',
-            'administrasi'       => 'nullable|string',
             'nilai_finansial'    => 'nullable|string',
             'nilai_pajak'        => 'nullable|string',
         ]);
@@ -110,7 +109,6 @@ class RekomendasiController extends Controller
             Rekomendasi::create([
                 'temuan_id'          => $temuan->id,
                 'uraian_rekomendasi' => $request->uraian_rekomendasi,
-                'administrasi'       => $request->administrasi,
                 'nilai_finansial'    => $nilaiFinansial,
                 'nilai_pajak'        => $nilaiPajak,
             ]);
@@ -123,7 +121,7 @@ class RekomendasiController extends Controller
                 'aksi' => 'Edit',
                 'modul' => 'Rekomendasi',
                 'referensi_id' => $temuan->id,
-                'deskripsi' => 'Mengedit Rekomendasi pada LHP ' . $temuan->lhp->nomor_lhp,
+                'deskripsi' => 'Menambah Rekomendasi pada LHP ' . $temuan->lhp->nomor_lhp,
             ]);
 
             return redirect()
@@ -157,7 +155,6 @@ class RekomendasiController extends Controller
     {
         $request->validate([
             'uraian_rekomendasi' => 'required|string',
-            'administrasi'       => 'nullable|string',
             'nilai_finansial'    => 'nullable|string',
             'nilai_pajak'        => 'nullable|string',
         ]);
@@ -185,7 +182,6 @@ class RekomendasiController extends Controller
 
             $rekomendasi->update([
                 'uraian_rekomendasi' => $request->uraian_rekomendasi,
-                'administrasi'       => $request->administrasi,
                 'nilai_finansial'    => $nilaiFinansial,
                 'nilai_pajak'        => $nilaiPajak,
             ]);
@@ -205,7 +201,7 @@ class RekomendasiController extends Controller
                 'aksi' => 'Edit',
                 'modul' => 'Rekomendasi',
                 'referensi_id' => $rekomendasi->id,
-                'deskripsi' => 'Mengedit Rekomendasi pada LHP ' . $rekomendasi->lhp->nomor_lhp,
+                'deskripsi' => 'Mengedit Rekomendasi pada LHP ' . $rekomendasi->temuan->lhp->nomor_lhp,
             ]);
 
             return redirect()

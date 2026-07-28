@@ -498,29 +498,7 @@
             <tr>
 
 
-                @if (count($laporan) == 1)
-                    <td>
 
-                        Menyetujui,
-
-                        <br><br>
-
-                        {{ strtoupper($laporan[0]['wilayah']) }}
-
-                        <br><br><br>
-
-                        <div class="nama">
-                            {{ strtoupper($irbanPenandatangan->nama_penandatangan) }}
-                        </div>
-
-                        {{ $irbanPenandatangan->jabatan_penandatangan }}
-
-                        <br>
-
-                        NIP. {{ $irbanPenandatangan->nip_penandatangan }}
-
-                    </td>
-                @endif
 
 
 
@@ -547,6 +525,30 @@
                     NIP. {{ $inspektur->nip ?? '........................' }}
 
                 </td>
+
+                @if (count($laporan) == 1)
+                    <td>
+
+
+
+                        <br><br>
+
+                        {{ strtoupper($laporan[0]['wilayah']) }}
+
+                        <br><br><br>
+
+                        <div class="nama">
+                            {{ strtoupper($irbanPenandatangan->nama_penandatangan) }}
+                        </div>
+
+                        {{ $irbanPenandatangan->jabatan_penandatangan }}
+
+                        <br>
+
+                        NIP. {{ $irbanPenandatangan->nip_penandatangan }}
+
+                    </td>
+                @endif
 
 
 

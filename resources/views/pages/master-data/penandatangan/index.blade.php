@@ -280,7 +280,7 @@
                                                     <div class="mb-3">
                                                         <label class="form-label">Jabatan</label>
 
-                                                        <input type="text" class="form-control"
+                                                        <input type="text" name="jabatan" class="form-control"
                                                             value="{{ $item->jabatan }}" readonly>
                                                     </div>
 

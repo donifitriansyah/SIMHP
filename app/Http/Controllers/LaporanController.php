@@ -7,6 +7,7 @@ use App\Models\Irban;
 use App\Models\Lhp;
 use App\Models\Pegawai;
 use App\Models\PejabatAuditee;
+use App\Models\PenandatanganLaporan;
 use App\Models\PihakKetiga;
 use Illuminate\Http\Request;
 
@@ -61,15 +62,11 @@ class LaporanController extends Controller
             ->get()
             ->groupBy('pihak_ketiga_id');
 
-        $inspektur = Pegawai::where(
-            'jabatan',
-            'Inspektur Kabupaten Ketapang'
-        )->first();
 
-        $sekretaris = Pegawai::where(
-            'jabatan',
-            'Sekretaris'
-        )->first();
+
+        $inspektur = PenandatanganLaporan::where('jabatan', 'Inspektur')->first();
+
+        $sekretaris = PenandatanganLaporan::where('jabatan', 'Sekretaris')->first();
 
         return view(
             'pages.laporan.cetak-pihak-ketiga-temuan',
@@ -231,15 +228,12 @@ class LaporanController extends Controller
             ->get()
             ->groupBy('pegawai_id');
 
-        $inspektur = Pegawai::where(
-            'jabatan',
-            'Inspektur Kabupaten Ketapang'
-        )->first();
 
-        $sekretaris = Pegawai::where(
-            'jabatan',
-            'Sekretaris'
-        )->first();
+
+        $inspektur = PenandatanganLaporan::where('jabatan', 'Inspektur')->first();
+
+        $sekretaris = PenandatanganLaporan::where('jabatan', 'Sekretaris')->first();
+
 
         return view(
             'pages.laporan.cetak-pns-temuan',
@@ -254,8 +248,9 @@ class LaporanController extends Controller
 
     public function cetakIrban(Request $request)
     {
-        $inspektur = Pegawai::where('jabatan', 'Inspektur Kabupaten Ketapang')->first();
-        $sekretaris = Pegawai::where('jabatan', 'Sekretaris')->first();
+        $inspektur = PenandatanganLaporan::where('jabatan', 'Inspektur')->first();
+
+        $sekretaris = PenandatanganLaporan::where('jabatan', 'Sekretaris')->first();
 
         $tahun = null;
         $bulan = null;
@@ -306,15 +301,10 @@ class LaporanController extends Controller
 
     public function cetak(Request $request)
     {
-        $inspektur = Pegawai::where(
-            'jabatan',
-            'Inspektur Kabupaten Ketapang'
-        )->first();
+        $inspektur = PenandatanganLaporan::where('jabatan', 'Inspektur')->first();
 
-        $sekretaris = Pegawai::where(
-            'jabatan',
-            'Sekretaris'
-        )->first();
+        $sekretaris = PenandatanganLaporan::where('jabatan', 'Sekretaris')->first();
+        
         $laporan = $this->getLaporan($request);
 
         $periode = null;

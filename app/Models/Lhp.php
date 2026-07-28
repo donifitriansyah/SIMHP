@@ -37,6 +37,22 @@ class Lhp extends Model
 
     ];
 
+    public function getStatusProsesLabelAttribute()
+    {
+        return match ($this->status_proses) {
+
+            'tt' => 'TT (Tidak Dapat Ditindaklanjuti)',
+
+            'belum_diproses' => 'Belum Diproses',
+
+            'dalam_proses' => 'Dalam Proses',
+
+            'selesai' => 'Selesai',
+
+            default => '-',
+        };
+    }
+
     public static function getInstansiPemeriksa(): array
     {
         return [
@@ -110,8 +126,8 @@ class Lhp extends Model
 
     public function updateStatusLhp()
     {
-        // Jika nihil langsung lengkap
-        if ($this->status_proses == 'nihil') {
+        // Tidak Dapat Ditindaklanjuti dianggap selesai/lengkap
+        if ($this->status_proses == 'tt') {
 
             $this->update([
                 'status_lhp' => 'lengkap'
@@ -132,10 +148,12 @@ class Lhp extends Model
         }
 
 
+
+        // Cek setiap temuan
         foreach ($this->temuans as $temuan) {
 
 
-            // Temuan wajib memiliki rekomendasi
+            // Setiap temuan wajib memiliki rekomendasi
             if ($temuan->rekomendasis()->count() == 0) {
 
                 $this->update([
@@ -147,18 +165,22 @@ class Lhp extends Model
 
 
 
+            // Cek setiap rekomendasi
             foreach ($temuan->rekomendasis as $rekomendasi) {
 
 
-                $tindakLanjutSelesai = $rekomendasi->tindakLanjut()
+                $tindakLanjutSelesai = $rekomendasi
+                    ->tindakLanjut()
                     ->whereHas('status', function ($query) {
+
                         $query->where('kode', 'S');
                     })
-                    ->count();
+                    ->exists();
 
 
 
-                if ($tindakLanjutSelesai == 0) {
+                // Jika rekomendasi belum selesai
+                if (!$tindakLanjutSelesai) {
 
                     $this->update([
                         'status_lhp' => 'tidak_lengkap'
@@ -170,6 +192,9 @@ class Lhp extends Model
         }
 
 
+
+        // Semua temuan punya rekomendasi
+        // Semua rekomendasi selesai
         $this->update([
             'status_lhp' => 'lengkap'
         ]);
@@ -177,70 +202,65 @@ class Lhp extends Model
 
     public function updateStatusProses()
     {
-        if ($this->status_proses === 'nihil') {
+        // TT ditentukan manual oleh admin
+        if ($this->status_proses == 'tt') {
             return;
         }
 
-
-        $this->loadMissing(
-            'temuans.rekomendasis'
-        );
-
-
-        $totalTemuan = $this->temuans->count();
+        $this->loadMissing([
+            'temuans.rekomendasis.tindakLanjut.status'
+        ]);
 
         $totalRekomendasi = 0;
-
-        $totalRekomendasiSelesai = 0;
-
-
+        $rekomendasiAdaTL = 0;
+        $rekomendasiSelesai = 0;
 
         foreach ($this->temuans as $temuan) {
 
-
             foreach ($temuan->rekomendasis as $rekomendasi) {
-
 
                 $totalRekomendasi++;
 
-
-
-                $tindakLanjutTerakhir = $rekomendasi
-                    ->tindakLanjut()
-                    ->with('status')
-                    ->orderBy('id', 'desc')
+                $tlTerakhir = $rekomendasi->tindakLanjut
+                    ->sortByDesc('id')
                     ->first();
 
+                // Sudah pernah ditindaklanjuti
+                if ($tlTerakhir) {
 
+                    $rekomendasiAdaTL++;
 
-                if (
-                    $tindakLanjutTerakhir &&
-                    $tindakLanjutTerakhir->status &&
-                    $tindakLanjutTerakhir->status->kode === 'S'
-                ) {
-
-                    $totalRekomendasiSelesai++;
+                    // Sudah selesai
+                    if (
+                        $tlTerakhir->status &&
+                        $tlTerakhir->status->kode == 'S'
+                    ) {
+                        $rekomendasiSelesai++;
+                    }
                 }
             }
         }
 
+        // Tidak ada rekomendasi
+        if ($totalRekomendasi == 0) {
 
+            $status = 'belum_ditindaklanjuti';
+        }
+        // Belum ada satupun TL
+        elseif ($rekomendasiAdaTL == 0) {
 
-        if ($totalTemuan == 0) {
-
-            $status = 'belum_diproses';
-        } elseif ($totalRekomendasi == 0) {
-
-            $status = 'dalam_proses';
-        } elseif ($totalRekomendasi == $totalRekomendasiSelesai) {
+            $status = 'belum_ditindaklanjuti';
+        }
+        // Semua rekomendasi selesai
+        elseif ($rekomendasiSelesai == $totalRekomendasi) {
 
             $status = 'selesai';
-        } else {
+        }
+        // Sudah ada TL tetapi belum semuanya selesai
+        else {
 
             $status = 'dalam_proses';
         }
-
-
 
         $this->update([
             'status_proses' => $status

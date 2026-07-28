@@ -184,7 +184,7 @@
                 </a>
             </div>
 
-            <div class="col-lg-4 col-md-6">
+            <div class="col-lg-3 col-md-6">
                 <a href="{{ route($jenis == 'internal' ? 'pemeriksaan.internal' : 'pemeriksaan.eksternal', ['status' => 'dalam_proses']) }}"
                     class="text-decoration-none text-dark">
 
@@ -207,7 +207,7 @@
                 </a>
             </div>
 
-            <div class="col-lg-4 col-md-6">
+            <div class="col-lg-3 col-md-6">
                 <a href="{{ route($jenis == 'internal' ? 'pemeriksaan.internal' : 'pemeriksaan.eksternal', ['status' => 'selesai']) }}"
                     class="text-decoration-none text-dark">
 
@@ -230,10 +230,8 @@
                 </a>
             </div>
 
-            <div class="col-lg-4 col-md-6">
-                <a href="{{ route($jenis == 'internal' ? 'pemeriksaan.internal' : 'pemeriksaan.eksternal', [
-                    'status' => 'belum_diproses',
-                ]) }}"
+            <div class="col-lg-3 col-md-6">
+                <a href="{{ route($jenis == 'internal' ? 'pemeriksaan.internal' : 'pemeriksaan.eksternal', ['status' => 'belum_ditindaklanjuti']) }}"
                     class="text-decoration-none text-dark">
 
                     <div class="card dashboard-card border-0">
@@ -245,7 +243,7 @@
                             </small>
 
                             <h2 class="fw-bold text-danger mt-2">
-                                {{ $statusLhp['belum_proses'] }}
+                                {{ $statusLhp['belum_ditindaklanjuti'] }}
                             </h2>
 
                         </div>
@@ -253,6 +251,40 @@
                     </div>
 
                 </a>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+
+                <a href="{{ route($jenis == 'internal' ? 'pemeriksaan.internal' : 'pemeriksaan.eksternal', ['status' => 'tt']) }}"
+                    class="text-decoration-none text-dark">
+
+
+                    <div class="card dashboard-card border-0">
+
+
+                        <div class="card-body">
+
+
+                            <small class="text-muted">
+                                Tidak Dapat Ditindaklanjuti
+                            </small>
+
+
+                            <h2 class="fw-bold text-secondary mt-2">
+
+                                {{ $statusLhp['tt'] }}
+
+                            </h2>
+
+
+                        </div>
+
+
+                    </div>
+
+
+                </a>
+
             </div>
 
             <!-- Total Kerugian -->
@@ -600,8 +632,8 @@
                 labels: [
                     'Selesai',
                     'Dalam Proses',
-                    'Belum Diproses',
-                    'Nihil'
+                    'Belum Ditindaklanjuti',
+                    'Tidak Dapat Ditindaklanjuti'
                 ],
 
                 datasets: [{
@@ -610,8 +642,8 @@
 
                         {{ $statusLhp['selesai'] }},
                         {{ $statusLhp['dalam_proses'] }},
-                        {{ $statusLhp['belum_proses'] }},
-                        {{ $statusLhp['nihil'] }}
+                        {{ $statusLhp['belum_ditindaklanjuti'] }},
+                        {{ $statusLhp['tt'] }}
 
                     ]
 

@@ -96,6 +96,16 @@
                                         Data Pegawai
                                     </a>
                                 </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('perangkat-desa.index') }}">
+                                        Data Perangkat Desa
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('pihak-lain.index') }}">
+                                        Data Pihak Lain
+                                    </a>
+                                </li>
 
 
                                 <li>
