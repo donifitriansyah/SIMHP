@@ -252,8 +252,8 @@
 
                             <option value="">Semua Status</option>
 
-                            <option value="belum_diproses" {{ request('status') == 'belum_diproses' ? 'selected' : '' }}>
-                                Belum Diproses
+                            <option value="belum_ditindaklanjuti" {{ request('status') == 'belum_ditindaklanjuti' ? 'selected' : '' }}>
+                                Belum Ditindaklanjuti
                             </option>
 
                             <option value="dalam_proses" {{ request('status') == 'dalam_proses' ? 'selected' : '' }}>
@@ -589,9 +589,9 @@
                                         <span class="badge bg-info">
                                             Tidak Dapat Ditindaklanjuti
                                         </span>
-                                    @elseif($l->status_proses == 'belum_diproses')
+                                    @elseif($l->status_proses == 'belum_ditindaklanjuti')
                                         <span class="badge bg-secondary">
-                                            Belum Diproses
+                                            Belum Ditindaklanjuti
                                         </span>
                                     @elseif($l->status_proses == 'dalam_proses')
                                         <span class="badge bg-warning">

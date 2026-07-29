@@ -189,6 +189,9 @@
                                 <th>
                                     Dana Diawasi
                                 </th>
+                                <th>
+                                    Instansi
+                                </th>
 
                                 <th>
                                     Dana Diperiksa
@@ -292,6 +295,25 @@
                                     </td>
 
 
+                                    <td class="text-center">
+                                        @switch($lhp->instansi_pemeriksa)
+                                            @case('Itkab')
+                                                <span class="badge bg-primary">ITKAB</span>
+                                            @break
+
+                                            @case('Itprov')
+                                                <span class="badge bg-info">ITPROV</span>
+                                            @break
+
+                                            @case('BPK RI')
+                                                <span class="badge bg-success">BPK RI</span>
+                                            @break
+
+                                            @case('BPKP')
+                                                <span class="badge bg-warning text-dark">BPKP</span>
+                                            @break
+                                        @endswitch
+                                    </td>
 
 
                                     <td class="text-end">
@@ -300,6 +322,8 @@
                                         {{ number_format($lhp->jumlah_dana_diawasi, 0, ',', '.') }}
 
                                     </td>
+
+
 
 
 
