@@ -24,7 +24,7 @@
                     </a>
 
                     @auth
-                        @if (auth()->user()->isSuperUser()|| auth()->user()->isUserEntry())
+                        @if (auth()->user()->isSuperUser() || auth()->user()->isUserEntry())
                             <a href="{{ route('lhp.cetak', $lhp->id) }}" target="_blank" class="btn btn-danger">
 
                                 <i class="bi bi-printer"></i>
@@ -238,25 +238,55 @@
 
                         <div class="col-md-4">
 
-                            <label class="text-muted"> Entitas yang Diperiksa </label>
+                            <label class="text-muted">
+                                Pejabat yang Diperiksa
+                            </label>
 
-                            <h6>
+                            <ol class="mb-0 ps-3">
 
-                                {{ $lhp->pejabatAuditee->nama ?? '-' }}
+                                @forelse($lhp->pejabatAuditees as $item)
+                                    <li>
 
-                                @if ($lhp->pejabatAuditee)
-                                    <br> <small class="text-muted"> {{ $lhp->pejabatAuditee->jenis_jabatan }} </small>
-                                @endif
+                                        {{ $item->pejabatAuditee->nama ?? '-' }}
 
-                            </h6>
+                                        @if ($item->pejabatAuditee)
+                                            <br>
+
+                                            <small class="text-muted">
+                                                {{ strtoupper($item->pejabatAuditee->jenis_jabatan ?? '-') }}
+                                            </small>
+                                        @endif
+
+                                    </li>
+
+                                @empty
+
+                                    <li>-</li>
+                                @endforelse
+
+                            </ol>
 
                         </div>
 
                         <div class="col-md-4">
 
-                            <label class="text-muted"> Pihak Ketiga </label>
+                            <label class="text-muted">
+                                Pihak Ketiga
+                            </label>
 
-                            <h6> {{ $lhp->pihakKetiga->nama_perusahaan ?? '-' }} </h6>
+                            <ol class="mb-0 ps-3">
+
+                                @forelse($lhp->pihakKetigas as $item)
+                                    <li>
+                                        {{ $item->nama_perusahaan ?? '-' }}
+                                    </li>
+
+                                @empty
+
+                                    <li>-</li>
+                                @endforelse
+
+                            </ol>
 
                         </div>
                     @endif
@@ -270,11 +300,25 @@
                         </div>
                     @endif
 
-                    <div class="col-md-4 ">
+                    <div class="col-md-4">
 
-                        <label class="text-muted"> Objek Pemeriksaan </label>
+                        <label class="text-muted">
+                            Objek Pemeriksaan
+                        </label>
 
-                        <h6> {{ $lhp->objek_pemeriksaan }} </h6>
+                        <ol class="mb-0 ps-3">
+
+                            @forelse($lhp->objekPemeriksaans as $objek)
+                                <li>
+                                    {{ $objek->nama_objek ?? '-' }}
+                                </li>
+
+                            @empty
+
+                                <li>-</li>
+                            @endforelse
+
+                        </ol>
 
                     </div>
 

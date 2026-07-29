@@ -7,7 +7,9 @@ use App\Models\Auditee;
 use App\Models\EditRequest;
 use App\Models\Irban;
 use App\Models\Lhp;
+use App\Models\LhpObjekPemeriksaan;
 use App\Models\PejabatAuditee;
+use App\Models\PenandatanganLaporan;
 use App\Models\PihakKetiga;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -61,7 +63,8 @@ class LhpController extends Controller
         $query = Lhp::with([
             'irban',
             'auditee',
-            'temuans.rekomendasis.tindakLanjut.status'
+            'temuans.rekomendasis.tindakLanjut.status',
+            'objekPemeriksaans',
         ]);
         // User View hanya melihat LHP sesuai Irban
         if (auth()->user()->isUserView()) {
@@ -83,13 +86,36 @@ class LhpController extends Controller
 
             $keyword = $request->keyword;
 
+
             $query->where(function ($q) use ($keyword) {
 
-                $q->where('nomor_lhp', 'like', "%{$keyword}%")
-                    ->orWhere('objek_pemeriksaan', 'like', "%{$keyword}%")
+
+                $q->where(
+                    'nomor_lhp',
+                    'like',
+                    "%{$keyword}%"
+                )
+
+
+                    ->orWhereHas('objekPemeriksaans', function ($objek) use ($keyword) {
+
+
+                        $objek->where(
+                            'nama_objek',
+                            'like',
+                            "%{$keyword}%"
+                        );
+                    })
+
+
                     ->orWhereHas('auditee', function ($a) use ($keyword) {
 
-                        $a->where('nama_dinas', 'like', "%{$keyword}%");
+
+                        $a->where(
+                            'nama_dinas',
+                            'like',
+                            "%{$keyword}%"
+                        );
                     });
             });
         }
@@ -522,28 +548,48 @@ class LhpController extends Controller
     {
         $request->validate([
 
-            'irban_id'             => 'nullable|exists:irban,id',
+            'irban_id' => 'nullable|exists:irban,id',
+
             'nama_pejabat_eksternal' => 'nullable|string|max:255',
-            'auditee_id'           => 'nullable|exists:auditee,id',
-            'pejabat_auditee_id'   => 'nullable|exists:pejabat_auditee,id',
-            'instansi_pemeriksa'   => 'nullable|in:Itkab,Itprov,BPK RI,BPKP',
-            'objek_pemeriksaan'    => 'required',
+
+            'auditee_id' => 'nullable|exists:auditee,id',
+
+            'pejabat_auditee_id' => 'nullable|array',
+
+            'pejabat_auditee_id.*' => 'exists:pejabat_auditee,id',
+
+            'pihak_ketiga_id' => 'nullable|array',
+
+            'pihak_ketiga_id.*' => 'exists:pihak_ketiga,id',
+
+            'objek_pemeriksaan' => 'required|array',
+
+            'objek_pemeriksaan.*' => 'required|string|max:255',
+
+            'instansi_pemeriksa' => 'nullable|in:Itkab,Itprov,BPK RI,BPKP',
 
             'nomor_lhp' => 'required|unique:lhp,nomor_lhp',
 
             'nomor_spt' => 'required|unique:lhp,nomor_spt',
-            'tanggal_lhp'          => 'required|date',
 
-            'tanggal_spt'          => 'required|date',
+            'tanggal_lhp' => 'required|date',
 
-            'tahun_pkpt'           => 'required',
+            'tanggal_spt' => 'required|date',
 
-            'jenis_pemeriksaan'    => 'required',
+            'tahun_pkpt' => 'required',
+
+            'jenis_pemeriksaan' => 'required',
+
             'dokumen.*' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png|max:5120',
 
         ]);
 
-        if (in_array($request->instansi_pemeriksa, ['Itkab', 'Itprov']) && empty($request->irban_id)) {
+
+        if (
+            in_array($request->instansi_pemeriksa, ['Itkab', 'Itprov'])
+            && empty($request->irban_id)
+        ) {
+
             return back()
                 ->withInput()
                 ->withErrors([
@@ -551,33 +597,43 @@ class LhpController extends Controller
                 ]);
         }
 
+
+
+        // Simpan LHP utama
         $lhp = Lhp::create([
 
-            'irban_id' => in_array($request->instansi_pemeriksa, ['BPK RI', 'BPKP'])
+
+            'irban_id' => in_array(
+                $request->instansi_pemeriksa,
+                ['BPK RI', 'BPKP']
+            )
                 ? null
                 : $request->irban_id,
 
-            'auditee_id'           => $request->auditee_id,
 
-            'pejabat_auditee_id'   => $request->pejabat_auditee_id,
+            'auditee_id' => $request->auditee_id,
 
-            'instansi_pemeriksa'  => $request->instansi_pemeriksa,
+
+            'instansi_pemeriksa' => $request->instansi_pemeriksa,
+
 
             'nama_pejabat_eksternal' => $request->nama_pejabat_eksternal,
 
-            'pihak_ketiga_id'      => $request->pihak_ketiga_id,
 
-            'objek_pemeriksaan'    => $request->objek_pemeriksaan,
+            'nomor_lhp' => $request->nomor_lhp,
 
-            'nomor_lhp'            => $request->nomor_lhp,
 
-            'tanggal_lhp'          => $request->tanggal_lhp,
+            'tanggal_lhp' => $request->tanggal_lhp,
 
-            'nomor_spt'            => $request->nomor_spt,
 
-            'tanggal_spt'          => $request->tanggal_spt,
+            'nomor_spt' => $request->nomor_spt,
 
-            'tahun_pkpt'           => $request->tahun_pkpt,
+
+            'tanggal_spt' => $request->tanggal_spt,
+
+
+            'tahun_pkpt' => $request->tahun_pkpt,
+
 
             'jumlah_dana_diawasi' => $request->filled('jumlah_dana_diawasi')
                 ? str_replace(
@@ -587,19 +643,87 @@ class LhpController extends Controller
                 )
                 : null,
 
-            'jenis_pemeriksaan'    => $request->jenis_pemeriksaan,
 
-            'status_lhp'           => 'tidak_lengkap',
+            'jenis_pemeriksaan' => $request->jenis_pemeriksaan,
+
+
+            'status_lhp' => 'tidak_lengkap',
+
 
             'status_proses' => 'belum_ditindaklanjuti',
 
         ]);
 
+
+
+        /*
+    |--------------------------------------------------------------------------
+    | Simpan Pejabat Auditee
+    |--------------------------------------------------------------------------
+    */
+
+        if ($request->filled('pejabat_auditee_id')) {
+
+            $lhp->pejabatAuditees()
+                ->sync($request->pejabat_auditee_id);
+        }
+
+
+
+        /*
+    |--------------------------------------------------------------------------
+    | Simpan Pihak Ketiga
+    |--------------------------------------------------------------------------
+    */
+
+        if ($request->filled('pihak_ketiga_id')) {
+
+            $lhp->pihakKetigas()
+                ->sync($request->pihak_ketiga_id);
+        }
+
+
+
+        /*
+    |--------------------------------------------------------------------------
+    | Simpan Objek Pemeriksaan
+    |--------------------------------------------------------------------------
+    */
+
+        if ($request->filled('objek_pemeriksaan')) {
+
+
+            foreach ($request->objek_pemeriksaan as $objek) {
+
+
+                $lhp->objekPemeriksaans()
+                    ->create([
+
+                        'nama_objek' => $objek
+
+                    ]);
+            }
+        }
+
+
+
+        /*
+    |--------------------------------------------------------------------------
+    | Upload Dokumen
+    |--------------------------------------------------------------------------
+    */
+
         if ($request->hasFile('dokumen')) {
+
 
             foreach ($request->file('dokumen') as $file) {
 
-                $path = $file->store('dokumen-lhp', 'public');
+
+                $path = $file->store(
+                    'dokumen-lhp',
+                    'public'
+                );
+
 
                 $lhp->dokumen()->create([
 
@@ -613,20 +737,32 @@ class LhpController extends Controller
             }
         }
 
+
+
         ActivityLog::create([
+
             'user_id' => auth()->id(),
+
             'aksi' => 'Tambah',
+
             'modul' => 'LHP',
+
             'referensi_id' => $lhp->id,
+
             'deskripsi' => 'Menambahkan LHP ' . $lhp->nomor_lhp,
+
         ]);
 
+
+
         return redirect()
+
             ->route(
                 $request->instansi_pemeriksa == 'Itkab'
                     ? 'pemeriksaan.internal'
                     : 'pemeriksaan.eksternal'
             )
+
             ->with(
                 'success',
                 'Data LHP berhasil ditambah'
@@ -638,24 +774,35 @@ class LhpController extends Controller
         $lhp->load([
             'irban',
             'auditee',
-            'pejabatAuditee',
-            'pihakKetiga',
+
+            // Banyak pejabat diperiksa
+            'pejabatAuditees.pejabatAuditee',
+
+            // Banyak pihak ketiga
+            'pihakKetigas',
+
+            'objekPemeriksaans',
+
             'temuans.rekomendasis.tindakLanjut',
             'dokumen',
+
             'temuans.detailFinansial.pegawai',
             'temuans.detailFinansial.perangkatDesa',
             'temuans.detailFinansial.pihakKetiga',
             'temuans.detailFinansial.pihakLain',
         ]);
 
+
         $editRequest = EditRequest::where('lhp_id', $lhp->id)
             ->where('user_id', auth()->id())
             ->latest()
             ->first();
 
+
         $jenis = $lhp->instansi_pemeriksa == 'Itkab'
             ? 'internal'
             : 'eksternal';
+
 
         return view(
             'pages.pemeriksaan.lhp.show',
@@ -670,25 +817,27 @@ class LhpController extends Controller
     public function cetak(Lhp $lhp)
     {
         $lhp->load([
+
             'irban',
+
             'auditee',
-            'pejabatAuditee',
-            'pihakKetiga',
 
-            // Temuan
-            'temuans.detailFinansial.pegawai',
-            'temuans.detailFinansial.perangkatDesa',
-            'temuans.detailFinansial.pihakKetiga',
-            'temuans.detailFinansial.pihakLain',
+            // banyak pejabat
+            'pejabatAuditees.pejabatAuditee',
 
-            // Banyak Rekomendasi
-            'temuans.rekomendasis',
+            // banyak pihak ketiga
+            'pihakKetigas',
 
-            // Banyak Tindak Lanjut
+            // banyak objek pemeriksaan
+            'objekPemeriksaans',
+
+
+            'temuans.detailFinansial',
+
             'temuans.rekomendasis.tindakLanjut.status',
-            'temuans.rekomendasis.tindakLanjut.dokumen',
 
             'dokumen'
+
         ]);
 
 
@@ -697,17 +846,75 @@ class LhpController extends Controller
             : 'eksternal';
 
 
+
+        $penandatangan = PenandatanganLaporan::where('jabatan', 'inspektur')
+            ->where('status', true)
+            ->first();
+
+
+
         return view(
             'pages.pemeriksaan.lhp.cetak',
             compact(
                 'lhp',
-                'jenis'
+                'jenis',
+                'penandatangan'
             )
         );
     }
 
+    public function previewPdf(Lhp $lhp)
+    {
+        $lhp->load([
+            'irban',
+            'auditee',
+            'pejabatAuditee',
+            'pihakKetiga',
+
+            'temuans.detailFinansial.pegawai',
+            'temuans.detailFinansial.perangkatDesa',
+            'temuans.detailFinansial.pihakKetiga',
+            'temuans.detailFinansial.pihakLain',
+
+            'temuans.rekomendasis',
+            'temuans.rekomendasis.tindakLanjut.status',
+            'temuans.rekomendasis.tindakLanjut.dokumen',
+
+            'dokumen'
+        ]);
+
+        $jenis = $lhp->instansi_pemeriksa == 'Itkab'
+            ? 'internal'
+            : 'eksternal';
+
+        return view(
+            'pages.pemeriksaan.lhp.cetak',
+            compact('lhp', 'jenis')
+        );
+    }
+
+    public function hapusObjek($id)
+    {
+
+        $objek = LhpObjekPemeriksaan::findOrFail($id);
+
+
+        $objek->delete();
+
+
+        return response()->json([
+            'success' => true
+        ]);
+    }
+
     public function edit(Lhp $lhp)
     {
+        $lhp->load([
+            'pejabatAuditees',
+            'pihakKetigas',
+            'objekPemeriksaans'
+        ]);
+
         $irbans = Irban::all();
         $auditees = Auditee::all();
         $pihakKetigas = PihakKetiga::all();
@@ -716,6 +923,8 @@ class LhpController extends Controller
         $jenis = $lhp->instansi_pemeriksa == 'Itkab'
             ? 'internal'
             : 'eksternal';
+
+
         return view(
             'pages.pemeriksaan.lhp.edit',
             compact(
@@ -731,97 +940,240 @@ class LhpController extends Controller
     public function update(Request $request, Lhp $lhp)
     {
         $request->validate([
-            'irban_id'               => 'required|exists:irban,id',
-            'auditee_id'             => 'nullable|exists:auditee,id',
-            'pejabat_auditee_id'     => 'nullable|exists:pejabat_auditee,id',
-            'pihak_ketiga_id'        => 'nullable|exists:pihak_ketiga,id',
+
+            'irban_id' => 'nullable|exists:irban,id',
+            'auditee_id' => 'nullable|exists:auditee,id',
+
+            'pejabat_auditee_id' => 'nullable|array',
+            'pejabat_auditee_id.*' => 'exists:pejabat_auditee,id',
+
+            'pihak_ketiga_id' => 'nullable|array',
+            'pihak_ketiga_id.*' => 'exists:pihak_ketiga,id',
 
             'nama_pejabat_eksternal' => 'nullable|string|max:255',
-            'instansi_pemeriksa'     => 'nullable|in:Itkab,Itprov,BPK RI,BPKP',
 
-            'objek_pemeriksaan'      => 'required|string|max:255',
+            'instansi_pemeriksa'
+            => 'nullable|in:Itkab,Itprov,BPK RI,BPKP',
+
+            'objek_pemeriksaan' => 'required|array',
+            'objek_pemeriksaan.*' => 'required|string|max:255',
+
+            'objek_id' => 'nullable|array',
 
             'nomor_lhp' => [
                 'required',
-                Rule::unique('lhp', 'nomor_lhp')->ignore($lhp->id),
+                Rule::unique('lhp', 'nomor_lhp')
+                    ->ignore($lhp->id),
             ],
 
             'nomor_spt' => [
                 'required',
-                Rule::unique('lhp', 'nomor_spt')->ignore($lhp->id),
+                Rule::unique('lhp', 'nomor_spt')
+                    ->ignore($lhp->id),
             ],
 
-            'tanggal_lhp'        => 'required|date',
-            'tanggal_spt'        => 'required|date',
-            'tahun_pkpt'         => 'required',
-            'jenis_pemeriksaan'  => 'required',
+            'tanggal_lhp' => 'required|date',
+            'tanggal_spt' => 'required|date',
+            'tahun_pkpt' => 'required',
+            'jenis_pemeriksaan' => 'required',
 
-            'jumlah_dana_diawasi' => 'nullable',
+            'dokumen.*'
+            => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png|max:5120',
 
-            'dokumen.*' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png|max:5120',
         ]);
 
+
+        /*
+    |--------------------------------------------------------------------------
+    | UPDATE DATA UTAMA LHP
+    |--------------------------------------------------------------------------
+    */
+
         $lhp->update([
-            'irban_id'               => $request->irban_id,
-            'auditee_id'             => $request->auditee_id,
-            'pejabat_auditee_id'     => $request->pejabat_auditee_id,
-            'pihak_ketiga_id'        => $request->pihak_ketiga_id,
 
-            'nama_pejabat_eksternal' => $request->nama_pejabat_eksternal,
-            'instansi_pemeriksa'     => $request->instansi_pemeriksa,
+            'irban_id' => $request->irban_id,
 
-            'objek_pemeriksaan'      => $request->objek_pemeriksaan,
+            'auditee_id' => $request->auditee_id,
 
-            'nomor_lhp'              => $request->nomor_lhp,
-            'tanggal_lhp'            => $request->tanggal_lhp,
+            'nama_pejabat_eksternal'
+            => $request->nama_pejabat_eksternal,
 
-            'nomor_spt'              => $request->nomor_spt,
-            'tanggal_spt'            => $request->tanggal_spt,
+            'instansi_pemeriksa'
+            => $request->instansi_pemeriksa,
 
-            'tahun_pkpt'             => $request->tahun_pkpt,
+
+            'nomor_lhp' => $request->nomor_lhp,
+
+            'tanggal_lhp' => $request->tanggal_lhp,
+
+            'nomor_spt' => $request->nomor_spt,
+
+            'tanggal_spt' => $request->tanggal_spt,
+
+            'tahun_pkpt' => $request->tahun_pkpt,
+
 
             'jumlah_dana_diawasi' => $request->filled('jumlah_dana_diawasi')
                 ? str_replace(
-                    ['.', ','],
-                    ['', '.'],
-                    $request->jumlah_dana_diawasi
+                    ',',
+                    '.',
+                    str_replace(
+                        '.',
+                        '',
+                        $request->jumlah_dana_diawasi
+                    )
                 )
                 : null,
 
-            'jenis_pemeriksaan'      => $request->jenis_pemeriksaan,
+
+            'jenis_pemeriksaan'
+            => $request->jenis_pemeriksaan,
+
         ]);
 
-        // Upload dokumen baru
-        if ($request->hasFile('dokumen')) {
 
-            foreach ($request->file('dokumen') as $file) {
 
-                $path = $file->store('dokumen-lhp', 'public');
+        /*
+    |--------------------------------------------------------------------------
+    | UPDATE PEJABAT AUDITEE
+    |--------------------------------------------------------------------------
+    */
 
-                $lhp->dokumen()->create([
-                    'nama_file' => $file->getClientOriginalName(),
-                    'path_file' => $path,
-                    'tipe_file' => $file->getClientOriginalExtension(),
+        $lhp->pejabatAuditees()->delete();
+
+
+        if ($request->pejabat_auditee_id) {
+
+            foreach ($request->pejabat_auditee_id as $pejabat) {
+
+                $lhp->pejabatAuditees()->create([
+
+                    'pejabat_auditee_id' => $pejabat,
+
                 ]);
             }
         }
 
+
+
+        /*
+    |--------------------------------------------------------------------------
+    | UPDATE PIHAK KETIGA
+    |--------------------------------------------------------------------------
+    */
+
+        $lhp->pihakKetigas()->sync(
+            $request->pihak_ketiga_id ?? []
+        );
+
+
+
+        /*
+    |--------------------------------------------------------------------------
+    | UPDATE OBJEK PEMERIKSAAN
+    |--------------------------------------------------------------------------
+    */
+
+        $objekIds = $request->objek_id ?? [];
+
+
+        // hapus objek yang sudah dihapus dari form
+
+        $lhp->objekPemeriksaans()
+            ->whereNotIn('id', $objekIds)
+            ->delete();
+
+
+
+        foreach ($request->objek_pemeriksaan as $index => $nama) {
+
+
+            if (isset($objekIds[$index])) {
+
+
+                // update objek lama
+
+                LhpObjekPemeriksaan::where(
+                    'id',
+                    $objekIds[$index]
+                )->update([
+
+                    'nama_objek' => $nama
+
+                ]);
+            } else {
+
+
+                // tambah objek baru
+
+                $lhp->objekPemeriksaans()->create([
+
+                    'nama_objek' => $nama
+
+                ]);
+            }
+        }
+
+
+
+        /*
+    |--------------------------------------------------------------------------
+    | UPLOAD DOKUMEN
+    |--------------------------------------------------------------------------
+    */
+
+        if ($request->hasFile('dokumen')) {
+
+
+            foreach ($request->file('dokumen') as $file) {
+
+
+                $path = $file->store(
+                    'dokumen-lhp',
+                    'public'
+                );
+
+
+                $lhp->dokumen()->create([
+
+                    'nama_file' => $file->getClientOriginalName(),
+
+                    'path_file' => $path,
+
+                    'tipe_file' => $file->getClientOriginalExtension(),
+
+                ]);
+            }
+        }
+
+
+
         ActivityLog::create([
-            'user_id'       => auth()->id(),
-            'aksi'          => 'Edit',
-            'modul'         => 'LHP',
-            'referensi_id'  => $lhp->id,
-            'deskripsi'     => 'Mengedit LHP ' . $lhp->nomor_lhp,
+
+            'user_id' => auth()->id(),
+
+            'aksi' => 'Edit',
+
+            'modul' => 'LHP',
+
+            'referensi_id' => $lhp->id,
+
+            'deskripsi' => 'Mengedit LHP ' . $lhp->nomor_lhp,
+
         ]);
 
-        return redirect()->route(
-            $lhp->instansi_pemeriksa === 'Itkab'
-                ? 'pemeriksaan.internal'
-                : 'pemeriksaan.eksternal'
-        )->with(
-            'success',
-            'Data LHP berhasil diperbarui.'
-        );
+
+
+        return redirect()
+            ->route(
+                $lhp->instansi_pemeriksa == 'Itkab'
+                    ? 'pemeriksaan.internal'
+                    : 'pemeriksaan.eksternal'
+            )
+            ->with(
+                'success',
+                'Data LHP berhasil diperbarui.'
+            );
     }
 
     public function destroy(Lhp $lhp)

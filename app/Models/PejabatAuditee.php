@@ -21,7 +21,6 @@ class PejabatAuditee extends Model
 
     ];
 
-
     public function auditee()
     {
         return $this->belongsTo(

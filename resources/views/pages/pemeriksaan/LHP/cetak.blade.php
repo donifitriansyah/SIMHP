@@ -7,8 +7,8 @@
 
     <style>
         @page {
-            size: A4 landscape;
-            margin: 12mm;
+            size: 330mm 210mm;
+            margin: 15mm;
         }
 
         table {
@@ -116,7 +116,19 @@
         <tr>
             <td>Objek Pemeriksaan</td>
             <td>:</td>
-            <td>{{ $lhp->objek_pemeriksaan }}</td>
+            <td>
+                @forelse($lhp->objekPemeriksaans as $item)
+                    {{ $item->nama_objek }}
+
+                    @if (!$loop->last)
+                        <br>
+                    @endif
+
+                @empty
+
+                    -
+                @endforelse
+            </td>
         </tr>
 
     </table>
@@ -421,7 +433,42 @@
             @endforeach
 
 
+
+
+
+
+
         </tbody>
+
+    </table>
+
+    <br><br><br>
+    <br><br><br>
+
+    <table style="width:100%; border:none;">
+
+        <tr>
+            <td style="border:none; text-align:center;">
+
+                Ketapang, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}
+
+                <br><br>
+
+                Inspektur Kabupaten Ketapang,
+
+                <br><br><br><br><br><br>
+
+
+                <b>
+                    {{ $penandatangan->nama ?? '-' }}
+                </b>
+
+                <br>
+
+                NIP. {{ $penandatangan->nip ?? '-' }}
+
+            </td>
+        </tr>
 
     </table>
 

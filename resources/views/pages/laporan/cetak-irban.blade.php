@@ -9,7 +9,7 @@
 
     <style>
         @page {
-            size: A4 landscape;
+            size: 330mm 210mm;
             margin: 12mm;
         }
 

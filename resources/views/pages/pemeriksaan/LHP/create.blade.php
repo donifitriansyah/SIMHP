@@ -266,18 +266,20 @@
                             <div class="mb-3">
 
                                 <label class="form-label">
-
                                     Pejabat yang Diperiksa
-
                                 </label>
 
-                                <select name="pejabat_auditee_id" id="pejabat" class="form-select">
+                                <select name="pejabat_auditee_id[]" id="pejabat" class="form-select" multiple>
 
                                     <option value="">
                                         Pilih Auditee terlebih dahulu
                                     </option>
 
                                 </select>
+
+                                <small class="text-muted">
+                                    Tekan CTRL untuk memilih lebih dari satu pejabat
+                                </small>
 
                             </div>
                             <div class="col-md-6 mb-3">
@@ -287,12 +289,7 @@
                                 </label>
 
 
-                                <select name="pihak_ketiga_id" class="form-select">
-
-
-                                    <option value="">
-                                        Tidak Ada
-                                    </option>
+                                <select name="pihak_ketiga_id[]" class="form-select" multiple>
 
 
                                     @foreach ($pihakKetigas as $pihak)
@@ -306,6 +303,11 @@
 
                                 </select>
 
+
+                                <small class="text-muted">
+                                    Bisa memilih lebih dari satu pihak ketiga
+                                </small>
+
                             </div>
                         @endif
 
@@ -318,11 +320,92 @@
                             </label>
 
 
-                            <input type="text" name="objek_pemeriksaan" class="form-control"
-                                value="{{ old('objek_pemeriksaan', $lhp->objek_pemeriksaan ?? '') }}"
-                                placeholder="Masukkan objek pemeriksaan">
+                            <div id="objek-container">
+
+
+                                <div class="input-group mb-2">
+
+                                    <input type="text" name="objek_pemeriksaan[]" class="form-control"
+                                        placeholder="Masukkan objek pemeriksaan">
+
+
+                                    <button type="button" class="btn btn-danger btn-remove">
+
+                                        X
+
+                                    </button>
+
+
+                                </div>
+
+
+                            </div>
+
+
+                            <button type="button" class="btn btn-sm btn-primary" id="tambah-objek">
+
+                                + Tambah Objek
+
+                            </button>
+
 
                         </div>
+
+                        <script>
+                            document.getElementById('tambah-objek')
+                                .addEventListener('click', function() {
+
+
+                                    let html = `
+
+    <div class="input-group mb-2">
+
+        <input
+            type="text"
+            name="objek_pemeriksaan[]"
+            class="form-control"
+            placeholder="Masukkan objek pemeriksaan">
+
+
+        <button
+            type="button"
+            class="btn btn-danger btn-remove">
+
+            X
+
+        </button>
+
+    </div>
+
+    `;
+
+
+                                    document
+                                        .getElementById('objek-container')
+                                        .insertAdjacentHTML(
+                                            'beforeend',
+                                            html
+                                        );
+
+
+                                });
+
+
+
+                            document.addEventListener(
+                                'click',
+                                function(e) {
+
+                                    if (e.target.classList.contains('btn-remove')) {
+
+                                        e.target
+                                            .closest('.input-group')
+                                            .remove();
+
+                                    }
+
+                                });
+                        </script>
 
                         <div class="col-md-6 mb-3">
 

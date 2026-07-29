@@ -252,7 +252,8 @@
 
                             <option value="">Semua Status</option>
 
-                            <option value="belum_ditindaklanjuti" {{ request('status') == 'belum_ditindaklanjuti' ? 'selected' : '' }}>
+                            <option value="belum_ditindaklanjuti"
+                                {{ request('status') == 'belum_ditindaklanjuti' ? 'selected' : '' }}>
                                 Belum Ditindaklanjuti
                             </option>
 
@@ -498,7 +499,19 @@
 
                                 <td>
 
-                                    {{ $l->objek_pemeriksaan }}
+                                    @if ($l->objekPemeriksaans->count())
+                                        <ol class="mb-0 ps-3">
+
+                                            @foreach ($l->objekPemeriksaans as $objek)
+                                                <li>
+                                                    {{ $objek->nama_objek }}
+                                                </li>
+                                            @endforeach
+
+                                        </ol>
+                                    @else
+                                        -
+                                    @endif
 
                                 </td>
 
