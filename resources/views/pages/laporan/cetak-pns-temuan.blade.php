@@ -12,10 +12,9 @@
 
     <style>
         @page {
-            size: A4 landscape;
-            margin: 15mm;
+            size: 330mm 210mm;
+            margin: 12mm;
         }
-
 
         body {
 
@@ -394,7 +393,7 @@
 
                     <div class="nama">
 
-                         {{ strtoupper($sekretaris->nama ?? '........................') }}
+                        {{ strtoupper($sekretaris->nama ?? '........................') }}
 
                     </div>
 

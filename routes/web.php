@@ -46,6 +46,10 @@ Route::middleware(['auth'])->group(function () {
         ->defaults('jenis', 'internal')
         ->name('dashboard.internal');
 
+    Route::get('/lhp/{lhp}/cetak', [LhpController::class, 'cetak'])
+        ->name('lhp.cetak');
+
+
 
     Route::get('/dashboard/eksternal', [DashboardController::class, 'index'])
         ->defaults('jenis', 'eksternal')
@@ -263,10 +267,20 @@ Route::middleware("auth")->group(function () {
         "lhp.filter"
     );
 
-    Route::get("/auditee/{auditee}/pejabat", [
-        LhpController::class,
-        "getPejabat",
-    ])->name("auditee.pejabat");
+    Route::get(
+        '/auditee/{auditee}/pejabat',
+        [LhpController::class, 'getPejabat']
+    )->name('auditee.pejabat');
+
+    Route::get(
+        '/get-pejabat/{auditee}',
+        [LhpController::class, 'getPejabat']
+    )->name('get.pejabat');
+
+    Route::delete(
+        '/lhp-objek-pemeriksaan/{id}',
+        [LhpController::class, 'hapusObjek']
+    )->name('lhp.objek.hapus');
 
 
     // Akses Khusus Role Super User

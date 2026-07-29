@@ -20,9 +20,6 @@ class Lhp extends Model
 
         'irban_id',
         'auditee_id',
-        'pejabat_auditee_id',
-        'pihak_ketiga_id',
-        'objek_pemeriksaan',
         'nama_pejabat_eksternal',
         'nomor_lhp',
         'tanggal_lhp',
@@ -74,11 +71,11 @@ class Lhp extends Model
         };
     }
 
-    public function pejabatAuditee()
+    public function pejabatAuditees()
     {
-        return $this->belongsTo(
-            PejabatAuditee::class,
-            'pejabat_auditee_id'
+        return $this->hasMany(
+            LhpPejabatAuditee::class,
+            'lhp_id'
         );
     }
 
@@ -94,8 +91,6 @@ class Lhp extends Model
         return $this->hasMany(DokumenLhp::class);
     }
 
-
-
     public function auditee()
     {
         return $this->belongsTo(
@@ -103,12 +98,18 @@ class Lhp extends Model
         );
     }
 
-
-
-    public function pihakKetiga()
+    public function objekPemeriksaans()
     {
-        return $this->belongsTo(
-            PihakKetiga::class
+        return $this->hasMany(
+            LhpObjekPemeriksaan::class
+        );
+    }
+
+    public function pihakKetigas()
+    {
+        return $this->belongsToMany(
+            PihakKetiga::class,
+            'lhp_pihak_ketiga'
         );
     }
 
@@ -121,8 +122,6 @@ class Lhp extends Model
             Temuan::class
         );
     }
-
-
 
     public function updateStatusLhp()
     {

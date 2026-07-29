@@ -145,7 +145,7 @@
 
                         </div>
                         @if ($jenis == 'internal')
-                        <input type="hidden" name="instansi_pemeriksa" value="Itkab">
+                            <input type="hidden" name="instansi_pemeriksa" value="Itkab">
                         @endif
 
                         @if ($jenis == 'eksternal')
@@ -259,14 +259,14 @@
 
                                 <select name="auditee_id" id="auditee" class="form-select">
 
-                                    <option value="">Pilih Auditee</option>
+                                    <option value="">
+                                        -- Pilih Auditee --
+                                    </option>
 
                                     @foreach ($auditees as $auditee)
                                         <option value="{{ $auditee->id }}"
-                                            {{ old('auditee_id', $lhp->auditee_id) == $auditee->id ? 'selected' : '' }}>
-
+                                            {{ $lhp->auditee_id == $auditee->id ? 'selected' : '' }}>
                                             {{ $auditee->nama_dinas }}
-
                                         </option>
                                     @endforeach
 
@@ -282,16 +282,76 @@
                                 </label>
 
 
-                                <select name="pejabat_auditee_id" id="pejabat" class="form-select">
-
-                                    <option value="">
-                                        Pilih Pejabat
-                                    </option>
-
+                                <select name="pejabat_auditee_id[]" id="pejabat" class="form-select" multiple>
                                 </select>
 
 
+                                <small class="text-muted">
+                                    Tekan CTRL untuk memilih lebih dari satu pejabat
+                                </small>
+
                             </div>
+
+                            <script>
+                                document.addEventListener('DOMContentLoaded', function() {
+
+                                    let auditee = document.getElementById('auditee');
+                                    let pejabat = document.getElementById('pejabat');
+
+
+                                    let auditeeId = auditee.value;
+
+
+                                    let pejabatTerpilih = @json($lhp->pejabatAuditees->pluck('pejabat_auditee_id'));
+
+
+                                    if (auditeeId) {
+
+                                        fetch('/get-pejabat/' + auditeeId)
+
+                                            .then(response => response.json())
+
+                                            .then(data => {
+
+
+                                                pejabat.innerHTML = '';
+
+                                                data.forEach(item => {
+
+
+                                                    let option = document.createElement('option');
+
+
+                                                    option.value = item.id;
+
+
+                                                    option.text =
+                                                        item.nama +
+                                                        ' - ' +
+                                                        item.jenis_jabatan.toUpperCase();
+
+
+
+                                                    if (pejabatTerpilih.includes(item.id)) {
+
+                                                        option.selected = true;
+
+                                                    }
+
+
+                                                    pejabat.appendChild(option);
+
+
+                                                });
+
+
+                                            });
+
+                                    }
+
+
+                                });
+                            </script>
 
                             <div class="col-md-6 mb-3">
 
@@ -300,28 +360,20 @@
                                 </label>
 
 
-                                <select name="pihak_ketiga_id" class="form-select">
-
-
-                                    <option value="">
-                                        Tidak Ada
-                                    </option>
-
+                                <select name="pihak_ketiga_id[]" class="form-select" multiple>
 
                                     @foreach ($pihakKetigas as $pihak)
-                                        <option value="{{ $pihak->id }}"
-                                            {{ $lhp->pihak_ketiga_id == $pihak->id ? 'selected' : '' }}>
-
-
+                                        <option value="{{ $pihak->id }}" @selected($lhp->pihakKetigas->contains($pihak->id))>
                                             {{ $pihak->nama_perusahaan }}
-
-
                                         </option>
                                     @endforeach
 
-
                                 </select>
 
+
+                                <small class="text-muted">
+                                    Tekan CTRL untuk memilih lebih dari satu pihak ketiga
+                                </small>
 
                             </div>
                         @endif
@@ -335,12 +387,97 @@
                             </label>
 
 
-                            <input type="text" name="objek_pemeriksaan" class="form-control"
-                                value="{{ old('objek_pemeriksaan', $lhp->objek_pemeriksaan ?? '') }}"
-                                placeholder="Masukkan objek pemeriksaan">
+                            <div id="objek-container">
+
+                                @foreach ($lhp->objekPemeriksaans as $objek)
+                                    <div class="input-group mb-2">
+
+                                        <input type="text" name="objek_pemeriksaan[]" class="form-control"
+                                            value="{{ $objek->nama_objek }}">
+
+
+                                        <input type="hidden" name="objek_id[]" value="{{ $objek->id }}">
+
+
+                                        <button type="button" class="btn btn-danger btn-remove-objek">
+
+                                            X
+
+                                        </button>
+
+                                    </div>
+                                @endforeach
+
+                            </div>
+
+
+
+
+                            <button type="button" class="btn btn-sm btn-primary" id="tambah-objek">
+
+                                + Tambah Objek
+
+                            </button>
 
 
                         </div>
+
+                        <script>
+                            document.getElementById('tambah-objek')
+                                .addEventListener('click', function() {
+
+                                    let html = `
+
+    <div class="input-group mb-2">
+
+        <input
+            type="text"
+            name="objek_pemeriksaan[]"
+            class="form-control"
+            placeholder="Masukkan objek pemeriksaan">
+
+
+        <button
+            type="button"
+            class="btn btn-danger btn-remove-objek">
+
+            X
+
+        </button>
+
+    </div>
+
+    `;
+
+
+                                    document
+                                        .getElementById('objek-container')
+                                        .insertAdjacentHTML(
+                                            'beforeend',
+                                            html
+                                        );
+
+                                });
+
+
+                            // HAPUS INPUT OBJEK
+
+                            document.addEventListener('click', function(e) {
+
+
+                                if (e.target.classList.contains('btn-remove-objek')) {
+
+
+                                    e.target
+                                        .closest('.input-group')
+                                        .remove();
+
+
+                                }
+
+
+                            });
+                        </script>
 
                         <div class="col-md-6 mb-3">
 
