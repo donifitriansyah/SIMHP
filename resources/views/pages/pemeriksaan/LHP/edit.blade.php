@@ -144,6 +144,20 @@
 
 
                         </div>
+
+                         <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                Jenis Laporan
+                            </label>
+
+                            <select name="jenis_laporan" class="form-select" required>
+                                <option value="LHP" @selected($lhp->jenis_laporan == 'LHP')>LHP</option>
+                                <option value="LHA" @selected($lhp->jenis_laporan == 'LHA')>LHA</option>
+                                <option value="LHE" @selected($lhp->jenis_laporan == 'LHR')>LHE</option>
+                                <option value="LHR" @selected($lhp->jenis_laporan == 'LHR')>LHR</option>
+                            </select>
+                        </div>
+
                         @if ($jenis == 'internal')
                             <input type="hidden" name="instansi_pemeriksa" value="Itkab">
                         @endif

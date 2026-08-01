@@ -8,11 +8,11 @@
 
             <div>
                 <h4 class="fw-bold mb-1">
-                    Tambah Data LHP
+                    Tambah Data Laporan
                 </h4>
 
                 <p class="text-muted mb-0">
-                    Input laporan hasil pemeriksaan baru
+                    Input data Laporan
                 </p>
             </div>
 
@@ -58,7 +58,7 @@
                         <div class="col-md-6 mb-3">
 
                             <label class="form-label">
-                                Nomor LHP
+                                Nomor Laporan
                             </label>
 
                             <input type="text" name="nomor_lhp"
@@ -169,6 +169,21 @@
                             <input type="text" name="jumlah_dana_diawasi" id="jumlah_dana_diawasi" class="form-control"
                                 value="{{ old('jumlah_dana_diawasi') }}" placeholder="Masukkan nominal">
 
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                Jenis Laporan
+                            </label>
+
+                            <select name="jenis_laporan" class="form-select" required>
+
+                                <option value="LHP">LHP</option>
+                                <option value="LHA">LHA</option>
+                                <option value="LHE">LHE</option>
+                                <option value="LHR">LHR</option>
+
+                            </select>
                         </div>
 
 

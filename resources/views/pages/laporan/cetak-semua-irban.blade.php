@@ -158,12 +158,12 @@
 
 
                 <th rowspan="2">
-                    JML LHP
+                    {{ $judulLaporan }}
                 </th>
 
 
                 <th colspan="2">
-                    LAPORAN HASIL PEMERIKSAAN
+                    LAPORAN
                 </th>
 
 

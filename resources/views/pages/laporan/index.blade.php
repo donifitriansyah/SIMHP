@@ -4,7 +4,38 @@
 @section('content')
     <div class="container-fluid py-4">
         <form method="GET" action="{{ route('laporan.index') }}" class="row g-3 mb-4">
-            <div class="col-md-3">
+            <div class="col-md-2">
+
+                <label class="form-label">
+                    Jenis Laporan
+                </label>
+
+                <select name="jenis_laporan" class="form-select">
+
+                    <option value="">
+                        Semua Jenis
+                    </option>
+
+                    <option value="LHP" {{ request('jenis_laporan') == 'LHP' ? 'selected' : '' }}>
+                        LHP
+                    </option>
+
+                    <option value="LHA" {{ request('jenis_laporan') == 'LHA' ? 'selected' : '' }}>
+                        LHA
+                    </option>
+
+                    <option value="LHE" {{ request('jenis_laporan') == 'LHE' ? 'selected' : '' }}>
+                        LHE
+                    </option>
+
+                    <option value="LHR" {{ request('jenis_laporan') == 'LHR' ? 'selected' : '' }}>
+                        LHR
+                    </option>
+
+                </select>
+
+            </div>
+            <div class="col-md-2">
                 <label class="form-label">
                     Jenis Pemeriksaan
                 </label>
@@ -29,14 +60,14 @@
                 <label class="form-label"> Tanggal Akhir </label>
                 <input type="date" name="tanggal_akhir" class="form-control" value="{{ request('tanggal_akhir') }}">
             </div>
-            <div class="col-md-2 d-flex align-items-end">
+            <div class="col-md-1 d-flex align-items-end">
                 <button class="btn btn-primary w-100">
                     <i class="bi bi-search"></i> Filter </button>
             </div>
-            <div class="col-md-2 d-flex align-items-end">
+            <div class="col-md-1 d-flex align-items-end">
                 <a href="{{ route('laporan.index') }}" class="btn btn-secondary w-100"> Reset </a>
             </div>
-            <div class="col-md-2 d-flex align-items-end">
+            <div class="col-md-1 d-flex align-items-end">
                 <a href="{{ route('laporan.cetak', request()->query()) }}" target="_blank" id="btnCetak"
                     class="btn btn-danger w-100">
                     <i class="bi bi-file-earmark-pdf"></i> Cetak PDF </a>
@@ -55,7 +86,9 @@
                             <tr>
                                 <th rowspan="2"> No </th>
                                 <th rowspan="2"> Wilayah Kerja </th>
-                                <th rowspan="2"> JML LHP </th>
+                                <th rowspan="2">
+                                    JML {{ request('jenis_laporan') ?: 'Laporan' }}
+                                </th>
                                 <th colspan="2"> JUMLAH </th>
                                 <th colspan="6"> PERKEMBANGAN TINDAK LANJUT </th>
                                 <th colspan="5"> Kerugian Negara / Daerah </th>

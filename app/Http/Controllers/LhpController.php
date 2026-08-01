@@ -133,6 +133,13 @@ class LhpController extends Controller
                 );
             }
         }
+        if ($request->filled('jenis_laporan')) {
+
+            $query->where(
+                'jenis_laporan',
+                $request->jenis_laporan
+            );
+        }
         if ($request->filled('status')) {
 
             $query->where(
@@ -582,6 +589,8 @@ class LhpController extends Controller
 
             'dokumen.*' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png|max:5120',
 
+            'jenis_laporan' => 'required|in:LHP,LHA,LHE,LHR',
+
         ]);
 
 
@@ -651,6 +660,8 @@ class LhpController extends Controller
 
 
             'status_proses' => 'belum_ditindaklanjuti',
+
+            'jenis_laporan' => $request->jenis_laporan,
 
         ]);
 
@@ -980,6 +991,8 @@ class LhpController extends Controller
             'dokumen.*'
             => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png|max:5120',
 
+            'jenis_laporan' => 'required|in:LHP,LHA,LHE,LHR',
+
         ]);
 
 
@@ -1028,6 +1041,8 @@ class LhpController extends Controller
 
             'jenis_pemeriksaan'
             => $request->jenis_pemeriksaan,
+
+            'jenis_laporan' => $request->jenis_laporan,
 
         ]);
 

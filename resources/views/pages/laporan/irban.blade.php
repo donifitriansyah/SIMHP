@@ -8,6 +8,37 @@
             <div class="col-md-2">
 
                 <label class="form-label">
+                    Jenis Laporan
+                </label>
+
+                <select name="jenis_laporan" class="form-select">
+
+                    <option value="">
+                        Semua Jenis
+                    </option>
+
+                    <option value="LHP" {{ request('jenis_laporan') == 'LHP' ? 'selected' : '' }}>
+                        LHP
+                    </option>
+
+                    <option value="LHA" {{ request('jenis_laporan') == 'LHA' ? 'selected' : '' }}>
+                        LHA
+                    </option>
+
+                    <option value="LHE" {{ request('jenis_laporan') == 'LHE' ? 'selected' : '' }}>
+                        LHE
+                    </option>
+
+                    <option value="LHR" {{ request('jenis_laporan') == 'LHR' ? 'selected' : '' }}>
+                        LHR
+                    </option>
+
+                </select>
+
+            </div>
+            <div class="col-md-2">
+
+                <label class="form-label">
                     Jenis Pemeriksaan
                 </label>
 
@@ -119,7 +150,7 @@
 
                         <th rowspan="2">Obrik</th>
 
-                        <th rowspan="2">JML LHP</th>
+                        <th rowspan="2">JML {{ request('jenis_laporan') ?: 'Laporan' }}</th>
 
                         <th colspan="2">LAPORAN HASIL PEMERIKSAAN</th>
 
@@ -318,12 +349,13 @@
 
             let jenis = document.querySelector('[name="jenis"]').value;
 
+            let jenisLaporan = document.querySelector('[name="jenis_laporan"]').value;
+
             let irban = document.querySelector('[name="irban_id"]').value;
 
             let awal = document.querySelector('[name="tanggal_awal"]').value;
 
             let akhir = document.querySelector('[name="tanggal_akhir"]').value;
-
 
 
             if (!awal) {
@@ -338,16 +370,13 @@
             }
 
 
-
             let url;
-
 
 
             if (irban !== "") {
 
                 // Cetak satu Irban
                 url = "{{ route('laporan.irban.cetak') }}";
-
 
             } else {
 
@@ -357,15 +386,33 @@
             }
 
 
+            let params = [];
 
-            url += "?jenis=" + jenis;
 
-            url += "&irban_id=" + irban;
+            params.push("jenis=" + jenis);
 
-            url += "&tanggal_awal=" + awal;
+            params.push("tanggal_awal=" + awal);
 
-            url += "&tanggal_akhir=" + akhir;
+            params.push("tanggal_akhir=" + akhir);
 
+
+            if (irban !== "") {
+
+                params.push("irban_id=" + irban);
+
+            }
+
+
+            if (jenisLaporan !== "") {
+
+                params.push(
+                    "jenis_laporan=" + jenisLaporan
+                );
+
+            }
+
+
+            url += "?" + params.join("&");
 
 
             window.open(url, "_blank");

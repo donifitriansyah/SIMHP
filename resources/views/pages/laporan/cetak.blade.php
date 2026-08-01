@@ -167,7 +167,7 @@
 
 
                 <th rowspan="2">
-                    JML LHP
+                    JML {{ request('jenis_laporan') ?: 'Laporan' }}
                 </th>
 
 

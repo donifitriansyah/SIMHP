@@ -248,29 +248,52 @@ class LaporanController extends Controller
 
     public function cetakIrban(Request $request)
     {
-        $inspektur = PenandatanganLaporan::where('jabatan', 'Inspektur')->first();
+        $inspektur = PenandatanganLaporan::where(
+            'jabatan',
+            'Inspektur'
+        )->first();
 
-        $sekretaris = PenandatanganLaporan::where('jabatan', 'Sekretaris')->first();
+        $sekretaris = PenandatanganLaporan::where(
+            'jabatan',
+            'Sekretaris'
+        )->first();
+
 
         $tahun = null;
         $bulan = null;
 
+
         if ($request->filled('tanggal_awal')) {
-            $tanggal = \Carbon\Carbon::parse($request->tanggal_awal);
+
+            $tanggal = \Carbon\Carbon::parse(
+                $request->tanggal_awal
+            );
+
             $tahun = $tanggal->format('Y');
             $bulan = $tanggal->translatedFormat('F');
         }
 
+
+        // Judul mengikuti jenis laporan
+        $judulLaporan = $request->filled('jenis_laporan')
+            ? 'JML ' . strtoupper($request->jenis_laporan)
+            : 'JML LAPORAN';
+
+
+
+        // Jika cetak 1 Irban
         if ($request->filled('irban_id')) {
+
 
             $laporan = [
                 $this->getLaporanIrban($request)
             ];
 
-            // Ambil data penandatangan Irban
+
             $irbanPenandatangan = Irban::find(
                 $request->irban_id
             );
+
 
             return view(
                 'pages.laporan.cetak-irban',
@@ -280,12 +303,17 @@ class LaporanController extends Controller
                     'bulan',
                     'irbanPenandatangan',
                     'inspektur',
-                    'sekretaris'
+                    'sekretaris',
+                    'judulLaporan'
                 )
             );
         }
 
+
+
+        // Jika cetak semua Irban
         $laporan = $this->getLaporanSemuaIrban($request);
+
 
         return view(
             'pages.laporan.cetak-semua-irban',
@@ -294,7 +322,8 @@ class LaporanController extends Controller
                 'tahun',
                 'bulan',
                 'inspektur',
-                'sekretaris'
+                'sekretaris',
+                'judulLaporan'
             )
         );
     }
@@ -304,7 +333,7 @@ class LaporanController extends Controller
         $inspektur = PenandatanganLaporan::where('jabatan', 'Inspektur')->first();
 
         $sekretaris = PenandatanganLaporan::where('jabatan', 'Sekretaris')->first();
-        
+
         $laporan = $this->getLaporan($request);
 
         $periode = null;
@@ -358,6 +387,13 @@ class LaporanController extends Controller
                             ]
                         );
                     }
+                }
+                if ($request->filled('jenis_laporan')) {
+
+                    $lhp->where(
+                        'jenis_laporan',
+                        $request->jenis_laporan
+                    );
                 }
                 if ($request->filled("tanggal_awal")) {
                     $lhp->whereDate(
@@ -602,6 +638,13 @@ class LaporanController extends Controller
                         ]
                     );
                 }
+                if ($request->filled('jenis_laporan')) {
+
+                    $query->where(
+                        'jenis_laporan',
+                        $request->jenis_laporan
+                    );
+                }
                 if ($request->filled("tanggal_awal")) {
                     $query->whereDate(
                         "tanggal_lhp",
@@ -652,7 +695,9 @@ class LaporanController extends Controller
 
                 "tanggal" => $lhp->tanggal_lhp,
 
-                'obrik' => $lhp->objek_pemeriksaan,
+                "obrik" => $lhp->objekPemeriksaans
+                    ->pluck('nama_objek')
+                    ->implode(', '),
 
                 "temuan" => 0,
 
@@ -743,6 +788,14 @@ class LaporanController extends Controller
                             ]
                         );
                     }
+                }
+
+                if ($request->filled('jenis_laporan')) {
+
+                    $query->where(
+                        'jenis_laporan',
+                        $request->jenis_laporan
+                    );
                 }
 
                 if ($request->filled("tanggal_awal")) {
@@ -839,7 +892,10 @@ class LaporanController extends Controller
                     "tanggal" => $lhp->tanggal_lhp,
                     'wilayah' => $irban->nama_irban,
 
-                    "obrik" => $lhp->objek_pemeriksaan,
+                    "obrik" => $lhp->objekPemeriksaans
+                        ->pluck('nama_objek')
+                        ->implode(', '),
+                    "jenis_laporan" => $lhp->jenis_laporan,
 
 
                     "temuan" => 0,
@@ -988,12 +1044,20 @@ class LaporanController extends Controller
 
         $laporan = null;
 
+        $judulLaporan = $request->filled('jenis_laporan')
+            ? 'JML ' . strtoupper($request->jenis_laporan)
+            : 'JML LAPORAN';
+
         // Halaman pertama kali dibuka
         if (!$request->has('tanggal_awal') && !$request->has('tanggal_akhir')) {
 
             return view(
                 'pages.laporan.irban',
-                compact('listIrban', 'laporan')
+                compact(
+                    'listIrban',
+                    'laporan',
+                    'judulLaporan'
+                )
             );
         }
 
@@ -1003,7 +1067,11 @@ class LaporanController extends Controller
 
             return view(
                 'pages.laporan.irban',
-                compact('laporan', 'listIrban')
+                compact(
+                    'laporan',
+                    'listIrban',
+                    'judulLaporan'
+                )
             );
         }
 
@@ -1011,14 +1079,19 @@ class LaporanController extends Controller
 
         return view(
             'pages.laporan.semua-irban',
-            compact('laporan', 'listIrban')
+            compact(
+                'laporan',
+                'listIrban',
+                'judulLaporan'
+            )
         );
     }
+
+
     public function cetakSemuaIrban(Request $request)
     {
         $inspektur = Pegawai::where('jabatan', 'Inspektur Kabupaten Ketapang')->first();
         $sekretaris = Pegawai::where('jabatan', 'Sekretaris')->first();
-
 
         $tahun = null;
         $bulan = null;
@@ -1036,14 +1109,24 @@ class LaporanController extends Controller
         $laporan = $this->getLaporanSemuaIrban($request);
 
 
+        $judulLaporan = $request->filled('jenis_laporan')
+            ? 'JML ' . strtoupper($request->jenis_laporan)
+            : 'JML LAPORAN';
+
+
+        $listIrban = Irban::orderBy('nama_irban')->get();
+
+
         return view(
-            'pages.laporan.semua-irban',
+            'pages.laporan.cetak-semua-irban',
             compact(
                 'laporan',
                 'tahun',
                 'bulan',
                 'inspektur',
-                'sekretaris'
+                'sekretaris',
+                'judulLaporan',
+                'listIrban'
             )
         );
     }

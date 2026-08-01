@@ -197,8 +197,36 @@
 
                 <div class="row g-3">
 
+                    <div class="col-md-2">
+
+                        <label class="form-label">Jenis Laporan</label>
+
+                        <select name="jenis_laporan" class="form-select">
+
+                            <option value="">Semua Jenis Laporan</option>
+
+                            <option value="LHP" {{ request('jenis_laporan') == 'LHP' ? 'selected' : '' }}>
+                                LHP
+                            </option>
+
+                            <option value="LHA" {{ request('jenis_laporan') == 'LHA' ? 'selected' : '' }}>
+                                LHA
+                            </option>
+
+                            <option value="LHE" {{ request('jenis_laporan') == 'LHE' ? 'selected' : '' }}>
+                                LHE
+                            </option>
+
+                            <option value="LHR" {{ request('jenis_laporan') == 'LHR' ? 'selected' : '' }}>
+                                LHR
+                            </option>
+
+                        </select>
+
+                    </div>
+
                     @if ($jenis == 'internal')
-                        <div class="col-md-3">
+                        <div class="col-md-2">
 
                             <label class="form-label">Irban</label>
 
@@ -219,7 +247,7 @@
 
                         </div>
                     @else
-                        <div class="col-md-3">
+                        <div class="col-md-2">
 
                             <label class="form-label">Tim Eksternal</label>
 
@@ -244,7 +272,7 @@
                         </div>
                     @endif
 
-                    <div class="col-md-3">
+                    <div class="col-md-2">
 
                         <label class="form-label">Status</label>
 
@@ -325,13 +353,13 @@
 
                     <i class="bi bi-briefcase-fill me-2"></i>
 
-                    Data Laporan Hasil Pemeriksaan (LHP)
+                    Data Laporan
                     {{ ucfirst($jenis) }}
 
                 </h5>
 
                 <small class="text-muted mb-0">
-                    Kelola data laporan hasil pemeriksaan
+                    Kelola data laporan
                 </small>
 
             </div>
@@ -340,12 +368,12 @@
                     @if ($jenis == 'internal')
                         <a href="{{ route('lhp.internal.create') }}" class="btn btn-primary">
                             <i class="bi bi-plus-circle"></i>
-                            Tambah LHP
+                            Tambah Laporan
                         </a>
                     @elseif($jenis == 'eksternal')
                         <a href="{{ route('lhp.eksternal.create') }}" class="btn btn-primary">
                             <i class="bi bi-plus-circle"></i>
-                            Tambah LHP
+                            Tambah Laporan
                         </a>
                     @endif
                 @endif
@@ -368,7 +396,9 @@
 
                             <th width="5%">No</th>
 
-                            <th>Nomor LHP</th>
+                            <th>Jenis</th>
+
+                            <th>Nomor Laporan</th>
 
                             @if ($jenis == 'eksternal')
                                 <th>Instansi Pemeriksa</th>
@@ -432,7 +462,30 @@
                                     {{ $loop->iteration }}
                                 </td>
 
+                                <td>
+                                    @switch($l->jenis_laporan)
+                                        @case('LHP')
+                                            <span class="badge bg-primary">LHP</span>
+                                        @break
 
+                                        @case('LHA')
+                                            <span class="badge bg-success">LHA</span>
+                                        @break
+
+                                        @case('LHE')
+                                            <span class="badge bg-warning text-dark">LHE</span>
+                                        @break
+
+                                        @case('LHR')
+                                            <span class="badge bg-danger">LHR</span>
+                                        @break
+
+                                        @default
+                                            <span class="badge bg-secondary">
+                                                {{ $l->jenis_laporan }}
+                                            </span>
+                                    @endswitch
+                                </td>
 
                                 <td>
 
@@ -659,7 +712,7 @@
 
                                         @auth
                                             @if (auth()->user()->role == 'super_user')
-                                                @if ($l->status_proses == 'belum_ditindaklanjuti')
+                                                {{-- @if ($l->status_proses == 'belum_ditindaklanjuti')
                                                     <form action="{{ route('lhp.tetapkan-tt', $l->id) }}" method="POST"
                                                         class="d-inline"
                                                         onsubmit="return confirm('Tetapkan LHP ini sebagai Tidak Dapat Ditindaklanjuti?')">
@@ -675,7 +728,7 @@
                                                         </button>
 
                                                     </form>
-                                                @endif
+                                                @endif --}}
 
 
                                                 <a href="{{ route('lhp.edit', $l->id) }}" class="btn btn-warning btn-sm">

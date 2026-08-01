@@ -8,9 +8,9 @@
 
             <div>
 
-                <h4 class="fw-bold mb-1"> Detail Laporan Hasil Pemeriksaan </h4>
+                <h4 class="fw-bold mb-1"> Detail Laporan</h4>
 
-                <p class="text-muted mb-0"> Informasi lengkap laporan hasil pemeriksaan </p>
+                <p class="text-muted mb-0"> Data Entry laporan </p>
 
             </div>
 
@@ -145,7 +145,7 @@
 
                     <div class="col-md-6 mb-3">
 
-                        <label class="text-muted"> Nomor LHP </label>
+                        <label class="text-muted"> Nomor Laporan </label>
 
                         <h6> {{ $lhp->nomor_lhp }} </h6>
 
@@ -196,6 +196,13 @@
                         <label class="text-muted"> Instansi Pemeriksa </label>
 
                         <h6>{{ $lhp->instansi_pemeriksa_label }}</h6>
+
+                    </div>
+                    <div class="col-md-6 mb-3">
+
+                        <label class="text-muted"> Jenis Laporan </label>
+
+                        <h6>{{ $lhp->jenis_laporan }}</h6>
 
                     </div>
 

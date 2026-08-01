@@ -29,6 +29,7 @@ class Lhp extends Model
         'jumlah_dana_diawasi',
         'jenis_pemeriksaan',
         'instansi_pemeriksa',
+        'jenis_laporan',
         'status_lhp',
         'status_proses'
 
@@ -201,11 +202,6 @@ class Lhp extends Model
 
     public function updateStatusProses()
     {
-        // TT ditentukan manual oleh admin
-        if ($this->status_proses == 'tt') {
-            return;
-        }
-
         $this->loadMissing([
             'temuans.rekomendasis.tindakLanjut.status'
         ]);
@@ -213,6 +209,7 @@ class Lhp extends Model
         $totalRekomendasi = 0;
         $rekomendasiAdaTL = 0;
         $rekomendasiSelesai = 0;
+        $rekomendasiTT = 0;
 
         foreach ($this->temuans as $temuan) {
 
@@ -224,39 +221,46 @@ class Lhp extends Model
                     ->sortByDesc('id')
                     ->first();
 
-                // Sudah pernah ditindaklanjuti
                 if ($tlTerakhir) {
 
                     $rekomendasiAdaTL++;
 
-                    // Sudah selesai
-                    if (
-                        $tlTerakhir->status &&
-                        $tlTerakhir->status->kode == 'S'
-                    ) {
-                        $rekomendasiSelesai++;
+                    if ($tlTerakhir->status) {
+
+                        if ($tlTerakhir->status->kode == 'S') {
+                            $rekomendasiSelesai++;
+                        }
+
+                        if ($tlTerakhir->status->kode == 'TT') {
+                            $rekomendasiTT++;
+                        }
                     }
                 }
             }
         }
 
-        // Tidak ada rekomendasi
         if ($totalRekomendasi == 0) {
 
             $status = 'belum_ditindaklanjuti';
-        }
-        // Belum ada satupun TL
-        elseif ($rekomendasiAdaTL == 0) {
+        } elseif ($rekomendasiAdaTL == 0) {
 
             $status = 'belum_ditindaklanjuti';
         }
-        // Semua rekomendasi selesai
+        // Semua TT
+        elseif ($rekomendasiTT == $totalRekomendasi) {
+
+            $status = 'tt';
+        }
+        // Semua selesai
         elseif ($rekomendasiSelesai == $totalRekomendasi) {
 
             $status = 'selesai';
         }
-        // Sudah ada TL tetapi belum semuanya selesai
-        else {
+        // Campuran S + TT juga dianggap selesai
+        elseif (($rekomendasiSelesai + $rekomendasiTT) == $totalRekomendasi) {
+
+            $status = 'selesai';
+        } else {
 
             $status = 'dalam_proses';
         }

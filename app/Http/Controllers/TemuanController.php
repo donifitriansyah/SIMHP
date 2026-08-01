@@ -108,10 +108,7 @@ class TemuanController extends Controller
             'nilai_kerugian' => 'nullable|string',
             'nama_pelaku' => 'nullable|string|max:255',
             'jenis_finansial' => 'nullable|in:pns,perangkat_desa,penyedia,pihak_lain',
-            'detail_finansial.pegawai_id.*' => 'nullable|exists:pegawai,id',
-            'detail_finansial.pihak_ketiga_id.*' => 'nullable|exists:pihak_ketiga,id',
-            'detail_finansial.perangkat_desa_id.*' => 'nullable|exists:perangkat_desa,id',
-            'detail_finansial.pihak_lain_id.*' => 'nullable|exists:pihak_lain,id',
+            'pegawai_id' => 'nullable|exists:pejabat_auditee,id',
             'detail_finansial.nilai.*' => 'nullable',
         ]);
 
@@ -216,17 +213,7 @@ class TemuanController extends Controller
 
             'jenis_finansial' => 'nullable|in:pns,perangkat_desa,penyedia,pihak_lain',
 
-            'detail_finansial.pegawai_id.*'
-            => 'nullable|exists:pegawai,id',
-
-            'detail_finansial.perangkat_desa_id.*'
-            => 'nullable|exists:perangkat_desa,id',
-
-            'detail_finansial.pihak_ketiga_id.*'
-            => 'nullable|exists:pihak_ketiga,id',
-
-            'detail_finansial.pihak_lain_id.*'
-            => 'nullable|exists:pihak_lain,id',
+            'pegawai_id' => 'nullable|exists:pejabat_auditee,id',
 
             'detail_finansial.nilai.*'
             => 'nullable',

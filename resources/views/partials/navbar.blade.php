@@ -152,7 +152,7 @@
 
                             <i class="bi bi-folder2-open me-1"></i>
 
-                            LHP
+                            Entry Laporan
 
                         </a>
 

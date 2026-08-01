@@ -8,6 +8,37 @@
 
 
         <form method="GET" id="formLaporan" action="{{ route('laporan.irban') }}" class="row g-3 mb-4">
+            <div class="col-md-1">
+
+                <label class="form-label">
+                    Jenis Laporan
+                </label>
+
+                <select name="jenis_laporan" class="form-select">
+
+                    <option value="">
+                        Semua Jenis
+                    </option>
+
+                    <option value="LHP" {{ request('jenis_laporan') == 'LHP' ? 'selected' : '' }}>
+                        LHP
+                    </option>
+
+                    <option value="LHA" {{ request('jenis_laporan') == 'LHA' ? 'selected' : '' }}>
+                        LHA
+                    </option>
+
+                    <option value="LHE" {{ request('jenis_laporan') == 'LHE' ? 'selected' : '' }}>
+                        LHE
+                    </option>
+
+                    <option value="LHR" {{ request('jenis_laporan') == 'LHR' ? 'selected' : '' }}>
+                        LHR
+                    </option>
+
+                </select>
+
+            </div>
             <div class="col-md-2">
 
                 <label class="form-label">
@@ -61,7 +92,7 @@
                 <input type="date" name="tanggal_akhir" class="form-control" value="{{ request('tanggal_akhir') }}">
             </div>
 
-            <div class="col-md-2 d-flex align-items-end">
+            <div class="col-md-1 d-flex align-items-end">
 
                 <button class="btn btn-primary w-100">
                     <i class="bi bi-search"></i>
@@ -70,7 +101,7 @@
 
             </div>
 
-            <div class="col-md-2 d-flex align-items-end">
+            <div class="col-md-1 d-flex align-items-end">
 
                 <a href="{{ route('laporan.irban') }}" class="btn btn-secondary w-100">
 
@@ -80,7 +111,7 @@
 
             </div>
 
-            <div class="col-md-2 d-flex align-items-end">
+            <div class="col-md-1 d-flex align-items-end">
 
                 <button type="button" onclick="cetakLaporan()" class="btn btn-success w-100">
 
@@ -119,7 +150,7 @@
 
                                 <th rowspan="2">Obrik</th>
 
-                                <th rowspan="2">JML LHP</th>
+                                <th rowspan="2">JML {{ request('jenis_laporan') ?: 'Laporan' }}</th>
 
                                 <th colspan="2">
                                     LAPORAN HASIL PEMERIKSAAN
@@ -341,34 +372,90 @@
 
             let irban = document.querySelector('[name="irban_id"]').value;
 
+            let jenis = document.querySelector('[name="jenis"]').value;
+
+            let jenisLaporan = document.querySelector('[name="jenis_laporan"]').value;
+
             let tanggalAwal = document.querySelector('[name="tanggal_awal"]').value;
 
             let tanggalAkhir = document.querySelector('[name="tanggal_akhir"]').value;
+
 
             if (!tanggalAwal) {
                 alert('Silahkan pilih Tanggal Awal terlebih dahulu');
                 return;
             }
 
+
             if (!tanggalAkhir) {
                 alert('Silahkan pilih Tanggal Akhir terlebih dahulu');
                 return;
             }
 
-            let url = "{{ route('laporan.irban.cetak') }}";
+
+            let url;
+
+
+            // Jika pilih Irban tertentu
+            if (irban) {
+
+                url = "{{ route('laporan.irban.cetak') }}";
+
+            }
+            // Jika semua Irban
+            else {
+
+                url = "{{ route('laporan.semua-irban.cetak') }}";
+
+            }
+
+
 
             let params = [];
 
-            if (irban) {
-                params.push("irban_id=" + irban);
+
+            if (jenis) {
+
+                params.push(
+                    "jenis=" + encodeURIComponent(jenis)
+                );
+
             }
 
-            params.push("tanggal_awal=" + tanggalAwal);
-            params.push("tanggal_akhir=" + tanggalAkhir);
+
+            if (jenisLaporan) {
+
+                params.push(
+                    "jenis_laporan=" + encodeURIComponent(jenisLaporan)
+                );
+
+            }
+
+
+            if (irban) {
+
+                params.push(
+                    "irban_id=" + encodeURIComponent(irban)
+                );
+
+            }
+
+
+            params.push(
+                "tanggal_awal=" + encodeURIComponent(tanggalAwal)
+            );
+
+
+            params.push(
+                "tanggal_akhir=" + encodeURIComponent(tanggalAkhir)
+            );
+
 
             url += "?" + params.join("&");
 
+
             window.open(url, "_blank");
+
         }
     </script>
 
