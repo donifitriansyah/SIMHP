@@ -16,7 +16,7 @@
 
                         <div>
                             <small class="text-muted">
-                                Total LHP
+                                Total Laporan
                             </small>
 
 

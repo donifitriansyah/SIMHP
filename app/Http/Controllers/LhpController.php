@@ -668,51 +668,52 @@ class LhpController extends Controller
 
 
         /*
-    |--------------------------------------------------------------------------
-    | Simpan Pejabat Auditee
-    |--------------------------------------------------------------------------
-    */
+|--------------------------------------------------------------------------
+| Simpan Pejabat Auditee
+|--------------------------------------------------------------------------
+*/
+
+        // Hapus relasi lama (jika ada)
+        $lhp->pejabatAuditees()->delete();
 
         if ($request->filled('pejabat_auditee_id')) {
 
-            $lhp->pejabatAuditees()
-                ->sync($request->pejabat_auditee_id);
+            foreach ($request->pejabat_auditee_id as $id) {
+
+                $lhp->pejabatAuditees()->create([
+                    'pejabat_auditee_id' => $id
+                ]);
+            }
         }
 
 
-
         /*
-    |--------------------------------------------------------------------------
-    | Simpan Pihak Ketiga
-    |--------------------------------------------------------------------------
-    */
+|--------------------------------------------------------------------------
+| Simpan Pihak Ketiga
+|--------------------------------------------------------------------------
+*/
 
-        if ($request->filled('pihak_ketiga_id')) {
-
-            $lhp->pihakKetigas()
-                ->sync($request->pihak_ketiga_id);
-        }
-
+        $lhp->pihakKetigas()->sync(
+            $request->pihak_ketiga_id ?? []
+        );
 
 
         /*
-    |--------------------------------------------------------------------------
-    | Simpan Objek Pemeriksaan
-    |--------------------------------------------------------------------------
-    */
+|--------------------------------------------------------------------------
+| Simpan Objek Pemeriksaan
+|--------------------------------------------------------------------------
+*/
 
         if ($request->filled('objek_pemeriksaan')) {
 
-
             foreach ($request->objek_pemeriksaan as $objek) {
 
+                if (!empty($objek)) {
 
-                $lhp->objekPemeriksaans()
-                    ->create([
-
+                    $lhp->objekPemeriksaans()->create([
                         'nama_objek' => $objek
-
                     ]);
+                }
             }
         }
 

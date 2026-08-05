@@ -56,8 +56,11 @@ class DashboardController extends Controller
 
         $totalPengembalian = TindakLanjut::whereHas(
             'rekomendasi.temuan.lhp',
-            $filterLhp
-        )->sum('nilai_pengembalian');
+            $filterLhp)->selectRaw('SUM(
+            COALESCE(nilai_pengembalian,0) +
+            COALESCE(nilai_setor_pajak,0)
+            ) as total')
+            ->value('total');
 
         $belumDitindaklanjuti = (clone $lhpQuery)
             ->where('status_proses', 'belum_ditindaklanjuti')
@@ -87,7 +90,8 @@ class DashboardController extends Controller
         $totalKerugian = Rekomendasi::whereHas(
             'temuan.lhp',
             $filterLhp
-        )->sum('nilai_finansial');
+        )->selectRaw('SUM(IFNULL(nilai_finansial,0) + IFNULL(nilai_pajak,0)) as total')
+            ->value('total');
 
         $queryIrban = Irban::with('lhps.temuans');
 

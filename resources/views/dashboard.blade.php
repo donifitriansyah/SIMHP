@@ -48,7 +48,7 @@
                                 <div>
 
                                     <small class="text-muted">
-                                        Total LHP
+                                        Total Laporan
                                     </small>
 
                                     <h2 class="fw-bold mt-2">

@@ -14,47 +14,56 @@ class RegisterLhpController extends Controller
      */
     public function index(Request $request)
     {
-        $jenis = $request->get('jenis', 'internal');
+        $jenis = $request->input('jenis', 'internal');
+        $jenisLaporan = $request->input('jenis_laporan', 'LHP');
+
         $query = Lhp::with([
             'irban',
             'temuans.detailFinansial'
         ]);
 
+        // User View hanya melihat Irban miliknya
         if (auth()->user()->isUserView()) {
-
             $query->where(
                 'irban_id',
                 auth()->user()->irban_id
             );
         }
 
+        /*
+    |--------------------------------------------------------------------------
+    | Filter Jenis Pemeriksaan
+    |--------------------------------------------------------------------------
+    */
 
-        // Filter Internal
-        if ($request->jenis == 'internal') {
+        if ($jenis == 'internal') {
 
-            $query->where(
-                'instansi_pemeriksa',
-                'Itkab'
-            );
+            $query->where('instansi_pemeriksa', 'Itkab');
+        } elseif ($jenis == 'eksternal') {
+
+            $query->whereIn('instansi_pemeriksa', [
+                'Itprov',
+                'BPK RI',
+                'BPKP'
+            ]);
         }
 
+        /*
+    |--------------------------------------------------------------------------
+    | Filter Jenis Laporan
+    |--------------------------------------------------------------------------
+    */
 
-        // Filter Eksternal
-        elseif ($request->jenis == 'eksternal') {
-
-            $query->whereIn(
-                'instansi_pemeriksa',
-                [
-                    'Itprov',
-                    'BPK RI',
-                    'BPKP'
-                ]
-            );
+        if (!empty($jenisLaporan)) {
+            $query->where('jenis_laporan', $jenisLaporan);
         }
 
+        /*
+    |--------------------------------------------------------------------------
+    | Filter Irban
+    |--------------------------------------------------------------------------
+    */
 
-
-        // Filter Tim Pemeriksa
         if ($request->filled('irban_id')) {
 
             $query->where(
@@ -63,9 +72,12 @@ class RegisterLhpController extends Controller
             );
         }
 
+        /*
+    |--------------------------------------------------------------------------
+    | Filter Tanggal
+    |--------------------------------------------------------------------------
+    */
 
-
-        // Filter tanggal
         if ($request->filled('tanggal_awal')) {
 
             $query->whereDate(
@@ -74,8 +86,6 @@ class RegisterLhpController extends Controller
                 $request->tanggal_awal
             );
         }
-
-
 
         if ($request->filled('tanggal_akhir')) {
 
@@ -86,29 +96,19 @@ class RegisterLhpController extends Controller
             );
         }
 
-
-
         $lhps = $query
-            ->orderBy(
-                'tanggal_spt',
-                'desc'
-            )
+            ->orderBy('tanggal_spt', 'desc')
             ->get();
 
-
-
-        $irbans = Irban::orderBy(
-            'nama_irban'
-        )->get();
-
-
+        $irbans = Irban::orderBy('nama_irban')->get();
 
         return view(
             'pages.register-lhp.index',
             compact(
                 'lhps',
                 'irbans',
-                'jenis'
+                'jenis',
+                'jenisLaporan'
             )
         );
     }

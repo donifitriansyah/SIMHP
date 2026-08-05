@@ -16,8 +16,6 @@
 
             <div class="card-body">
 
-
-                {{-- Filter --}}
                 {{-- Filter --}}
                 <form method="GET" action="{{ route('register.lhp.index') }}">
 
@@ -289,8 +287,9 @@
 
                                     <td class="text-end">
 
+
                                         Rp
-                                        {{ number_format($totalTemuan, 0, ',', '.') }}
+                                        {{ number_format($lhp->jumlah_dana_diawasi, 0, ',', '.') }}
 
                                     </td>
 
@@ -319,7 +318,7 @@
                                     <td class="text-end">
 
                                         Rp
-                                        {{ number_format($lhp->jumlah_dana_diawasi, 0, ',', '.') }}
+                                        {{ number_format($totalTemuan, 0, ',', '.') }}
 
                                     </td>
 
@@ -336,13 +335,9 @@
 
 
                                     <td>
-
-
-
-                                        {{ $lhp->objek_pemeriksaan }}
-
-
-
+                                        @foreach ($lhp->objekPemeriksaans as $objek)
+                                            {{ $loop->iteration }}. {{ $objek->nama_objek }}<br>
+                                        @endforeach
                                     </td>
 
 
