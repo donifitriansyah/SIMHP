@@ -389,404 +389,407 @@
 
                 <table class="table table-hover align-middle" id="dataTable">
 
+    <thead class="table-light">
+        <tr>
 
-                    <thead class="table-light">
+            <th width="5%">No</th>
 
-                        <tr>
+            <th>Jenis</th>
 
-                            <th width="5%">No</th>
+            <th>Nomor Laporan</th>
 
-                            <th>Jenis</th>
+            @if ($jenis == 'eksternal')
+                <th>Instansi Pemeriksa</th>
+            @endif
 
-                            <th>Nomor Laporan</th>
+            <th>Irban</th>
 
-                            @if ($jenis == 'eksternal')
-                                <th>Instansi Pemeriksa</th>
+            @if ($jenis == 'internal')
+                <th>Auditee</th>
+            @endif
+
+            <th>Objek Pemeriksaan</th>
+
+            <th>Temuan</th>
+
+            <th>Rekomendasi</th>
+
+            <th>Progress</th>
+
+            <th>Status</th>
+
+            <th style="width:10px">Aksi</th>
+
+        </tr>
+    </thead>
+
+    <tbody>
+
+        @forelse($lhps as $l)
+
+            @php
+
+                $totalTemuan = $l->temuans->count();
+
+                $totalRekomendasi = $l->temuans->sum(function ($temuan) {
+                    return $temuan->rekomendasis->count();
+                });
+
+                $totalTindakLanjut = $l->temuans->sum(function ($temuan) {
+                    return $temuan->rekomendasis->sum(function ($rek) {
+                        return $rek->tindakLanjut->count();
+                    });
+                });
+
+                $progress = $totalRekomendasi > 0
+                    ? round(($totalTindakLanjut / $totalRekomendasi) * 100)
+                    : 0;
+
+            @endphp
+
+            <tr>
+
+                {{-- No --}}
+                <td>
+                    {{ $loop->iteration }}
+                </td>
+
+
+                {{-- Jenis Laporan --}}
+                <td>
+
+                    @switch($l->jenis_laporan)
+
+                        @case('LHP')
+                            <span class="badge bg-primary">LHP</span>
+                        @break
+
+                        @case('LHA')
+                            <span class="badge bg-success">LHA</span>
+                        @break
+
+                        @case('LHE')
+                            <span class="badge bg-warning text-dark">LHE</span>
+                        @break
+
+                        @case('LHR')
+                            <span class="badge bg-danger">LHR</span>
+                        @break
+
+                        @default
+                            <span class="badge bg-secondary">
+                                {{ $l->jenis_laporan }}
+                            </span>
+
+                    @endswitch
+
+                </td>
+
+
+                {{-- Nomor Laporan --}}
+                <td>
+
+                    <strong>
+                        {{ $l->nomor_lhp }}
+                    </strong>
+
+                    <br>
+
+                    <small class="text-muted">
+                        {{ \Carbon\Carbon::parse($l->tanggal_lhp)->format('d-m-Y') }}
+                    </small>
+
+
+                    {{-- =====================================================
+                        DATA TAMBAHAN UNTUK SEARCH DATATABLES
+                        Tidak menambah kolom baru
+                    ====================================================== --}}
+                    <span class="visually-hidden">
+
+                        {{-- Nama pejabat/PNS --}}
+                        @foreach ($l->pejabatAuditees as $item)
+
+                            {{ $item->pejabatAuditee->nama ?? '' }}
+
+                            {{ $item->pejabatAuditee->jenis_jabatan ?? '' }}
+
+                        @endforeach
+
+
+                        {{-- Nama perusahaan/pihak ketiga --}}
+                        @foreach ($l->pihakKetigas as $item)
+
+                            {{ $item->nama_perusahaan ?? '' }}
+
+                        @endforeach
+
+                    </span>
+
+                </td>
+
+
+                {{-- Instansi Pemeriksa --}}
+                @if ($jenis == 'eksternal')
+
+                    <td>
+
+                        @switch($l->instansi_pemeriksa)
+
+                            @case('Itprov')
+                                <span class="badge bg-success">
+                                    Inspektorat Provinsi
+                                </span>
+                            @break
+
+                            @case('BPK RI')
+                                <span class="badge bg-danger">
+                                    Badan Pemeriksa Keuangan Republik Indonesia
+                                </span>
+                            @break
+
+                            @case('BPKP')
+                                <span class="badge bg-dark">
+                                    Badan Pengawasan Keuangan dan Pembangunan
+                                </span>
+                            @break
+
+                            @default
+                                <span class="badge bg-secondary">
+                                    {{ $l->instansi_pemeriksa ?? '-' }}
+                                </span>
+
+                        @endswitch
+
+                    </td>
+
+                @endif
+
+
+                {{-- Irban --}}
+                <td>
+
+                    {{ $l->irban->nama_irban ?? '-' }}
+
+                </td>
+
+
+                {{-- Auditee --}}
+                @if ($jenis == 'internal')
+
+                    <td>
+
+                        {{ $l->auditee->nama_dinas ?? '-' }}
+
+                    </td>
+
+                @endif
+
+
+                {{-- Objek Pemeriksaan --}}
+                <td>
+
+                    @if ($l->objekPemeriksaans->count())
+
+                        <ol class="mb-0 ps-3">
+
+                            @foreach ($l->objekPemeriksaans as $objek)
+
+                                <li>
+                                    {{ $objek->nama_objek }}
+                                </li>
+
+                            @endforeach
+
+                        </ol>
+
+                    @else
+
+                        -
+
+                    @endif
+
+                </td>
+
+
+                {{-- Temuan --}}
+                <td>
+
+                    @if ($totalTemuan == 0)
+
+                        @if ($l->status_proses == 'nihil')
+
+                            <span class="badge bg-info">
+                                Nihil
+                            </span>
+
+                        @else
+
+                            <span class="badge bg-secondary">
+                                Belum Ada Temuan
+                            </span>
+
+                        @endif
+
+                    @else
+
+                        <span class="badge bg-danger">
+                            {{ $totalTemuan }} Temuan
+                        </span>
+
+                    @endif
+
+                </td>
+
+
+                {{-- Rekomendasi --}}
+                <td>
+
+                    <span class="badge bg-primary">
+
+                        <i class="bi bi-list-check"></i>
+
+                        {{ $totalRekomendasi }}
+
+                    </span>
+
+                </td>
+
+
+                {{-- Progress --}}
+                <td width="15%">
+
+                    @if ($totalRekomendasi > 0)
+
+                        <small>
+
+                            {{ $l->totalSelesai }}
+
+                            /
+
+                            {{ $l->totalRekomendasi }}
+
+                            Selesai
+
+                        </small>
+
+                        <div class="progress mb-2" style="height:8px">
+
+                            <div class="progress-bar"
+                                style="width: {{ $l->progress }}%">
+                            </div>
+
+                        </div>
+
+                    @else
+
+                        <span class="text-muted">
+                            Tidak ada rekomendasi
+                        </span>
+
+                    @endif
+
+                </td>
+
+
+                {{-- Status --}}
+                <td>
+
+                    @if ($l->status_proses == 'tt')
+
+                        <span class="badge bg-info">
+                            Tidak Dapat Ditindaklanjuti
+                        </span>
+
+                    @elseif($l->status_proses == 'belum_ditindaklanjuti')
+
+                        <span class="badge bg-secondary">
+                            Belum Ditindaklanjuti
+                        </span>
+
+                    @elseif($l->status_proses == 'dalam_proses')
+
+                        <span class="badge bg-warning">
+                            Dalam Proses
+                        </span>
+
+                    @elseif($l->status_proses == 'selesai')
+
+                        <span class="badge bg-success">
+                            Selesai
+                        </span>
+
+                    @else
+
+                        <span class="badge bg-secondary">
+                            -
+                        </span>
+
+                    @endif
+
+                </td>
+
+
+                {{-- Aksi --}}
+                <td class="wrap-text">
+
+                    <div class="d-flex gap-1">
+
+                        <a href="{{ route('lhp.show', $l->id) }}"
+                            class="btn btn-primary btn-sm">
+
+                            <i class="bi bi-eye"></i>
+                            Detail
+
+                        </a>
+
+
+                        @auth
+
+                            @if (auth()->user()->role == 'super_user')
+
+                                <a href="{{ route('lhp.edit', $l->id) }}"
+                                    class="btn btn-warning btn-sm">
+
+                                    <i class="bi bi-pencil"></i>
+                                    Edit
+
+                                </a>
+
+
+                                <form action="{{ route('lhp.destroy', $l->id) }}"
+                                    method="POST">
+
+                                    @csrf
+                                    @method('DELETE')
+
+                                    <button type="submit"
+                                        class="btn btn-danger btn-sm"
+                                        onclick="return confirm('Hapus LHP?')">
+
+                                        <i class="bi bi-trash"></i>
+                                        Hapus
+
+                                    </button>
+
+                                </form>
+
                             @endif
 
-                            <th>Irban</th>
-                            @if ($jenis == 'internal')
-                                <th>Auditee</th>
-                            @endif
+                        @endauth
 
-                            <th>Objek Pemeriksaan</th>
+                    </div>
 
-                            <th>Temuan</th>
+                </td>
 
-                            <th>Rekomendasi</th>
+            </tr>
 
-                            <th>Progress</th>
+        @empty
 
-                            <th>Status</th>
+        @endforelse
 
-                            <th style="width:10px">Aksi</th>
+    </tbody>
 
-
-                        </tr>
-
-                    </thead>
-
-
-
-                    <tbody>
-
-
-                        @forelse($lhps as $l)
-                            @php
-
-                                $totalTemuan = $l->temuans->count();
-
-                                $totalRekomendasi = $l->temuans->sum(function ($temuan) {
-                                    return $temuan->rekomendasis->count();
-                                });
-
-                                $totalTindakLanjut = $l->temuans->sum(function ($temuan) {
-                                    return $temuan->rekomendasis->sum(function ($rek) {
-                                        return $rek->tindakLanjut->count();
-                                    });
-                                });
-
-                                $progress =
-                                    $totalRekomendasi > 0 ? round(($totalTindakLanjut / $totalRekomendasi) * 100) : 0;
-
-                            @endphp
-
-
-
-
-
-                            <tr>
-
-
-                                <td>
-                                    {{ $loop->iteration }}
-                                </td>
-
-                                <td>
-                                    @switch($l->jenis_laporan)
-                                        @case('LHP')
-                                            <span class="badge bg-primary">LHP</span>
-                                        @break
-
-                                        @case('LHA')
-                                            <span class="badge bg-success">LHA</span>
-                                        @break
-
-                                        @case('LHE')
-                                            <span class="badge bg-warning text-dark">LHE</span>
-                                        @break
-
-                                        @case('LHR')
-                                            <span class="badge bg-danger">LHR</span>
-                                        @break
-
-                                        @default
-                                            <span class="badge bg-secondary">
-                                                {{ $l->jenis_laporan }}
-                                            </span>
-                                    @endswitch
-                                </td>
-
-                                <td>
-
-                                    <strong>
-
-                                        {{ $l->nomor_lhp }}
-
-                                    </strong>
-
-                                    <br>
-
-                                    <small class="text-muted">
-
-                                        {{ \Carbon\Carbon::parse($l->tanggal_lhp)->format('d-m-Y') }}
-
-                                    </small>
-
-
-                                </td>
-
-                                @if ($jenis == 'eksternal')
-                                    <td>
-
-                                        @switch($l->instansi_pemeriksa)
-                                            @case('Itprov')
-                                                <span class="badge bg-success">
-                                                    Inspektorat Provinsi
-                                                </span>
-                                            @break
-
-                                            @case('BPK RI')
-                                                <span class="badge bg-danger">
-                                                    Badan Pemeriksa Keuangan Republik Indonesia
-                                                </span>
-                                            @break
-
-                                            @case('BPKP')
-                                                <span class="badge bg-dark">
-                                                    Badan Pengawasan Keuangan dan Pembangunan
-                                                </span>
-                                            @break
-                                        @endswitch
-
-                                    </td>
-                                @endif
-
-                                <td>
-
-                                    {{ $l->irban->nama_irban ?? '-' }}
-
-                                </td>
-
-                                @if ($jenis == 'internal')
-                                    <td>
-
-                                        {{ $l->auditee->nama_dinas ?? '-' }}
-
-                                    </td>
-                                @endif
-
-
-
-
-
-                                <td>
-
-                                    @if ($l->objekPemeriksaans->count())
-                                        <ol class="mb-0 ps-3">
-
-                                            @foreach ($l->objekPemeriksaans as $objek)
-                                                <li>
-                                                    {{ $objek->nama_objek }}
-                                                </li>
-                                            @endforeach
-
-                                        </ol>
-                                    @else
-                                        -
-                                    @endif
-
-                                </td>
-
-
-
-
-
-                                <td>
-
-                                    @if ($totalTemuan == 0)
-                                        @if ($l->status_proses == 'nihil')
-                                            <span class="badge bg-info">
-                                                Nihil
-                                            </span>
-                                        @else
-                                            <span class="badge bg-secondary">
-                                                Belum Ada Temuan
-                                            </span>
-                                        @endif
-                                    @else
-                                        <span class="badge bg-danger">
-
-                                            {{ $totalTemuan }} Temuan
-
-                                        </span>
-                                    @endif
-
-
-                                </td>
-
-
-
-
-
-                                <td>
-
-                                    <span class="badge bg-primary">
-
-                                        <i class="bi bi-list-check"></i>
-
-                                        {{ $totalRekomendasi }}
-
-                                    </span>
-
-
-                                </td>
-
-
-
-
-
-
-                                <td width="15%">
-
-                                    @if ($totalRekomendasi > 0)
-                                        <small>
-
-                                            {{ $l->totalSelesai }}
-                                            /
-                                            {{ $l->totalRekomendasi }}
-                                            Selesai
-
-                                        </small>
-
-                                        <div class="progress mb-2" style="height:8px">
-                                            <div class="progress-bar" style="width: {{ $l->progress }}%">
-                                            </div>
-                                        </div>
-                                    @else
-                                        <span class="text-muted">
-                                            Tidak ada rekomendasi
-                                        </span>
-                                    @endif
-
-
-                                </td>
-
-
-
-
-
-
-
-                                <td>
-
-
-                                    @if ($l->status_proses == 'tt')
-                                        <span class="badge bg-info">
-                                            Tidak Dapat Ditindaklanjuti
-                                        </span>
-                                    @elseif($l->status_proses == 'belum_ditindaklanjuti')
-                                        <span class="badge bg-secondary">
-                                            Belum Ditindaklanjuti
-                                        </span>
-                                    @elseif($l->status_proses == 'dalam_proses')
-                                        <span class="badge bg-warning">
-                                            Dalam Proses
-                                        </span>
-                                    @elseif($l->status_proses == 'selesai')
-                                        <span class="badge bg-success">
-                                            Selesai
-                                        </span>
-                                    @endif
-
-
-                                </td>
-
-
-
-
-
-
-
-                                <td class="wrap-text">
-
-
-                                    <div class="d-flex gap-1">
-
-
-
-                                        {{-- @if ($l->status_proses != 'selesai' && $l->totalSelesai == $l->totalRekomendasi && $l->totalRekomendasi > 0)
-                                            <form action="{{ route('lhp.selesai', $l->id) }}" method="POST"
-                                                onsubmit="return confirm('Selesaikan LHP ini?')">
-
-                                                @csrf
-                                                @method('PUT')
-
-
-                                                <button class="btn btn-sm btn-success">
-
-                                                    <i class="bi bi-check-circle"></i> Selesaikan Proses
-
-                                                </button>
-
-
-                                            </form>
-                                        @endif --}}
-
-
-                                        <a href="{{ route('lhp.show', $l->id) }}" class="btn btn-primary btn-sm">
-
-                                            <i class="bi bi-eye"></i> Detail
-
-                                        </a>
-
-                                        @auth
-                                            @if (auth()->user()->role == 'super_user')
-                                                {{-- @if ($l->status_proses == 'belum_ditindaklanjuti')
-                                                    <form action="{{ route('lhp.tetapkan-tt', $l->id) }}" method="POST"
-                                                        class="d-inline"
-                                                        onsubmit="return confirm('Tetapkan LHP ini sebagai Tidak Dapat Ditindaklanjuti?')">
-
-                                                        @csrf
-
-                                                        <button class="btn btn-sm btn-secondary">
-
-                                                            <i class="bi bi-x-circle"></i>
-
-                                                            Tidakdapat Ditindak Lanjuti
-
-                                                        </button>
-
-                                                    </form>
-                                                @endif --}}
-
-
-                                                <a href="{{ route('lhp.edit', $l->id) }}" class="btn btn-warning btn-sm">
-
-                                                    <i class="bi bi-pencil"></i>
-
-                                                    Edit
-
-                                                </a>
-
-
-
-
-                                                <form action="{{ route('lhp.destroy', $l->id) }}" method="POST">
-
-
-                                                    @csrf
-                                                    @method('DELETE')
-
-
-                                                    <button class="btn btn-danger btn-sm"
-                                                        onclick="return confirm('Hapus LHP?')">
-
-
-                                                        <i class="bi bi-trash"></i>
-                                                        Hapus
-
-                                                    </button>
-
-
-                                                </form>
-                                            @endif
-                                        @endauth
-
-
-
-                                    </div>
-
-
-                                </td>
-
-
-
-                            </tr>
-
-
-
-                            @empty
-                            @endforelse
-
-
-                        </tbody>
-
-
-                    </table>
-
-
-                </div>
+</table>
 
             </div>
 
