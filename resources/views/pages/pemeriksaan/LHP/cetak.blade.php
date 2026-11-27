@@ -151,7 +151,7 @@
                     Rekomendasi
                 </th>
 
-                <th width="10%">
+                <th width="15%">
                     Tindak Lanjut
                 </th>
 
@@ -159,11 +159,11 @@
                     Status
                 </th>
 
-                <th width="8%">
+                <th width="5%">
                     Nama Validator
                 </th>
 
-                <th width="8%">
+                <th width="5%">
                     Keterangan
                 </th>
 
@@ -446,30 +446,29 @@
     <br><br><br>
 
     <table style="width:100%; border:none;">
-
         <tr>
-            <td style="border:none; text-align:center;">
+            <td style="border:none;">
 
-                Ketapang, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}
+                <div style="width:50%; margin-left:auto; text-align:center;">
 
-                <br><br>
+                    Ketapang, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}
 
-                Inspektur Kabupaten Ketapang,
+                    <br><br>
 
-                <br><br><br><br><br><br>
+                    Inspektur Kabupaten Ketapang,
 
+                    <br><br><br><br><br><br>
 
-                <b>
-                    {{ $penandatangan->nama ?? '-' }}
-                </b>
+                    <b>{{ $penandatangan->nama ?? '-' }}</b>
 
-                <br>
+                    <br>
 
-                NIP. {{ $penandatangan->nip ?? '-' }}
+                    NIP. {{ $penandatangan->nip ?? '-' }}
+
+                </div>
 
             </td>
         </tr>
-
     </table>
 
 </body>
